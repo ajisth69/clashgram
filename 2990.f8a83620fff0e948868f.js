@@ -1,0 +1,2 @@
+(self.webpackChunkclashgram_t=self.webpackChunkclashgram_t||[]).push([[2990],{56797(n){n.exports=function(n){return{name:"Backus–Naur Form",contains:[{className:"attribute",begin:/</,end:/>/},{begin:/::=/,end:/$/,contains:[{begin:/</,end:/>/},n.C_LINE_COMMENT_MODE,n.C_BLOCK_COMMENT_MODE,n.APOS_STRING_MODE,n.QUOTE_STRING_MODE]}]}}}}]);
+//# sourceMappingURL=2990.f8a83620fff0e948868f.js.map

@@ -1,0 +1,2 @@
+(self.webpackChunkclashgram_t=self.webpackChunkclashgram_t||[]).push([[9141],{10164(n){n.exports=function(n){return{name:"VBScript in HTML",subLanguage:"xml",contains:[{begin:"<%",end:"%>",subLanguage:"vbscript"}]}}}}]);
+//# sourceMappingURL=9141.93bc471422a1dcc676da.js.map

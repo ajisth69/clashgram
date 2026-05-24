@@ -1,0 +1,2 @@
+(self.webpackChunkclashgram_t=self.webpackChunkclashgram_t||[]).push([[8233],{99040(t){t.exports=function(t){return{name:"Plain text",aliases:["text","txt"],disableAutodetect:!0}}}}]);
+//# sourceMappingURL=8233.42fbb0b3b124bd0e62ed.js.map

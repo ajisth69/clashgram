@@ -1,0 +1,2 @@
+(self.webpackChunkclashgram_t=self.webpackChunkclashgram_t||[]).push([[7612],{20283(a){a.exports=function(a){return{aliases:["pycon"],contains:[{className:"meta.prompt",starts:{end:/ |$/,starts:{end:"$",subLanguage:"python"}},variants:[{begin:/^>>>(?=[ ]|$)/},{begin:/^\.\.\.(?=[ ]|$)/}]}]}}}}]);
+//# sourceMappingURL=7612.1c5a0c36a6d2dd352175.js.map

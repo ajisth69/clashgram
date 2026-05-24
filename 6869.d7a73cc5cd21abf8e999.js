@@ -1,0 +1,2 @@
+(self.webpackChunkclashgram_t=self.webpackChunkclashgram_t||[]).push([[6869],{8340(a){a.exports=function(a){const e=a.COMMENT(/\(\*/,/\*\)/);return{name:"Extended Backus-Naur Form",illegal:/\S/,contains:[e,{className:"attribute",begin:/^[ ]*[a-zA-Z]+([\s_-]+[a-zA-Z]+)*/},{begin:/=/,end:/[.;]/,contains:[e,{className:"meta",begin:/\?.*\?/},{className:"string",variants:[a.APOS_STRING_MODE,a.QUOTE_STRING_MODE,{begin:"`",end:"`"}]}]}]}}}}]);
+//# sourceMappingURL=6869.d7a73cc5cd21abf8e999.js.map
