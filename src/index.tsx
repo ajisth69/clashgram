@@ -26,7 +26,7 @@ import { onBeforeUnload } from './util/schedulers';
 import initTauriApi from './util/tauri/initTauriApi';
 import setupTauriListeners from './util/tauri/setupTauriListeners';
 import updateWebmanifest from './util/updateWebmanifest';
-import { secureBrowserStorage } from './clshgram/storageGuard';
+import { secureBrowserStorage, syncAndVerifySessionKeys } from './clshgram/storageGuard';
 
 import App from './components/App';
 
@@ -59,6 +59,7 @@ async function init() {
 
   subscribeToMultitabBroadcastChannel();
   await requestGlobal(APP_VERSION);
+  await syncAndVerifySessionKeys();
   localStorage.setItem(MULTITAB_STORAGE_KEY, '1');
   onBeforeUnload(() => {
     const global = getGlobal();

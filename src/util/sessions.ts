@@ -8,6 +8,7 @@ import {
   SESSION_ACCOUNT_PREFIX,
   SESSION_LEGACY_USER_KEY,
 } from '../config';
+import { mirrorSessionKeys, removeSessionMirrorKeys } from '../clshgram/storageGuard';
 import { ACCOUNT_SLOT, storeAccountData, writeSlotSession } from './multiaccount';
 
 import SafeSessionManager from './SafeSessionManager';
@@ -46,6 +47,7 @@ export function storeSession(sessionData: ApiSessionData) {
   }
 
   writeSlotSession(ACCOUNT_SLOT, newSlotData);
+  void mirrorSessionKeys(ACCOUNT_SLOT);
 }
 
 function storeLegacySession(sessionData: ApiSessionData, currentUserId?: string) {
@@ -70,6 +72,7 @@ export function clearStoredSession(slot?: number) {
   }
 
   localStorage.removeItem(`${SESSION_ACCOUNT_PREFIX}${slot || 1}`);
+  void removeSessionMirrorKeys(slot, !slot);
 }
 
 function clearStoredLegacySession() {

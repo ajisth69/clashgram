@@ -7,6 +7,7 @@ import {
 } from '../global/index';
 import { INITIAL_GLOBAL_STATE } from '../global/initialState';
 import { updatePasscodeSettings } from '../global/reducers';
+import { syncAndVerifySessionKeys } from '../clshgram/storageGuard';
 import { cloneDeep } from './iteratees';
 import { clearStoredSession } from './sessions';
 
@@ -17,6 +18,7 @@ export async function initGlobal(force: boolean = false, prevGlobal?: GlobalStat
   }
 
   const initial = cloneDeep(INITIAL_GLOBAL_STATE);
+  await syncAndVerifySessionKeys();
   const cache = await loadCache(initial);
   let global = cache || initial;
   if (IS_MOCKED_CLIENT) global.auth.state = 'authorizationStateReady';

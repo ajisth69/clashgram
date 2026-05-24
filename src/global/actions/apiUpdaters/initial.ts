@@ -18,8 +18,9 @@ import { getAccountsInfo, getAccountSlotUrl } from '../../../util/multiaccount';
 import { oldSetLanguage } from '../../../util/oldLangProvider';
 import { clearWebTokenAuth } from '../../../util/routing';
 import { setServerTimeOffset } from '../../../util/serverTime';
-import { updateSessionUserId } from '../../../util/sessions';
+import { hasStoredSession, updateSessionUserId } from '../../../util/sessions';
 import { forceWebsync } from '../../../util/websync';
+import { syncAndVerifySessionKeys } from '../../../clshgram/storageGuard';
 import {
   addActionHandler, getActions, getGlobal, setGlobal,
 } from '../../index';
@@ -33,6 +34,12 @@ import { updateAuth } from '../../reducers/auth';
 import { updateTabState } from '../../reducers/tabs';
 import { selectTabState } from '../../selectors';
 import { selectSharedSettings } from '../../selectors/sharedState';
+
+const BROKEN_RECONNECT_BASE_DELAY = 1000;
+const BROKEN_RECONNECT_MAX_DELAY = 10000;
+
+let brokenReconnectTimer: ReturnType<typeof setTimeout> | undefined;
+let brokenReconnectAttempt = 0;
 
 addActionHandler('apiUpdate', (global, actions, update): ActionReturnType => {
   switch (update['@type']) {
@@ -258,6 +265,11 @@ function onUpdateConnectionState<T extends GlobalState>(
     return;
   }
 
+  if (connectionState === 'connectionStateReady') {
+    clearBrokenReconnectTimer();
+    brokenReconnectAttempt = 0;
+  }
+
   global = {
     ...global,
     connectionState,
@@ -275,8 +287,52 @@ function onUpdateConnectionState<T extends GlobalState>(
   }
 
   if (connectionState === 'connectionStateBroken') {
-    actions.signOut({ forceInitApi: true });
+    scheduleStorageSafeReconnect(actions);
   }
+}
+
+function scheduleStorageSafeReconnect(actions: RequiredGlobalActions) {
+  if (brokenReconnectTimer) {
+    return;
+  }
+
+  const delay = Math.min(
+    BROKEN_RECONNECT_BASE_DELAY * 2 ** brokenReconnectAttempt,
+    BROKEN_RECONNECT_MAX_DELAY,
+  );
+  brokenReconnectAttempt += 1;
+
+  brokenReconnectTimer = setTimeout(() => {
+    brokenReconnectTimer = undefined;
+    void reconnectWithoutClearingSession(actions);
+  }, delay);
+}
+
+async function reconnectWithoutClearingSession(actions: RequiredGlobalActions) {
+  const didRecover = await syncAndVerifySessionKeys().catch(() => false);
+  if (!didRecover && !hasStoredSession()) {
+    actions.signOut({ forceInitApi: true });
+    return;
+  }
+
+  let global = getGlobal();
+  global = {
+    ...global,
+    isSynced: false,
+    connectionState: 'connectionStateConnecting',
+  };
+  setGlobal(global);
+
+  actions.initApi();
+}
+
+function clearBrokenReconnectTimer() {
+  if (!brokenReconnectTimer) {
+    return;
+  }
+
+  clearTimeout(brokenReconnectTimer);
+  brokenReconnectTimer = undefined;
 }
 
 function onUpdateSession<T extends GlobalState>(global: T, actions: RequiredGlobalActions, update: ApiUpdateSession) {

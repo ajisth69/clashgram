@@ -8,6 +8,7 @@ import {
   MULTITAB_LOCALSTORAGE_KEY_PREFIX,
   SESSION_ACCOUNT_PREFIX,
 } from '../config';
+import { mirrorLocalStorageKeys } from '../clshgram/storageGuard';
 import { IS_MULTIACCOUNT_SUPPORTED } from './browser/globalEnvironment';
 
 const WORKER_NAME = typeof WorkerGlobalScope !== 'undefined' && globalThis.self instanceof WorkerGlobalScope
@@ -94,7 +95,9 @@ export function storeAccountData(slot: number | undefined, data: Partial<Session
 }
 
 export function writeSlotSession(slot: number | undefined, data: SharedSessionData) {
-  localStorage.setItem(`${SESSION_ACCOUNT_PREFIX}${slot || 1}`, JSON.stringify(data));
+  const sessionKey = `${SESSION_ACCOUNT_PREFIX}${slot || 1}`;
+  localStorage.setItem(sessionKey, JSON.stringify(data));
+  void mirrorLocalStorageKeys([sessionKey]);
 }
 
 export function getAccountSlotUrl(slot: number, forLogin?: boolean, isTest?: boolean) {

@@ -32,6 +32,7 @@ import { forceWebsync } from '../../../util/websync';
 import {
   callApi, callApiLocal, initApi, setShouldEnableDebugLog,
 } from '../../../api/gramjs';
+import { syncAndVerifySessionKeys } from '../../../clshgram/storageGuard';
 import { removeGlobalFromCache, removeSharedStateFromCache, serializeGlobal } from '../../cache';
 import {
   addActionHandler, getGlobal, setGlobal,
@@ -43,7 +44,7 @@ import { updateAuth } from '../../reducers/auth';
 import { selectSharedSettings } from '../../selectors/sharedState';
 import { destroySharedStatePort } from '../../shared/sharedStateConnector';
 
-addActionHandler('initApi', (global, actions): ActionReturnType => {
+addActionHandler('initApi', async (global, actions): Promise<void> => {
   const initialLocationHash = parseInitialLocationHash();
   const {
     shouldAllowHttpTransport,
@@ -61,6 +62,8 @@ addActionHandler('initApi', (global, actions): ActionReturnType => {
     .filter((info) => info.isTest === isTestServer)
     .map(({ userId }) => userId)
     .filter(Boolean);
+
+  await syncAndVerifySessionKeys(ACCOUNT_SLOT);
 
   void initApi(actions.apiUpdate, {
     userAgent: navigator.userAgent,
