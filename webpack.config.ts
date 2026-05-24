@@ -244,8 +244,8 @@ export default function createConfig(
         statsOptions: {
           context: __dirname,
         },
-        saveReportTo: path.resolve('./public/statoscope-report.html'),
-        saveStatsTo: path.resolve('./public/build-stats.json'),
+        saveReportTo: path.resolve('./statoscope-report.html'),
+        saveStatsTo: path.resolve('./build-stats.json'),
         normalizeStats: true,
         open: false,
         extensions: [new WebpackContextExtension()],
