@@ -11,7 +11,6 @@ import { IS_TOUCH_ENV } from '../../../util/browser/windowEnvironment';
 
 import useForumPanelRender from '../../../hooks/useForumPanelRender';
 import useLastCallback from '../../../hooks/useLastCallback';
-import useOldLang from '../../../hooks/useOldLang';
 
 import Transition from '../../ui/Transition';
 import NewChatButton from '../NewChatButton';
@@ -125,8 +124,6 @@ const LeftMain: FC<OwnProps> = ({
       }
     };
   }, [content]);
-
-  const lang = useOldLang();
 
   return (
     <div
