@@ -26,6 +26,7 @@ import { onBeforeUnload } from './util/schedulers';
 import initTauriApi from './util/tauri/initTauriApi';
 import setupTauriListeners from './util/tauri/setupTauriListeners';
 import updateWebmanifest from './util/updateWebmanifest';
+import { secureBrowserStorage } from './clshgram/storageGuard';
 
 import App from './components/App';
 
@@ -44,6 +45,8 @@ if (IS_TAURI) {
 init();
 
 async function init() {
+  await secureBrowserStorage();
+
   if (DEBUG) {
     // eslint-disable-next-line no-console
     console.log('>>> INIT');
