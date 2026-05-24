@@ -12,7 +12,9 @@ export const APP_NAME = process.env.APP_NAME || `Clashgram Web ${APP_CODE_NAME}`
 export const PRODUCTION_HOSTNAME = 'web.telegram.org';
 export const PRODUCTION_URL = 'https://web.telegram.org/a';
 export const WEB_VERSION_BASE = 'https://web.telegram.org/'; // Used to redirect to other versions
-export const BASE_URL = process.env.BASE_URL;
+export const BASE_URL = typeof window !== 'undefined'
+  ? (window.location.origin + window.location.pathname).replace(/\/?$/, '/')
+  : 'https://web.telegram.org/a/';
 export const ACCOUNT_QUERY = 'account';
 
 export const IS_MOCKED_CLIENT = process.env.APP_MOCKED_CLIENT === '1';

@@ -174,8 +174,8 @@ function createGramJsClient(session: CallbackSession, initialArgs: ApiInitialArg
 
   const nextClient = new ClashgramClient(
     session,
-    Number(process.env.CLASHGRAM_API_ID),
-    process.env.CLASHGRAM_API_HASH,
+    2496,
+    '8da85b0d5bfe62527e5b244c209159c3',
     safeSessionManager.enforceTransportOptions({
       deviceModel: navigator.userAgent || userAgent || DEFAULT_USER_AGENT,
       systemVersion: platform || DEFAULT_PLATFORM,
