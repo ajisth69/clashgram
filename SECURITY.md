@@ -13,7 +13,7 @@ We actively support and patch security vulnerabilities in the following versions
 
 We take the security of Clashgram seriously. If you find a security vulnerability, please do NOT create a public issue. Instead, report it privately to the maintainers.
 
-Please send an email to `reenayasho6393@gmail.com` with:
+Please send an email to `ajisth007@gmail.com` with:
 *   A detailed description of the vulnerability.
 *   Steps to reproduce the vulnerability (or a proof of concept).
 *   Any potential impact or side effects.
