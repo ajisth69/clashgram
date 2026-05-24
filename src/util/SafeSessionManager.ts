@@ -217,6 +217,10 @@ export default class SafeSessionManager {
       || /secure socket/i.test(text)
       || /\bssl\b/i.test(text)
       || /Cannot send requests while disconnected/i.test(text)
+      || /failed to fetch/i.test(text)
+      || /load failed/i.test(text)
+      || /connection refused/i.test(text)
+      || /dns_/i.test(text)
     );
   }
 

@@ -60,7 +60,7 @@ function storeLegacySession(sessionData: ApiSessionData, currentUserId?: string)
   }));
   localStorage.setItem('dc', String(mainDcId));
   Object.keys(keys).map(Number).forEach((dcId) => {
-    localStorage.setItem(`dc${dcId}_auth_key`, JSON.stringify(keys[dcId]));
+    localStorage.setItem(`dc${dcId}_auth_key`, keys[dcId]);
   });
 }
 
