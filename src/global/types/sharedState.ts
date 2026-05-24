@@ -45,4 +45,5 @@ export interface SharedSettings {
   clashgramWhisperTask?: 'transcribe' | 'translate';
   clashgramNativeGlass?: boolean;
   clashgramNativeGlassColorValue?: number;
+  clashgramNativeGlassOpacityValue?: number;
 }

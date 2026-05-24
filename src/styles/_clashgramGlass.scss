@@ -4,16 +4,8 @@
   --cg-glass-refraction: rgba(255, 255, 255, 0.08);
 
   #LeftColumn,
-  #LeftColumn-main,
-  #Settings,
   #RightColumn,
-  .chat-list,
-  .left-header,
   .MiddleHeader,
-  .RightHeader,
-  .settings-item,
-  .settings-item-simple,
-  .settings-credits-banner,
   .Modal .modal-dialog,
   .Menu.compact:not(.SymbolMenu):not(.AttachMenu--menu) > .bubble,
   .tg-structural-layer {
@@ -31,6 +23,82 @@
       0 4px 16px var(--cg-glass-shadow) !important;
   }
 
+  // Nested elements within LeftColumn, Settings, and RightColumn should be transparent to prevent stacking
+  #LeftColumn-main,
+  #Settings,
+  .Profile,
+  .ArchivedChats,
+  .LeftSearch,
+  .search-content,
+  .ForumPanel,
+  .chat-list,
+  .left-header,
+  .RightHeader,
+  .settings-content,
+  .settings-main-menu,
+  .custom-scroll,
+  .Transition,
+  .Transition_slide,
+  .profileInfo,
+  .ProfileInfo,
+  .sharedMedia,
+  #LeftColumn-main .ChatFolders-content,
+  #LeftColumn-main .ChatFolders,
+  #LeftColumn-main > .Transition,
+  #Settings > .Transition,
+  #RightColumn > .Transition {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .Island,
+  .sharedMediaIsland {
+    background: rgba(var(--color-text-rgb), 0.03) padding-box !important;
+    border: 1px solid rgba(var(--color-text-rgb), 0.06) !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .profileInfo,
+  .ProfileInfo {
+    --profile-info-bg: transparent !important;
+  }
+
+  .sharedMediaTabs {
+    --fade-mask-color: var(--cg-glass-bg) !important;
+  }
+
+  // Prevent transition wrappers from applying solid background colors during animations
+  [class*="Transition"] {
+    background: transparent !important;
+    background-color: transparent !important;
+  }
+
+  // Non-selected list items should be transparent to show the glass background
+  .ListItem:not(.selected) {
+    --background-color: transparent !important;
+
+    &:hover,
+    &.ListItem.has-menu-open,
+    &.focus {
+      --background-color: var(--color-chat-hover) !important;
+    }
+  }
+
+  .Chat:not(.selected):not(.selected-forum) {
+    --background-color: transparent !important;
+
+    &:hover,
+    &.ListItem.has-menu-open,
+    &.focus {
+      --background-color: var(--color-chat-hover) !important;
+    }
+  }
+
   .left-header,
   .MiddleHeader,
   .RightHeader {
@@ -45,11 +113,29 @@
 
   .settings-item,
   .settings-item-simple {
-    border-bottom-color: rgba(var(--color-text-rgb), 0.06) !important;
+    background: rgba(var(--color-text-rgb), 0.02) !important;
+    border-bottom: 1px solid rgba(var(--color-text-rgb), 0.06) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
   }
 
   .settings-credits-banner {
-    border-bottom-color: rgba(var(--color-text-rgb), 0.08) !important;
+    background: linear-gradient(180deg, rgba(var(--color-text-rgb), 0.04) 0%, rgba(var(--color-text-rgb), 0) 100%) !important;
+    border-bottom: 1px solid rgba(var(--color-text-rgb), 0.08) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+  }
+
+  .SearchInput {
+    background-color: rgba(var(--color-text-rgb), 0.06) !important;
+    input {
+      color: var(--color-text) !important;
+      &::placeholder {
+        color: var(--color-text-secondary) !important;
+      }
+    }
   }
 
   .Menu.compact:not(.SymbolMenu):not(.AttachMenu--menu) > .bubble,
@@ -57,14 +143,6 @@
     box-shadow:
       inset 0 0 0 1px var(--cg-glass-refraction),
       0 8px 24px rgba(0, 0, 0, 0.18) !important;
-  }
-
-  #LeftColumn-main .ChatFolders-content,
-  #LeftColumn-main .ChatFolders,
-  #LeftColumn-main > .Transition,
-  #Settings > .Transition,
-  #RightColumn > .Transition {
-    background-color: transparent !important;
   }
 
   .MessageList,
@@ -132,16 +210,8 @@
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .clashgram-native-glass {
     #LeftColumn,
-    #LeftColumn-main,
-    #Settings,
     #RightColumn,
-    .chat-list,
-    .left-header,
     .MiddleHeader,
-    .RightHeader,
-    .settings-item,
-    .settings-item-simple,
-    .settings-credits-banner,
     .Modal .modal-dialog,
     .Menu.compact:not(.SymbolMenu):not(.AttachMenu--menu) > .bubble,
     .tg-structural-layer {

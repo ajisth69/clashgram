@@ -228,7 +228,7 @@ addActionHandler('openChat', (global, actions, payload): ActionReturnType => {
     }
     const activeChatId = selectCurrentMessageList(global, tabId)?.chatId;
     if (activeChatId && String(activeChatId) !== String(id)) {
-      (window as any).clashgramUnlockedChatIds.clear();
+      (window as any).clashgramUnlockedChatIds.delete(String(activeChatId));
     }
 
     const lockedChats = JSON.parse(localStorage.getItem('clashgramLockedChatIds') || '[]');
@@ -2422,7 +2422,7 @@ addActionHandler('setActiveChatFolder', (global, actions, payload): ActionReturn
     }
     const currentFolder = selectTabState(global, tabId).activeChatFolder;
     if (currentFolder !== undefined && Number(currentFolder) !== Number(activeChatFolder)) {
-      (window as any).clashgramUnlockedFolderIds.clear();
+      (window as any).clashgramUnlockedFolderIds.delete(String(currentFolder));
     }
 
     const lockedFolders = JSON.parse(localStorage.getItem('clashgramLockedFolderIds') || '[]');

@@ -13,7 +13,7 @@ const Island = ({ ref, className, children, ...otherProps }: OwnProps) => {
   return (
     <div
       ref={ref}
-      className={buildClassName(styles.island, className)}
+      className={buildClassName(styles.island, 'Island', className)}
       {...otherProps}
     >
       {children}

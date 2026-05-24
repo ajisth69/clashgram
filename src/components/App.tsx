@@ -50,6 +50,7 @@ type StateProps = {
   actionMessageBg?: string;
   clashgramNativeGlass?: boolean;
   clashgramNativeGlassColorValue?: number;
+  clashgramNativeGlassOpacityValue?: number;
 };
 
 enum AppScreens {
@@ -74,6 +75,7 @@ const App = ({
   actionMessageBg,
   clashgramNativeGlass,
   clashgramNativeGlassColorValue,
+  clashgramNativeGlassOpacityValue,
 }: StateProps) => {
   const { isMobile } = useAppLayout();
   const isMobileOs = PLATFORM_ENV === 'iOS' || PLATFORM_ENV === 'Android';
@@ -243,8 +245,8 @@ const App = ({
   }, [actionMessageBg]);
 
   useLayoutEffect(() => {
-    applyClashgramGlassTheme(clashgramNativeGlass, clashgramNativeGlassColorValue);
-  }, [clashgramNativeGlass, clashgramNativeGlassColorValue]);
+    applyClashgramGlassTheme(clashgramNativeGlass, clashgramNativeGlassColorValue, clashgramNativeGlassOpacityValue);
+  }, [clashgramNativeGlass, clashgramNativeGlassColorValue, clashgramNativeGlassOpacityValue]);
 
   const getIsInBackgroundLocal = getIsInBackground;
   useSignalEffect(() => {
@@ -279,7 +281,7 @@ const App = ({
 export default withGlobal(
   (global): Complete<StateProps> => {
     const { state: authState, hasWebAuthTokenFailed, hasWebAuthTokenPasswordRequired } = global.auth;
-    const { clashgramNativeGlass, clashgramNativeGlassColorValue } = selectSharedSettings(global);
+    const { clashgramNativeGlass, clashgramNativeGlassColorValue, clashgramNativeGlassOpacityValue } = selectSharedSettings(global);
     return {
       authState,
       isScreenLocked: global.passcode?.isScreenLocked,
@@ -291,6 +293,7 @@ export default withGlobal(
       actionMessageBg: selectActionMessageBg(global),
       clashgramNativeGlass,
       clashgramNativeGlassColorValue,
+      clashgramNativeGlassOpacityValue,
     };
   },
 )(App);

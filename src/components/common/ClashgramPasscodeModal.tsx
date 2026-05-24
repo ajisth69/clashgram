@@ -50,6 +50,7 @@ function ClashgramPasscodeModal({
       setIsRecoveryMode(false);
       setIsLogoutConfirmMode(false);
       setIsRecoverySuccess(false);
+      inputRef.current?.focus();
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
@@ -213,6 +214,11 @@ function ClashgramPasscodeModal({
         onSubmit={handleSubmit}
         className={styles.container}
         onClick={(e) => {
+          if ((e.target as HTMLElement).tagName !== 'BUTTON') {
+            inputRef.current?.focus();
+          }
+        }}
+        onTouchStart={(e) => {
           if ((e.target as HTMLElement).tagName !== 'BUTTON') {
             inputRef.current?.focus();
           }

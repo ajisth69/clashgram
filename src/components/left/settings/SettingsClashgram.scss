@@ -163,3 +163,29 @@
     cursor: var(--custom-cursor, default);
   }
 }
+
+.clashgram-glass-swatch.opacity-swatch {
+  position: relative;
+  overflow: hidden;
+  background-image: conic-gradient(rgba(var(--color-text-rgb), 0.15) 0.25turn, transparent 0.25turn 0.5turn, rgba(var(--color-text-rgb), 0.15) 0.5turn 0.75turn, transparent 0.75turn);
+  background-size: 8px 8px;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--cg-preview-color);
+  }
+}
+
+.clashgram-glass-opacity-slider {
+  &::-webkit-slider-runnable-track {
+    background: linear-gradient(90deg, rgba(var(--color-text-rgb), 0.05) 0%, var(--cg-preview-color) 100%) !important;
+  }
+  &::-moz-range-track {
+    background: linear-gradient(90deg, rgba(var(--color-text-rgb), 0.05) 0%, var(--cg-preview-color) 100%) !important;
+  }
+}

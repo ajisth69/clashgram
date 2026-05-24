@@ -110,6 +110,7 @@ export const INITIAL_SHARED_STATE: SharedState = {
     clashgramWhisperTask: 'transcribe',
     clashgramNativeGlass: false,
     clashgramNativeGlassColorValue: 50,
+    clashgramNativeGlassOpacityValue: 40,
   },
   isInitial: true,
 };

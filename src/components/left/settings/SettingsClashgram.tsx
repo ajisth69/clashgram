@@ -11,6 +11,7 @@ import { selectSharedSettings } from '../../../global/selectors/sharedState';
 import {
   applyClashgramGlassTheme,
   DEFAULT_CLASHGRAM_GLASS_COLOR_VALUE,
+  DEFAULT_CLASHGRAM_GLASS_OPACITY_VALUE,
   getClashgramGlassColor,
   getClashgramGlassHex,
 } from '../../../util/clashgramGlass';
@@ -52,6 +53,7 @@ type StateProps = {
   clashgramWhisperTask?: 'transcribe' | 'translate';
   clashgramNativeGlass?: boolean;
   clashgramNativeGlassColorValue?: number;
+  clashgramNativeGlassOpacityValue?: number;
   unreadChatIds: string[];
 };
 
@@ -70,6 +72,7 @@ const SettingsClashgram = ({
   clashgramWhisperTask,
   clashgramNativeGlass,
   clashgramNativeGlassColorValue,
+  clashgramNativeGlassOpacityValue,
   unreadChatIds,
   onReset,
 }: OwnProps & StateProps) => {
@@ -77,6 +80,9 @@ const SettingsClashgram = ({
   const colorFrameRef = useRef<number>();
   const [renderingGlassColorValue, setRenderingGlassColorValue] = useState(
     clashgramNativeGlassColorValue ?? DEFAULT_CLASHGRAM_GLASS_COLOR_VALUE,
+  );
+  const [renderingGlassOpacityValue, setRenderingGlassOpacityValue] = useState(
+    clashgramNativeGlassOpacityValue ?? DEFAULT_CLASHGRAM_GLASS_OPACITY_VALUE,
   );
 
   useHistoryBack({
@@ -89,6 +95,10 @@ const SettingsClashgram = ({
   }, [clashgramNativeGlassColorValue]);
 
   useEffect(() => {
+    setRenderingGlassOpacityValue(clashgramNativeGlassOpacityValue ?? DEFAULT_CLASHGRAM_GLASS_OPACITY_VALUE);
+  }, [clashgramNativeGlassOpacityValue]);
+
+  useEffect(() => {
     return () => {
       if (colorFrameRef.current !== undefined) {
         cancelAnimationFrame(colorFrameRef.current);
@@ -97,7 +107,7 @@ const SettingsClashgram = ({
   }, []);
 
   const handleNativeGlassToggle = useLastCallback((isChecked: boolean) => {
-    applyClashgramGlassTheme(isChecked, renderingGlassColorValue);
+    applyClashgramGlassTheme(isChecked, renderingGlassColorValue, renderingGlassOpacityValue);
     setSharedSettingOption({ clashgramNativeGlass: isChecked });
   });
 
@@ -111,8 +121,23 @@ const SettingsClashgram = ({
 
     colorFrameRef.current = requestAnimationFrame(() => {
       colorFrameRef.current = undefined;
-      applyClashgramGlassTheme(Boolean(clashgramNativeGlass), value);
+      applyClashgramGlassTheme(Boolean(clashgramNativeGlass), value, renderingGlassOpacityValue);
       setSharedSettingOption({ clashgramNativeGlassColorValue: value });
+    });
+  });
+
+  const handleGlassOpacityChange = useLastCallback((event: ChangeEvent<HTMLInputElement>) => {
+    const value = Number(event.currentTarget.value);
+    setRenderingGlassOpacityValue(value);
+
+    if (colorFrameRef.current !== undefined) {
+      cancelAnimationFrame(colorFrameRef.current);
+    }
+
+    colorFrameRef.current = requestAnimationFrame(() => {
+      colorFrameRef.current = undefined;
+      applyClashgramGlassTheme(Boolean(clashgramNativeGlass), renderingGlassColorValue, value);
+      setSharedSettingOption({ clashgramNativeGlassOpacityValue: value });
     });
   });
 
@@ -156,11 +181,11 @@ const SettingsClashgram = ({
 
         <div
           className={`clashgram-glass-color-control${!clashgramNativeGlass ? ' disabled' : ''}`}
-          style={`--cg-preview-color: ${getClashgramGlassColor(renderingGlassColorValue)}`}
+          style={`--cg-preview-color: ${getClashgramGlassColor(renderingGlassColorValue, renderingGlassOpacityValue)}`}
         >
           <div className="clashgram-glass-color-row">
-            <span className="clashgram-glass-color-label">Glass Tint</span>
-            <span className="clashgram-glass-color-value">{getClashgramGlassHex(renderingGlassColorValue)}</span>
+            <span className="clashgram-glass-color-label">Glass Color</span>
+            <span className="clashgram-glass-color-value">Hue {Math.round(renderingGlassColorValue * 3.6)}°</span>
           </div>
           <div className="clashgram-glass-slider-row">
             <span className="clashgram-glass-swatch" />
@@ -172,8 +197,27 @@ const SettingsClashgram = ({
               step="1"
               value={renderingGlassColorValue}
               disabled={!clashgramNativeGlass}
-              aria-label="Glass tint"
+              aria-label="Glass color"
               onChange={handleGlassColorChange}
+            />
+          </div>
+
+          <div className="clashgram-glass-color-row" style="margin-top: 1.25rem;">
+            <span className="clashgram-glass-color-label">Transparency & Depth</span>
+            <span className="clashgram-glass-color-value">{renderingGlassOpacityValue}%</span>
+          </div>
+          <div className="clashgram-glass-slider-row">
+            <span className="clashgram-glass-swatch opacity-swatch" />
+            <input
+              className="clashgram-glass-slider clashgram-glass-opacity-slider"
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value={renderingGlassOpacityValue}
+              disabled={!clashgramNativeGlass}
+              aria-label="Glass transparency"
+              onChange={handleGlassOpacityChange}
             />
           </div>
         </div>
@@ -342,6 +386,7 @@ export default memo(withGlobal(
       clashgramWhisperTask,
       clashgramNativeGlass,
       clashgramNativeGlassColorValue,
+      clashgramNativeGlassOpacityValue,
     } = selectSharedSettings(global);
 
     const chatsById = global.chats.byId;
@@ -364,6 +409,7 @@ export default memo(withGlobal(
       clashgramWhisperTask,
       clashgramNativeGlass,
       clashgramNativeGlassColorValue,
+      clashgramNativeGlassOpacityValue,
       unreadChatIds,
     };
   },
