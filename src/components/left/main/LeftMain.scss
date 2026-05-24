@@ -1,0 +1,88 @@
+#LeftColumn-main {
+  position: relative;
+
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  height: 100%;
+
+  background: var(--color-background);
+
+  > .Transition {
+    overflow: hidden;
+    flex: 1;
+  }
+
+  .ChatFolders {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .tabs-placeholder {
+      height: 2.625rem;
+      /* stylelint-disable-next-line plugin/no-low-performance-animation-properties */
+      transition: height 150ms ease;
+
+      &:not(.open) {
+        height: 0;
+      }
+    }
+
+    &--tabs-sidebar-shown .chat-list {
+      padding-top: 0;
+    }
+
+    &-content {
+      position: relative;
+
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+
+      min-height: 0;
+
+      > .Transition {
+        overflow: hidden;
+        flex: 1;
+      }
+
+      &.with-tabs > .Transition {
+        margin-top: 2.5rem;
+      }
+
+      &.with-tabs .chat-list {
+        padding-top: 1.375rem;
+      }
+    }
+
+    > .Transition {
+      overflow: hidden;
+      flex: 1;
+    }
+  }
+
+  .RecentContacts,
+  .LeftSearch,
+  .search-content {
+    overflow-y: auto;
+    height: 100%;
+  }
+
+  .btn-update {
+    position: absolute;
+    z-index: var(--z-chat-float-button);
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+
+    margin: 0 auto;
+
+    white-space: nowrap;
+
+    &.opacity-transition {
+      transition: background-color 0.2s, color 0.2s, opacity 0.15s ease;
+    }
+  }
+}

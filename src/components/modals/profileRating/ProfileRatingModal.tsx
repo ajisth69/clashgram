@@ -1,0 +1,271 @@
+import { memo, useEffect, useMemo, useState } from '../../../lib/teact/teact';
+import { getActions, withGlobal } from '../../../global';
+
+import type { ApiStarsRating, ApiUser } from '../../../api/types';
+import type { TabState } from '../../../global/types';
+
+import { getPeerTitle } from '../../../global/helpers/peers';
+import { selectUser, selectUserFullInfo } from '../../../global/selectors';
+import buildClassName from '../../../util/buildClassName';
+import { formatShortDuration } from '../../../util/dates/oldDateFormat';
+import { NEXT_ARROW_REPLACEMENT } from '../../../util/localization/format';
+import { getServerTime } from '../../../util/serverTime';
+
+import useCurrentOrPrev from '../../../hooks/useCurrentOrPrev';
+import useLang from '../../../hooks/useLang';
+import useLastCallback from '../../../hooks/useLastCallback';
+
+import PremiumProgress, { type AnimationDirection } from '../../common/PremiumProgress';
+import Button from '../../ui/Button';
+import Transition from '../../ui/Transition';
+import TableAboutModal, { type TableAboutData } from '../common/TableAboutModal';
+
+import styles from './ProfileRatingModal.module.scss';
+
+export type OwnProps = {
+  modal: TabState['profileRatingModal'];
+};
+
+type StateProps = {
+  user?: ApiUser;
+  currentUserId?: string;
+  starsRating?: ApiStarsRating;
+  pendingRating?: ApiStarsRating;
+  pendingRatingDate?: number;
+};
+
+const ProfileRatingModal = ({
+  modal,
+  user,
+  currentUserId,
+  starsRating,
+  pendingRating,
+  pendingRatingDate,
+}: OwnProps & StateProps) => {
+  const {
+    closeProfileRatingModal,
+  } = getActions();
+  const lang = useLang();
+  const isOpen = Boolean(modal);
+  const renderingUser = useCurrentOrPrev(user);
+  const renderingStarsRating = useCurrentOrPrev(starsRating);
+  const renderingPendingRating = useCurrentOrPrev(pendingRating);
+  const renderingPendingRatingDate = useCurrentOrPrev(pendingRatingDate);
+  const [showFutureRating, setShowFutureRating] = useState(false);
+
+  const handleClose = useLastCallback(() => {
+    closeProfileRatingModal();
+  });
+
+  useEffect(() => {
+    if (!isOpen) {
+      setShowFutureRating(false);
+    }
+  }, [isOpen]);
+
+  const handleShowFuture = useLastCallback(() => {
+    setShowFutureRating(true);
+  });
+
+  const handleShowCurrent = useLastCallback(() => {
+    setShowFutureRating(false);
+  });
+
+  const renderBadge = (type: 'added' | 'deducted') => {
+    const isAdded = type === 'added';
+    const badgeText = isAdded ? lang('RatingBadgeAdded') : lang('RatingBadgeDeducted');
+    const badgeClass = isAdded ? styles.badgeAdded : styles.badgeDeducted;
+
+    return (
+      <span className={buildClassName(styles.badge, badgeClass)}>
+        {badgeText}
+      </span>
+    );
+  };
+
+  const header = useMemo(() => {
+    if (!renderingUser || !renderingStarsRating) return undefined;
+
+    const rating = showFutureRating && renderingPendingRating
+      ? renderingPendingRating : renderingStarsRating;
+    const currentStars = rating.stars;
+    const currentLevelStars = rating.currentLevelStars;
+    const nextLevelStars = rating.nextLevelStars;
+    const currentLevel = rating.level;
+    const nextLevel = currentLevel + 1;
+    const isNegative = currentLevel < 0;
+    const pendingLevel = !showFutureRating && renderingPendingRating
+      ? renderingPendingRating.level : renderingStarsRating.level;
+
+    let levelProgress;
+
+    if (!nextLevelStars) {
+      levelProgress = 1;
+    } else if (nextLevelStars > currentLevelStars) {
+      levelProgress = Math.max(0.03, (currentStars - currentLevelStars) / (nextLevelStars - currentLevelStars));
+    } else {
+      levelProgress = 1;
+    }
+
+    const progress = isNegative ? 0.5 : Math.max(0, Math.min(1, levelProgress));
+
+    const waitTime = renderingPendingRatingDate ? renderingPendingRatingDate - getServerTime() : 0;
+    const pendingPoints = renderingPendingRating ? renderingPendingRating.stars - renderingStarsRating.stars : 0;
+    const shouldShowPreview = renderingPendingRating && renderingPendingRatingDate;
+
+    const renderPreviewDescription = () => {
+      if (!shouldShowPreview) return undefined;
+
+      return (
+        <Transition
+          name="fade"
+          className={buildClassName(styles.descriptionPreview, isNegative && styles.negative)}
+          activeKey={showFutureRating ? 1 : 0}
+          shouldCleanup
+          shouldRestoreHeight
+        >
+          {showFutureRating ? (
+            <p>
+              {lang('DescriptionFutureRating', {
+                time: formatShortDuration(lang, waitTime),
+                points: Math.abs(pendingPoints),
+                link: (
+                  <span className={styles.backLink} onClick={handleShowCurrent}>
+                    {lang('LinkDescriptionRatingBack',
+                      undefined, { withNodes: true, specialReplacement: NEXT_ARROW_REPLACEMENT })}
+                  </span>
+                ),
+              }, {
+                pluralValue: Math.abs(pendingPoints),
+                withNodes: true,
+              })}
+            </p>
+          ) : (
+            <p>
+              {lang('DescriptionPendingRating', {
+                time: formatShortDuration(lang, waitTime),
+                points: Math.abs(pendingPoints),
+                link: (
+                  <span className={styles.previewLink} onClick={handleShowFuture}>
+                    {lang('LinkDescriptionRatingPreview',
+                      undefined, { withNodes: true, specialReplacement: NEXT_ARROW_REPLACEMENT })}
+                  </span>
+                ),
+              }, {
+                pluralValue: Math.abs(pendingPoints),
+                withNodes: true,
+              })}
+            </p>
+          )}
+        </Transition>
+      );
+    };
+
+    let animationDirection: AnimationDirection = 'none';
+    if (currentLevel >= 0 && pendingLevel >= 0 && currentLevel !== pendingLevel) {
+      animationDirection = currentLevel > pendingLevel ? 'forward' : 'backward';
+    }
+
+    if (currentLevel < 0 && pendingLevel < 0 && currentLevel !== pendingLevel) {
+      animationDirection = currentLevel < pendingLevel ? 'backward' : 'forward';
+    }
+
+    const userFallbackText = lang('ActionFallbackUser');
+
+    return (
+      <div className={styles.header}>
+        <PremiumProgress
+          leftText={isNegative ? undefined : lang('RatingLevel', { level: currentLevel })}
+          rightText={isNegative ? lang('RatingNegativeLevel') : lang('RatingLevel', { level: nextLevel })}
+          floatingBadgeIcon={isNegative ? 'warning' : 'crown-wear'}
+          floatingBadgeText={isNegative ? currentLevel.toString()
+            : `${lang.number(currentStars)} / ${lang.number(nextLevelStars || currentStars)}`}
+          progress={progress}
+          isPrimary={currentLevel >= 0}
+          isNegative={currentLevel < 0}
+          animationDirection={animationDirection}
+          className={buildClassName(styles.ratingProgress, shouldShowPreview && styles.withPreview)}
+        />
+        {renderPreviewDescription()}
+        <div className={styles.title}>
+          {lang('TitleRating')}
+        </div>
+        <p className={styles.description}>
+          {renderingUser?.id === currentUserId
+            ? lang('RatingYourReflectsActivity')
+            : lang('RatingReflectsActivity', { name: getPeerTitle(lang, renderingUser) || userFallbackText },
+              { withMarkdown: true, withNodes: true })}
+        </p>
+      </div>
+    );
+  }, [renderingUser, currentUserId, renderingStarsRating,
+    renderingPendingRating, renderingPendingRatingDate, showFutureRating,
+    lang, handleShowFuture, handleShowCurrent]);
+
+  const listItemData = [
+    ['closed-gift', lang('RatingGiftsFromClashgram'), (
+      <span>
+        {renderBadge('added')}
+        {lang('RatingGiftsFromClashgramDesc')}
+      </span>
+    )],
+    ['user-stars', lang('RatingGiftsAndPostsFromUsers'), (
+      <span>
+        {renderBadge('added')}
+        {lang('RatingGiftsAndPostsFromUsersDesc')}
+      </span>
+    )],
+    ['stars-refund', lang('RatingRefundsAndConversions'), (
+      <span>
+        {renderBadge('deducted')}
+        {lang('RatingRefundsAndConversionsDesc')}
+      </span>
+    )],
+  ] satisfies TableAboutData;
+
+  const footer = useMemo(() => {
+    return (
+      <div className={styles.footer}>
+        <Button
+          onClick={handleClose}
+          iconName="understood"
+          iconClassName={styles.understoodIcon}
+        >
+          {lang('ButtonUnderstood')}
+        </Button>
+      </div>
+    );
+  }, [lang, handleClose]);
+
+  return (
+    <TableAboutModal
+      contentClassName={styles.content}
+      isOpen={isOpen}
+      header={header}
+      listItemData={listItemData}
+      footer={footer}
+      onClose={handleClose}
+    />
+  );
+};
+
+export default memo(withGlobal<OwnProps>(
+  (global, { modal }): Complete<StateProps> => {
+    const currentUserId = global.currentUserId;
+    const user = modal?.userId ? selectUser(global, modal.userId) : undefined;
+    const userFullInfo = modal?.userId
+      ? selectUserFullInfo(global, modal.userId) : undefined;
+
+    const starsRating = userFullInfo?.starsRating;
+    const pendingRating = userFullInfo?.starsMyPendingRating;
+    const pendingRatingDate = userFullInfo?.starsMyPendingRatingDate;
+
+    return {
+      user,
+      currentUserId,
+      starsRating,
+      pendingRating,
+      pendingRatingDate,
+    };
+  },
+)(ProfileRatingModal));

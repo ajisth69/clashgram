@@ -1,0 +1,37 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 5rem;
+
+  &:not(:first-child) {
+    margin-left: 1rem;
+  }
+}
+
+.button {
+  color: #fff !important;
+  background-color: rgba(0, 0, 0, 0.1) !important;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+  }
+
+  &.active {
+    color: var(--color-text-secondary) !important;
+    background-color: #fff !important;
+
+    &:hover {
+      background-color: #ddd !important;
+    }
+  }
+}
+
+.button-text {
+  margin-top: 0.25rem;
+
+  font-size: 0.75rem;
+  color: #fff;
+  text-transform: lowercase;
+  white-space: nowrap;
+}

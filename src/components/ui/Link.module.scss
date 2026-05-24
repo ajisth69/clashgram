@@ -1,0 +1,15 @@
+.link {
+  color: inherit;
+
+  &:hover {
+    color: inherit;
+  }
+}
+
+.isPrimary {
+  color: var(--color-primary);
+
+  &:hover {
+    color: var(--color-primary);
+  }
+}

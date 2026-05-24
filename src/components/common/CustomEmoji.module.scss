@@ -1,0 +1,54 @@
+.root {
+  position: relative;
+
+  display: inline-flex;
+  flex: 0 0 var(--custom-emoji-size);
+  align-items: center;
+  justify-content: center;
+
+  width: var(--custom-emoji-size);
+  height: var(--custom-emoji-size);
+
+  vertical-align: text-bottom;
+
+  :global(.rlottie-canvas) {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
+
+.placeholder {
+  width: 85%;
+  height: 85%;
+  border-radius: 0.3125rem;
+  background-color: #77777719;
+}
+
+.thumb {
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+}
+
+.media {
+  user-select: none !important;
+  width: var(--custom-emoji-size) !important;
+  height: var(--custom-emoji-size) !important;
+}
+
+.root, .media, .thumb {
+  border-radius: var(--custom-emoji-border-radius) !important;
+}
+
+.highlight-catch {
+  user-select: auto !important;
+
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+}

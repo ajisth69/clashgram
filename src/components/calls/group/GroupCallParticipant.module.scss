@@ -1,0 +1,58 @@
+.root {
+  :global {
+    .ListItem-button {
+      --color-chat-hover: rgba(255, 255, 255, 0.04);
+
+      padding: 0.5rem;
+    }
+
+    .multiline-item {
+      align-self: center;
+    }
+
+    .title {
+      display: flex !important;
+
+      .fullName {
+        --emoji-size: 1rem;
+
+        font-size: 1rem;
+        font-weight: var(--font-weight-medium);
+      }
+    }
+  }
+}
+
+.subtitle {
+  display: flex !important;
+  gap: 0.375rem;
+  align-items: center;
+  font-size: 1rem !important;
+}
+
+.subtitleText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.icon {
+  margin-right: 0.25rem;
+  margin-left: auto;
+}
+
+.subtitleBlue {
+  --color-text-secondary: #4da6e0;
+}
+
+.subtitleRed {
+  --color-text-secondary: #ff706f;
+}
+
+.subtitleGreen {
+  --color-text-secondary: #57bc6c;
+}
+
+.avatar {
+  margin-right: 0.5rem;
+}

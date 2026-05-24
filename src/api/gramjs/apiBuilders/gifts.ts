@@ -1,0 +1,470 @@
+import { Api as GramJs } from '../../../lib/gramjs';
+
+import type {
+  ApiAuctionBidLevel,
+  ApiDisallowedGiftsSettings,
+  ApiInputSavedStarGift,
+  ApiSavedStarGift,
+  ApiStarGift,
+  ApiStarGiftAttribute,
+  ApiStarGiftAttributeCounter,
+  ApiStarGiftAttributeId,
+  ApiStarGiftAttributeRarity,
+  ApiStarGiftAuctionAcquiredGift,
+  ApiStarGiftAuctionState,
+  ApiStarGiftAuctionUserState,
+  ApiStarGiftCollection,
+  ApiStarGiftUpgradePreview,
+  ApiStarGiftUpgradePrice,
+  ApiTypeResaleStarGifts,
+  ApiTypeStarGiftAuctionState,
+} from '../../types';
+
+import { int2hex } from '../../../util/colors';
+import { toJSNumber } from '../../../util/numbers';
+import { buildApiChatFromPreview } from '../apiBuilders/chats';
+import { buildApiFormattedText } from './common';
+import { buildApiCurrencyAmount } from './payments';
+import { buildApiPeerId, getApiChatIdFromMtpPeer } from './peers';
+import { buildStickerFromDocument } from './symbols';
+import { buildApiUser } from './users';
+
+export function buildApiStarGift(starGift: GramJs.TypeStarGift): ApiStarGift {
+  if (starGift instanceof GramJs.StarGiftUnique) {
+    const {
+      id, num, ownerId, ownerName, title, attributes, availabilityIssued, availabilityTotal, slug, ownerAddress,
+      giftAddress, resellAmount, releasedBy, resaleTonOnly, requirePremium, valueCurrency, valueAmount, giftId,
+      valueUsdAmount, burned, crafted, craftChancePermille,
+    } = starGift;
+
+    return {
+      type: 'starGiftUnique',
+      id: id.toString(),
+      number: num,
+      ownerId: ownerId && getApiChatIdFromMtpPeer(ownerId),
+      ownerName,
+      ownerAddress,
+      attributes: attributes.map(buildApiStarGiftAttribute).filter(Boolean),
+      title,
+      totalCount: availabilityTotal,
+      issuedCount: availabilityIssued,
+      slug,
+      giftAddress,
+      resellPrice: resellAmount && resellAmount.map((amount) => buildApiCurrencyAmount(amount)).filter(Boolean),
+      releasedByPeerId: releasedBy && getApiChatIdFromMtpPeer(releasedBy),
+      requirePremium,
+      resaleTonOnly,
+      valueCurrency,
+      valueAmount: toJSNumber(valueAmount),
+      valueUsdAmount: toJSNumber(valueUsdAmount),
+      regularGiftId: giftId.toString(),
+      offerMinStars: starGift.offerMinStars,
+      isBurned: burned,
+      isCrafted: crafted,
+      craftChancePermille,
+    };
+  }
+
+  const {
+    id, limited, stars, availabilityRemains, availabilityTotal, convertStars, firstSaleDate, lastSaleDate, soldOut,
+    birthday, upgradeStars, resellMinStars, title, availabilityResale, releasedBy,
+    requirePremium, limitedPerUser, perUserTotal, perUserRemains, lockedUntilDate, auction, auctionSlug, giftsPerRound,
+    background,
+  } = starGift;
+
+  const sticker = buildStickerFromDocument(starGift.sticker)!;
+
+  return {
+    type: 'starGift',
+    id: id.toString(),
+    isLimited: limited,
+    sticker,
+    stars: toJSNumber(stars),
+    availabilityRemains,
+    availabilityTotal,
+    starsToConvert: toJSNumber(convertStars),
+    firstSaleDate,
+    lastSaleDate,
+    isSoldOut: soldOut,
+    isBirthday: birthday,
+    upgradeStars: upgradeStars !== undefined ? toJSNumber(upgradeStars) : undefined,
+    title,
+    resellMinStars: resellMinStars !== undefined ? toJSNumber(resellMinStars) : undefined,
+    releasedByPeerId: releasedBy && getApiChatIdFromMtpPeer(releasedBy),
+    availabilityResale: availabilityResale !== undefined ? toJSNumber(availabilityResale) : undefined,
+    requirePremium,
+    limitedPerUser,
+    perUserTotal,
+    perUserRemains,
+    lockedUntilDate,
+    isAuction: auction,
+    auctionSlug,
+    giftsPerRound,
+    background: background ? {
+      centerColor: int2hex(background.centerColor),
+      edgeColor: int2hex(background.edgeColor),
+      textColor: int2hex(background.textColor),
+    } : undefined,
+  };
+}
+
+function buildApiStarGiftAttributeRarity(rarity: GramJs.TypeStarGiftAttributeRarity): ApiStarGiftAttributeRarity {
+  if (rarity instanceof GramJs.StarGiftAttributeRarityUncommon) {
+    return { type: 'uncommon' };
+  }
+
+  if (rarity instanceof GramJs.StarGiftAttributeRarityRare) {
+    return { type: 'rare' };
+  }
+
+  if (rarity instanceof GramJs.StarGiftAttributeRarityEpic) {
+    return { type: 'epic' };
+  }
+
+  if (rarity instanceof GramJs.StarGiftAttributeRarityLegendary) {
+    return { type: 'legendary' };
+  }
+
+  return { type: 'regular', rarityPercent: rarity.permille / 10 };
+}
+
+export function buildApiStarGiftAttribute(attribute: GramJs.TypeStarGiftAttribute): ApiStarGiftAttribute | undefined {
+  if (attribute instanceof GramJs.StarGiftAttributeModel) {
+    const sticker = buildStickerFromDocument(attribute.document);
+    if (!sticker) {
+      return undefined;
+    }
+
+    return {
+      type: 'model',
+      name: attribute.name,
+      sticker,
+      rarity: buildApiStarGiftAttributeRarity(attribute.rarity),
+    };
+  }
+
+  if (attribute instanceof GramJs.StarGiftAttributePattern) {
+    const sticker = buildStickerFromDocument(attribute.document);
+    if (!sticker) {
+      return undefined;
+    }
+
+    return {
+      type: 'pattern',
+      name: attribute.name,
+      sticker,
+      rarity: buildApiStarGiftAttributeRarity(attribute.rarity),
+    };
+  }
+
+  if (attribute instanceof GramJs.StarGiftAttributeBackdrop) {
+    const {
+      name, rarity, centerColor, edgeColor, patternColor, textColor, backdropId,
+    } = attribute;
+
+    return {
+      type: 'backdrop',
+      backdropId,
+      name,
+      centerColor: int2hex(centerColor),
+      edgeColor: int2hex(edgeColor),
+      patternColor: int2hex(patternColor),
+      textColor: int2hex(textColor),
+      rarity: buildApiStarGiftAttributeRarity(rarity),
+    };
+  }
+
+  if (attribute instanceof GramJs.StarGiftAttributeOriginalDetails) {
+    const {
+      date, recipientId, message, senderId,
+    } = attribute;
+
+    return {
+      type: 'originalDetails',
+      date,
+      recipientId: recipientId && getApiChatIdFromMtpPeer(recipientId),
+      message: message && buildApiFormattedText(message),
+      senderId: senderId && getApiChatIdFromMtpPeer(senderId),
+    };
+  }
+
+  return undefined;
+}
+
+export function buildApiSavedStarGift(userStarGift: GramJs.SavedStarGift, peerId: string): ApiSavedStarGift {
+  const {
+    gift, date, convertStars, fromId, message, msgId, nameHidden, unsaved, refunded, upgradeStars, transferStars,
+    canUpgrade, savedId, canExportAt, pinnedToTop, canResellAt, canTransferAt, prepaidUpgradeHash,
+    dropOriginalDetailsStars, canCraftAt,
+  } = userStarGift;
+
+  const inputGift: ApiInputSavedStarGift | undefined = savedId && peerId
+    ? { type: 'chat', chatId: peerId, savedId: savedId.toString() }
+    : msgId ? { type: 'user', messageId: msgId } : undefined;
+
+  return {
+    gift: buildApiStarGift(gift),
+    date,
+    starsToConvert: toJSNumber(convertStars),
+    fromId: fromId && getApiChatIdFromMtpPeer(fromId),
+    message: message && buildApiFormattedText(message),
+    messageId: msgId,
+    isNameHidden: nameHidden,
+    isUnsaved: unsaved,
+    isRefunded: refunded,
+    canUpgrade,
+    alreadyPaidUpgradeStars: toJSNumber(upgradeStars),
+    transferStars: toJSNumber(transferStars),
+    inputGift,
+    savedId: savedId?.toString(),
+    canExportAt,
+    canResellAt,
+    canTransferAt,
+    isPinned: pinnedToTop,
+    dropOriginalDetailsStars: dropOriginalDetailsStars !== undefined ? toJSNumber(dropOriginalDetailsStars) : undefined,
+    prepaidUpgradeHash,
+    canCraftAt,
+  };
+}
+
+export function buildApiDisallowedGiftsSettings(
+  result: GramJs.TypeDisallowedGiftsSettings,
+): ApiDisallowedGiftsSettings {
+  const {
+    disallowUnlimitedStargifts,
+    disallowLimitedStargifts,
+    disallowUniqueStargifts,
+    disallowPremiumGifts,
+  } = result;
+
+  return {
+    shouldDisallowUnlimitedStarGifts: disallowUnlimitedStargifts,
+    shouldDisallowLimitedStarGifts: disallowLimitedStargifts,
+    shouldDisallowUniqueStarGifts: disallowUniqueStargifts,
+    shouldDisallowPremiumGifts: disallowPremiumGifts,
+  };
+}
+
+export function buildApiStarGiftAttributeId(
+  result: GramJs.TypeStarGiftAttributeId,
+): ApiStarGiftAttributeId | undefined {
+  if (result instanceof GramJs.StarGiftAttributeIdModel) {
+    return {
+      type: 'model',
+      documentId: result.documentId.toString(),
+    };
+  }
+
+  if (result instanceof GramJs.StarGiftAttributeIdPattern) {
+    return {
+      type: 'pattern',
+      documentId: result.documentId.toString(),
+    };
+  }
+
+  if (result instanceof GramJs.StarGiftAttributeIdBackdrop) {
+    return {
+      type: 'backdrop',
+      backdropId: result.backdropId,
+    };
+  }
+
+  return undefined;
+}
+
+export function buildApiStarGiftAttributeCounter(
+  result: GramJs.TypeStarGiftAttributeCounter,
+): ApiStarGiftAttributeCounter | undefined {
+  const {
+    count,
+  } = result;
+
+  const attribute = buildApiStarGiftAttributeId(result.attribute);
+  if (!attribute) return undefined;
+
+  return {
+    count,
+    attribute,
+  };
+}
+
+export function buildApiResaleGifts(
+  result: GramJs.payments.TypeResaleStarGifts,
+): ApiTypeResaleStarGifts {
+  const {
+    count,
+    nextOffset,
+    attributesHash,
+  } = result;
+
+  const gifts = result.gifts.map((g) => buildApiStarGift(g));
+  const attributes = result.attributes?.map((a) => buildApiStarGiftAttribute(a)).filter(Boolean);
+  const users = result.users.map((u) => buildApiUser(u)).filter(Boolean);
+  const chats = result.chats.map((c) => buildApiChatFromPreview(c)).filter(Boolean);
+  const counters = result.counters?.map((c) => buildApiStarGiftAttributeCounter(c)).filter(Boolean);
+
+  return {
+    count,
+    gifts,
+    nextOffset,
+    attributes,
+    attributesHash: attributesHash?.toString(),
+    chats,
+    counters,
+    users,
+  };
+}
+
+export function buildInputResaleGiftsAttributes(attributes: ApiStarGiftAttributeId[]):
+GramJs.TypeStarGiftAttributeId[] {
+  return attributes.map((attr) => {
+    switch (attr.type) {
+      case 'model':
+        return new GramJs.StarGiftAttributeIdModel({ documentId: BigInt(attr.documentId) });
+
+      case 'pattern':
+        return new GramJs.StarGiftAttributeIdPattern({ documentId: BigInt(attr.documentId) });
+
+      case 'backdrop':
+        return new GramJs.StarGiftAttributeIdBackdrop({ backdropId: attr.backdropId });
+
+      default: {
+        // Exhaustive check
+        const _exhaustive: never = attr;
+        return _exhaustive;
+      }
+    }
+  });
+}
+
+export function buildApiStarGiftCollection(collection: GramJs.StarGiftCollection): ApiStarGiftCollection | undefined {
+  if (!collection) return undefined;
+
+  const { collectionId, title, icon, giftsCount, hash } = collection;
+
+  return {
+    collectionId,
+    title,
+    icon: icon && buildStickerFromDocument(icon),
+    giftsCount,
+    hash: hash.toString(),
+  };
+}
+
+export function buildApiStarGiftUpgradePrice(price: GramJs.StarGiftUpgradePrice): ApiStarGiftUpgradePrice {
+  return {
+    date: price.date,
+    upgradeStars: toJSNumber(price.upgradeStars),
+  };
+}
+
+export function buildApiStarGiftUpgradePreview(
+  result: GramJs.payments.StarGiftUpgradePreview,
+): ApiStarGiftUpgradePreview {
+  return {
+    sampleAttributes: result.sampleAttributes.map(buildApiStarGiftAttribute).filter(Boolean),
+    prices: result.prices?.map(buildApiStarGiftUpgradePrice) || [],
+    nextPrices: result.nextPrices?.map(buildApiStarGiftUpgradePrice) || [],
+  };
+}
+
+export function buildApiAuctionBidLevel(bidLevel: GramJs.AuctionBidLevel): ApiAuctionBidLevel {
+  return {
+    pos: bidLevel.pos,
+    amount: toJSNumber(bidLevel.amount) ?? 0,
+    date: bidLevel.date,
+  };
+}
+
+export function buildApiTypeStarGiftAuctionState(
+  state: GramJs.TypeStarGiftAuctionState,
+): ApiTypeStarGiftAuctionState | undefined {
+  if (state instanceof GramJs.StarGiftAuctionStateNotModified) {
+    return undefined;
+  }
+
+  if (state instanceof GramJs.StarGiftAuctionStateFinished) {
+    const {
+      startDate, endDate, averagePrice, listedCount, fragmentListedCount, fragmentListedUrl,
+    } = state;
+
+    return {
+      type: 'finished',
+      startDate,
+      endDate,
+      averagePrice: toJSNumber(averagePrice),
+      listedCount,
+      fragmentListedCount,
+      fragmentListedUrl,
+    };
+  }
+
+  const {
+    version, startDate, endDate, minBidAmount, bidLevels, topBidders,
+    nextRoundAt, lastGiftNum, giftsLeft, currentRound, totalRounds,
+  } = state;
+
+  return {
+    type: 'active',
+    version,
+    startDate,
+    endDate,
+    minBidAmount: toJSNumber(minBidAmount),
+    bidLevels: bidLevels.map(buildApiAuctionBidLevel),
+    topBidders: topBidders.map((id) => buildApiPeerId(id, 'user')),
+    nextRoundAt,
+    lastGiftNum,
+    giftsLeft,
+    currentRound,
+    totalRounds,
+  };
+}
+
+export function buildApiStarGiftAuctionUserState(
+  userState: GramJs.StarGiftAuctionUserState,
+): ApiStarGiftAuctionUserState {
+  const {
+    returned, bidAmount, bidDate, minBidAmount, bidPeer, acquiredCount,
+  } = userState;
+
+  return {
+    isReturned: returned || undefined,
+    bidAmount: bidAmount !== undefined ? toJSNumber(bidAmount) : undefined,
+    bidDate,
+    minBidAmount: minBidAmount !== undefined ? toJSNumber(minBidAmount) : undefined,
+    bidPeerId: bidPeer && getApiChatIdFromMtpPeer(bidPeer),
+    acquiredCount,
+  };
+}
+
+export function buildApiStarGiftAuctionState(
+  result: GramJs.payments.StarGiftAuctionState | GramJs.StarGiftActiveAuctionState,
+): ApiStarGiftAuctionState | undefined {
+  const gift = buildApiStarGift(result.gift);
+  if (gift.type !== 'starGift') return undefined;
+
+  const state = buildApiTypeStarGiftAuctionState(result.state);
+  if (!state) return undefined;
+
+  return {
+    gift,
+    state,
+    userState: buildApiStarGiftAuctionUserState(result.userState),
+    timeout: 'timeout' in result ? result.timeout : undefined,
+  };
+}
+
+export function buildApiStarGiftAuctionAcquiredGift(
+  result: GramJs.StarGiftAuctionAcquiredGift,
+): ApiStarGiftAuctionAcquiredGift {
+  return {
+    peerId: getApiChatIdFromMtpPeer(result.peer),
+    date: result.date,
+    bidAmount: toJSNumber(result.bidAmount),
+    round: result.round,
+    position: result.pos,
+    message: result.message ? buildApiFormattedText(result.message) : undefined,
+    giftNumber: result.giftNum,
+    isNameHidden: result.nameHidden || undefined,
+  };
+}

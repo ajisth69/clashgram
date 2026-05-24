@@ -1,0 +1,135 @@
+.Menu {
+  &.fluid .bubble {
+    width: auto;
+    min-width: 13.5rem;
+  }
+
+  .backdrop {
+    position: fixed;
+    z-index: var(--z-menu-backdrop);
+    top: -100vh;
+    right: -100vw;
+    bottom: -100vh;
+    left: -100vw;
+  }
+
+  .bubble {
+    --offset-y: calc(100% + 0.5rem);
+    --offset-x: 0;
+    --animation-start-scale: 0.85;
+
+    position: absolute;
+    z-index: var(--z-menu-bubble);
+    transform: scale(var(--animation-start-scale));
+
+    overflow: hidden;
+    overscroll-behavior: contain;
+    display: block;
+
+    min-width: 13.5rem;
+    margin: 0;
+    padding: 0.5rem 0;
+    border-radius: var(--border-radius-default);
+
+    color: var(--color-text);
+    list-style: none;
+
+    background-color: var(--color-background);
+    box-shadow: 0 0.25rem 0.5rem 0.125rem var(--color-default-shadow);
+
+    transition: opacity 150ms cubic-bezier(0.2, 0, 0.2, 1), transform 150ms cubic-bezier(0.2, 0, 0.2, 1) !important;
+
+    &.open {
+      transform: scale(1);
+
+      .active-view-transition & {
+        view-transition-name: open-menu-bubble;
+      }
+    }
+
+    &.closing {
+      transition: opacity 0.2s ease-in, transform 0.2s ease-in !important;
+    }
+
+    &.close-fast {
+      transition-duration: 70ms !important;
+    }
+
+    body.no-context-menu-animations & {
+      --animation-start-scale: 1 !important;
+
+      transition: opacity 0.15s !important;
+    }
+
+    &.top {
+      top: var(--offset-y);
+    }
+
+    &.bottom {
+      bottom: var(--offset-y);
+    }
+
+    &.left {
+      left: var(--offset-x);
+    }
+
+    &.right {
+      right: var(--offset-x);
+    }
+
+    &.with-footer {
+      padding-bottom: 0;
+    }
+  }
+
+  body.has-open-dialog &:not(.with-menu-transitions) .bubble {
+    transition: none !important;
+  }
+
+  .footer {
+    padding: 0.25rem 0.5rem;
+
+    font-size: 0.75rem;
+    line-height: 1.25;
+    color: var(--color-text-secondary);
+    text-align: center;
+
+    background: var(--color-chat-hover);
+  }
+
+  &.compact {
+    .bubble {
+      padding: 0.25rem 0;
+      background: var(--color-background-compact-menu);
+      backdrop-filter: blur(10px);
+
+      body.no-menu-blur & {
+        background: var(--color-background);
+        backdrop-filter: none;
+      }
+    }
+
+    .footer {
+      background: none;
+    }
+
+    &.no-blur .bubble {
+      background: var(--color-background);
+    }
+  }
+
+  .menu-loading-row {
+    width: calc(100% - 2rem);
+    margin: 0.125rem 1rem;
+  }
+
+  &.in-portal {
+    position: absolute;
+    z-index: var(--z-portal-menu);
+  }
+}
+
+// Hacky way to fix z-index issues with overlays in View Transitions
+html::view-transition-group(open-menu-bubble) {
+  z-index: var(--z-portal-menu);
+}

@@ -1,0 +1,319 @@
+@use "../../../styles/mixins";
+
+.SymbolMenu {
+  &.attachment-modal-symbol-menu {
+    position: absolute;
+    z-index: var(--z-symbol-menu-modal);
+  }
+
+  &.mobile-menu {
+    position: fixed;
+    z-index: var(--z-symbol-menu-mobile);
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translate3d(0, calc(var(--symbol-menu-height)), 0);
+
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: 0;
+    padding-left: env(safe-area-inset-left);
+
+    background: var(--color-background);
+
+    transition: transform var(--layer-transition);
+
+    &.open:not(.in-attachment-modal) {
+      transform: translate3d(0, 0, 0);
+
+      body.is-media-viewer-open & {
+        transform: translate3d(0, calc(var(--symbol-menu-height)), 0);
+      }
+    }
+
+    &.open.in-attachment-modal {
+      z-index: calc(var(--z-modal) + 1);
+      transform: translate3d(0, calc(var(--symbol-menu-height)), 0);
+    }
+
+    body.no-page-transitions & {
+      transition: none;
+    }
+
+    &.left-column-open.in-middle-column {
+      transform: translate3d(100vw, 0, 0) !important;
+    }
+  }
+
+  &-main {
+    height: calc(var(--symbol-menu-height) - var(--symbol-menu-footer-height));
+    max-height: calc(100vh - var(--symbol-menu-footer-height));
+
+    @media (max-width: 600px) {
+      max-height: calc(100vh - var(--symbol-menu-footer-height) - env(safe-area-inset-bottom));
+    }
+  }
+
+  &-footer {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: var(--symbol-menu-footer-height);
+    /* stylelint-disable-next-line plugin/whole-pixel */
+    box-shadow: 0 -0.5px var(--color-borders-alternate);
+
+    .Button {
+      flex-shrink: 0;
+
+      width: 2.125rem !important;
+      height: 2.125rem;
+      margin: 0 0.25rem;
+      padding: 0;
+
+      &.activated {
+        pointer-events: none;
+        color: var(--color-text);
+      }
+
+      &.symbol-tab-button {
+        margin: 0 0.75rem;
+      }
+
+      &.symbol-search-button {
+        position: absolute;
+        left: 0.25rem;
+      }
+
+      &.symbol-delete-button {
+        position: absolute;
+        right: 0.25rem;
+      }
+    }
+  }
+
+  .Transition.slide {
+    height: 100%;
+
+    .Loading {
+      height: var(--symbol-menu-height);
+    }
+  }
+
+  .is-pointer-env & {
+    > .backdrop {
+      position: absolute;
+      top: -1rem;
+      right: auto;
+      left: 0;
+
+      width: 3.5rem;
+      height: 4.5rem;
+    }
+
+    &.attachment-modal-symbol-menu > .backdrop {
+      top: auto;
+      bottom: 0;
+    }
+  }
+
+  // TODO Remove this monster with context menu refactor
+  .Button.bot-menu:not(.open) ~ &,
+  .Button.bot-commands ~ &,
+  .Button.send-as-button ~ & {
+    .is-pointer-env & > .backdrop {
+      left: 3rem;
+      width: 3.25rem;
+    }
+  }
+
+  .Button.bot-menu.open ~ & {
+    .is-pointer-env & > .backdrop {
+      left: calc(var(--bot-menu-text-width, 0) + 3rem);
+    }
+  }
+
+  .bubble {
+    --offset-y: 3.5rem;
+
+    overflow: hidden;
+
+    width: calc(var(--symbol-menu-width) + var(--scrollbar-width));
+    padding: 0;
+    border-radius: 1.25rem;
+
+    transition-duration: 200ms !important;
+
+    body:not(.no-menu-blur) & {
+      background: var(--color-background-compact-menu);
+      backdrop-filter: blur(25px);
+    }
+  }
+
+  .StickerButton.custom-emoji, .sticker-set-cover {
+    color: var(--color-text);
+  }
+
+  .picker-disabled {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: var(--symbol-menu-height);
+
+    color: var(--color-text-secondary);
+  }
+
+  .symbol-close-button {
+    position: absolute;
+    top: max(0.25rem, env(safe-area-inset-top));
+    right: max(0.25rem, env(safe-area-inset-right));
+    display: none;
+  }
+
+  @media (orientation: landscape) {
+    .symbol-close-button {
+      display: block;
+    }
+  }
+}
+
+.symbol-set {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.75rem;
+
+  &-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: rgba(var(--color-text-secondary-rgb), 0.75);
+  }
+
+  &-title {
+    z-index: 1;
+
+    unicode-bidi: plaintext;
+    overflow: hidden;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+
+    margin: 0;
+    padding: 0 0.25rem 0.125rem;
+
+    font-size: 1rem;
+    font-weight: var(--font-weight-medium);
+    line-height: 1.6875rem;
+
+    &-external {
+      margin-right: 0.5rem;
+      color: var(--color-text);
+      text-align: start;
+    }
+  }
+
+  &-name {
+    overflow: hidden;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &-amount {
+    unicode-bidi: plaintext;
+
+    font-size: 0.875rem;
+    font-weight: normal;
+    color: rgba(var(--color-text-secondary-rgb), 0.75);
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  &-chat {
+    padding-inline: 0.25rem;
+    border-radius: 1rem;
+
+    color: var(--color-background);
+    white-space: nowrap;
+
+    background-color: var(--color-text-secondary);
+  }
+
+  &-add-button {
+    margin-bottom: 0.25rem;
+  }
+
+  &-remove {
+    cursor: var(--custom-cursor, pointer);
+
+    position: absolute;
+    right: 0;
+
+    padding: 0.25rem;
+    border-radius: 50%;
+
+    font-size: 1rem;
+
+    transition: background-color 0.15s;
+
+    &:active,
+    &:focus {
+      background-color: var(--color-interactive-element-hover);
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        background-color: var(--color-interactive-element-hover);
+      }
+    }
+  }
+
+  &-button {
+    flex-shrink: 0;
+
+    width: 2.125rem !important;
+    height: 2.125rem;
+    margin: 0 0.25rem;
+    padding: 0;
+  }
+
+  @include mixins.while-transition() {
+    overflow: hidden;
+  }
+}
+
+.effect-emojis.symbol-set-container {
+  --emoji-size: 2.25rem;
+}
+
+.symbol-set-container {
+  display: grid !important;
+  grid-auto-rows: var(--emoji-size, 4.5rem);
+  grid-template-columns: repeat(auto-fill, var(--emoji-size, 4.5rem));
+  row-gap: 0.25rem;
+  column-gap: var(--symbol-set-gap-size, 0.625rem);
+  justify-content: space-between;
+
+  text-align: initial;
+
+  &:not(.shown) {
+    display: block;
+  }
+
+  &.closing {
+    transition: none;
+  }
+
+  > .EmojiButton,
+  > .StickerButton,
+  > .gift-effect-wrapper > .StickerButton {
+    margin: 0;
+  }
+
+  @media (max-width: 600px) {
+    gap: 0.5rem;
+  }
+}

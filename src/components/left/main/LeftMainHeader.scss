@@ -1,0 +1,220 @@
+@use "../../../styles/mixins";
+
+#LeftMainHeader {
+  position: relative;
+
+  .main-menu {
+    width: 2.5rem;
+    /* stylelint-disable-next-line plugin/no-low-performance-animation-properties */
+    transition: width var(--layer-transition);
+  }
+
+  .DropdownMenuFiller {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .DropdownMenu.rtl {
+    position: absolute;
+    transition: var(--slide-transition) transform;
+
+    &.right-aligned {
+      transform:
+        translateX(
+          calc(
+            clamp(
+              var(--left-column-min-width),
+              var(--left-column-width),
+              var(--left-column-max-width)
+            ) - 4.375rem
+          )
+        );
+    }
+
+    &.disable-transition {
+      transition: none;
+    }
+  }
+
+  .animated-menu-icon {
+    position: absolute;
+
+    &::before,
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+    }
+
+    &::before {
+      top: -0.3125rem;
+    }
+
+    &::after {
+      top: 0.3125rem;
+    }
+
+    &,
+    &::before,
+    &::after {
+      transform: rotate(0);
+
+      width: 1.125rem;
+      height: 0.125rem;
+      border-radius: 0.125rem;
+
+      background-color: var(--color-text-secondary);
+
+      transition: transform 0.25s;
+    }
+
+    &.state-back {
+      transform: rotate(180deg);
+
+      &::before {
+        transform: rotate(45deg) scaleX(0.75) translate(0.375rem, -0.1875rem);
+      }
+
+      &::after {
+        transform: rotate(-45deg) scaleX(0.75) translate(0.375rem, 0.1875rem);
+      }
+    }
+
+    &.no-animation {
+      transition: none;
+
+      &::before,
+      &::after {
+        transition: none;
+      }
+    }
+  }
+
+  .hide-menu-button {
+    overflow: hidden;
+    width: 0;
+    visibility: hidden;
+    .animated-menu-icon {
+      &::before {
+        transform: rotate(45deg) scaleX(0.75) translate(0.375rem, -0.1875rem);
+      }
+
+      &::after {
+        transform: rotate(-45deg) scaleX(0.75) translate(0.375rem, 0.1875rem);
+      }
+    }
+  }
+
+  .forum-search-button {
+    margin-left: 0.75rem;
+  }
+
+  .SearchInput--no-left-margin {
+    margin-left: 0;
+  }
+
+  .MenuItem .Toggle {
+    margin-inline-start: auto;
+  }
+
+  .MenuItem.compact .Toggle {
+    transform: scale(0.75);
+    margin-inline-end: -0.125rem;
+  }
+
+  .MenuItem.compact .Switcher {
+    transform: scale(0.75);
+  }
+
+  .extra-spacing {
+    position: relative;
+    margin-left: 0.5rem;
+  }
+
+  .StatusButton {
+    .emoji-status-effect {
+      top: 50%;
+      left: 50%;
+    }
+
+    .emoji-status {
+      --custom-emoji-size: 1.5rem;
+
+      overflow: visible;
+      color: var(--color-primary);
+    }
+
+    .StarIcon {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+  }
+
+  // @optimization
+  @include mixins.while-transition() {
+    .Menu .bubble {
+      transition: none !important;
+    }
+  }
+
+  .SearchInput {
+    transition: opacity var(--layer-transition);
+
+    &--hidden {
+      pointer-events: none;
+      opacity: 0;
+    }
+  }
+
+  .left-search-picker-item {
+    padding-right: 0;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+
+    &[dir="rtl"] {
+      right: -0.125rem;
+      left: auto;
+    }
+  }
+}
+
+#LeftMainHeader,
+.Menu.main-menu.in-portal {
+  .account-menu-item {
+    --custom-emoji-size: 1rem;
+
+    &-test {
+      position: absolute;
+      z-index: 1;
+      bottom: 0.0625rem;
+      inset-inline-start: 2.875rem;
+
+      font-size: 0.5rem;
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-secondary);
+    }
+
+    .account-avatar {
+      margin-inline: 0.375rem 1.125rem;
+    }
+
+    .title {
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .fullName {
+      margin: 0;
+      padding-top: 0.1875rem;
+      font-size: 1em;
+      line-height: 1;
+    }
+  }
+}
+
+#LeftMainHeader .Menu.main-menu .bubble,
+.Menu.main-menu.in-portal .bubble {
+  overflow-y: auto;
+  max-width: 20rem;
+  max-height: calc(100 * var(--vh) - 3.75rem);
+}

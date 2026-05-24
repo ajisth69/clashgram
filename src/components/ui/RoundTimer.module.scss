@@ -1,0 +1,25 @@
+.root {
+  position: relative;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-toast-action);
+}
+
+.svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.circle {
+  fill: transparent;
+  stroke: var(--color-toast-action);
+  stroke-linecap: round;
+  stroke-width: 2;
+
+  transition: stroke-dashoffset 1s linear, stroke 0.2s;
+
+  @starting-style {
+    stroke-dashoffset: 0;
+  }
+}

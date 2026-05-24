@@ -1,0 +1,31 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.contentText {
+  color: var(--color-text-secondary);
+  text-align: center !important;
+  text-wrap: pretty;
+}
+
+.title {
+  margin-top: 1rem;
+  margin-bottom: 0;
+  font-size: 1.25rem;
+}
+
+.separator {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.userPicker {
+  flex-shrink: 0;
+  width: 100%;
+}
+
+.sendInvites, .avatarList {
+  margin-top: 1rem;
+}

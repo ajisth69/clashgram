@@ -1,0 +1,49 @@
+.root {
+  :global {
+    .modal-dialog {
+      max-width: 25rem;
+      height: 70%;
+
+      @media (max-width: 600px) {
+        height: 90%;
+      }
+    }
+
+    .modal-header {
+      padding: 0.25rem 0.5rem;
+    }
+
+    .modal-title.modal-title {
+      margin: 0.5rem 1.1875rem 0.5rem;
+    }
+
+    .modal-content {
+      padding: 0;
+    }
+
+    .multiline-item {
+      flex-grow: 1;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      line-height: 1.5rem;
+      color: var(--color-text-secondary);
+    }
+  }
+
+  :global(.sticker-set-cover), :global(.custom-emoji) {
+    --custom-emoji-size: 3rem;
+  }
+}
+
+.sets {
+  position: relative;
+
+  overflow-y: auto;
+
+  width: 100%;
+  padding: 0 0.5rem;
+
+  text-align: left;
+}

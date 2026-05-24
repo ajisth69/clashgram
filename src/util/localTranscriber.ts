@@ -1,0 +1,170 @@
+// @ts-nocheck
+let pipelineInstance: any = null;
+let loadedModelName: string | null = null;
+let transformersModule: any = null;
+
+async function loadTransformers(): Promise<any> {
+  if (transformersModule) {
+    return transformersModule;
+  }
+
+  // @ts-ignore
+  const module = await import(
+    /* webpackIgnore: true */ 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0/+esm'
+  );
+
+  if (!module || !module.pipeline) {
+    throw new Error('Failed to load Transformers library: pipeline not found in ESM module');
+  }
+
+  transformersModule = module;
+  
+  // Configure environment flags immediately after loading
+  const { env } = module;
+  env.allowLocalModels = false; // Prohibit local directory lookup
+  env.backends.onnx.wasm.numThreads = 1; // Stabilize in worker contexts
+
+  return module;
+}
+
+async function decodeAudio(arrayBuffer: ArrayBuffer): Promise<Float32Array> {
+  const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+  const audioContext = new AudioContextClass();
+  
+  let audioBuffer: AudioBuffer;
+  try {
+    audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+  } catch (err) {
+    console.error('Failed to decode audio data natively:', err);
+    throw err;
+  } finally {
+    void audioContext.close();
+  }
+
+  // Whisper models expect 16000Hz mono PCM audio
+  const offlineCtx = new OfflineAudioContext(
+    1,
+    Math.round(audioBuffer.duration * 16000),
+    16000
+  );
+
+  const bufferSource = offlineCtx.createBufferSource();
+  bufferSource.buffer = audioBuffer;
+  bufferSource.connect(offlineCtx.destination);
+  bufferSource.start();
+
+  const renderedBuffer = await offlineCtx.startRendering();
+  return renderedBuffer.getChannelData(0);
+}
+
+export async function isModelLoaded(): Promise<boolean> {
+  return pipelineInstance !== null;
+}
+
+export async function transcribeLocal(
+  audioBlob: Blob,
+  onProgress: (percent: number) => void,
+  onDownloadStart?: () => void,
+  modelName: 'tiny' | 'base' | 'small' = 'base',
+  task: 'transcribe' | 'translate' = 'transcribe',
+  signal?: AbortSignal
+): Promise<string> {
+  if (signal?.aborted) {
+    throw new DOMException('Aborted', 'AbortError');
+  }
+
+  const transformers = await loadTransformers();
+
+  if (signal?.aborted) {
+    throw new DOMException('Aborted', 'AbortError');
+  }
+
+  const fullModelName = `onnx-community/whisper-${modelName}`;
+  if (pipelineInstance && loadedModelName !== fullModelName) {
+    pipelineInstance = null;
+  }
+
+  if (!pipelineInstance) {
+    const activeDownloads: Record<string, { loaded: number; total: number }> = {};
+    let hasTriggeredDownloadStart = false;
+
+    const progressCallback = (data: any) => {
+      if (signal?.aborted) {
+        throw new DOMException('Aborted', 'AbortError');
+      }
+
+      if (data.status === 'progress' && data.file) {
+        if (!hasTriggeredDownloadStart && onDownloadStart) {
+          hasTriggeredDownloadStart = true;
+          onDownloadStart();
+        }
+
+        activeDownloads[data.file] = {
+          loaded: data.loaded || 0,
+          total: data.total || 0,
+        };
+
+        let totalBytes = 0;
+        let loadedBytes = 0;
+        for (const file in activeDownloads) {
+          totalBytes += activeDownloads[file].total;
+          loadedBytes += activeDownloads[file].loaded;
+        }
+
+        if (totalBytes > 0) {
+          const overallProgress = Math.min(Math.round((loadedBytes / totalBytes) * 100), 100);
+          onProgress(overallProgress);
+        }
+      }
+    };
+
+    try {
+      pipelineInstance = await transformers.pipeline('automatic-speech-recognition', fullModelName, {
+        device: 'webgpu',
+        progress_callback: progressCallback,
+      });
+    } catch (gpuErr) {
+      if (signal?.aborted) {
+        throw new DOMException('Aborted', 'AbortError');
+      }
+      console.warn('WebGPU failed or unsupported, falling back to CPU:', gpuErr);
+      pipelineInstance = await transformers.pipeline('automatic-speech-recognition', fullModelName, {
+        progress_callback: progressCallback,
+      });
+    }
+
+    if (signal?.aborted) {
+      pipelineInstance = null;
+      throw new DOMException('Aborted', 'AbortError');
+    }
+
+    loadedModelName = fullModelName;
+  }
+
+  if (signal?.aborted) {
+    throw new DOMException('Aborted', 'AbortError');
+  }
+
+  const arrayBuffer = await audioBlob.arrayBuffer();
+  if (signal?.aborted) {
+    throw new DOMException('Aborted', 'AbortError');
+  }
+
+  const pcmData = await decodeAudio(arrayBuffer);
+  if (signal?.aborted) {
+    throw new DOMException('Aborted', 'AbortError');
+  }
+
+  const result = await pipelineInstance(pcmData, {
+    chunk_length_s: 30,
+    stride_length_s: 5,
+    return_timestamps: false,
+    task: task,
+  });
+
+  if (signal?.aborted) {
+    throw new DOMException('Aborted', 'AbortError');
+  }
+
+  return result.text || '';
+}

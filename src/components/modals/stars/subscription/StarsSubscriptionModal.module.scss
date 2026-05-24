@@ -1,0 +1,81 @@
+@use '../../../../styles/mixins';
+
+.modal {
+  z-index: calc(var(--z-modal-low-priority) + 1);
+}
+
+.header {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: center;
+
+  margin-block: 1rem;
+}
+
+.title, .amount {
+  margin-bottom: 0;
+}
+
+.title {
+  margin-top: 1rem;
+
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.25;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.amount {
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.footer {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.starsBackground {
+  position: absolute;
+  z-index: -1;
+  top: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+
+  height: 7rem;
+}
+
+.subscriptionStar {
+  position: absolute;
+  z-index: 1;
+  right: 0;
+  bottom: 0;
+
+  font-size: 1.75rem;
+
+  @include mixins.filter-outline(1px, var(--color-background));
+}
+
+.secondary {
+  color: var(--color-text-secondary);
+}
+
+.danger {
+  color: var(--color-error);
+}
+
+.avatarWrapper {
+  position: relative;
+  z-index: 2;
+  transition: transform 0.25s ease-out;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}

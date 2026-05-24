@@ -1,0 +1,132 @@
+import type { ElementRef } from '../lib/teact/teact';
+import { useEffect } from '../lib/teact/teact';
+
+import { DEBUG } from '../config';
+import { requestMutation } from '../lib/fasterdom/fasterdom';
+import { applyStyles } from '../util/animation';
+import unloadVideo from '../util/browser/unloadVideo';
+import { IS_SAFARI } from '../util/browser/windowEnvironment';
+import { makeProgressiveLoader } from '../util/progressiveLoader';
+
+const VIDEO_REVEAL_DELAY = 100;
+
+export function useStreaming(videoRef: ElementRef<HTMLVideoElement>, url?: string, mimeType?: string) {
+  useEffect(() => {
+    if (!url || !videoRef.current) return undefined;
+    const MediaSourceClass = getMediaSource();
+    const video = videoRef.current;
+
+    if (!IS_SAFARI || !mimeType || !MediaSourceClass?.isTypeSupported(mimeType)) {
+      return undefined;
+    }
+    const mediaSource = new MediaSourceClass();
+
+    function revealVideo() {
+      requestMutation(() => {
+        video.style.display = 'block';
+        setTimeout(() => {
+          requestMutation(() => {
+            applyStyles(video, { opacity: '1' });
+          });
+        }, VIDEO_REVEAL_DELAY);
+      });
+    }
+
+    function onSourceOpen() {
+      if (!url || !mimeType) return;
+
+      const sourceBuffer = mediaSource.addSourceBuffer(mimeType);
+      const loader = makeProgressiveLoader(url);
+
+      function onUpdateEnded() {
+        loader.next()
+          .then(({
+            value,
+            done,
+          }) => {
+            if (mediaSource.readyState !== 'open') return;
+            if (done) {
+              endOfStream(mediaSource);
+              return;
+            }
+            appendBuffer(sourceBuffer, value);
+          });
+      }
+
+      // eslint-disable-next-line @eslint-react/web-api/no-leaked-event-listener
+      sourceBuffer.addEventListener('updateend', onUpdateEnded);
+
+      loader.next()
+        .then(({
+          value,
+          done,
+        }) => {
+          if (done || mediaSource.readyState !== 'open') return;
+          revealVideo();
+          appendBuffer(sourceBuffer, value);
+        });
+    }
+
+    mediaSource.addEventListener('sourceopen', onSourceOpen, { once: true });
+
+    requestMutation(() => {
+      applyStyles(video, {
+        display: 'none',
+        opacity: '0',
+      });
+      video.src = URL.createObjectURL(mediaSource);
+    });
+
+    return () => {
+      requestMutation(() => {
+        const src = video.src;
+        unloadVideo(video);
+        mediaSource.removeEventListener('sourceopen', onSourceOpen);
+        if (mediaSource.readyState === 'open') {
+          endOfStream(mediaSource);
+        }
+        URL.revokeObjectURL(src);
+      });
+    };
+  }, [mimeType, url, videoRef]);
+
+  return checkIfStreamingSupported(mimeType);
+}
+
+export function checkIfStreamingSupported(mimeType?: string) {
+  if (!IS_SAFARI || !mimeType) return false;
+  return Boolean(getMediaSource()?.isTypeSupported(mimeType));
+}
+
+function appendBuffer(sourceBuffer: SourceBuffer, buffer: ArrayBuffer) {
+  try {
+    sourceBuffer.appendBuffer(buffer);
+  } catch (error) {
+    if (DEBUG) {
+      // eslint-disable-next-line no-console
+      console.warn('[Stream] failed to append buffer', error);
+    }
+  }
+}
+
+function endOfStream(mediaSource: MediaSource) {
+  try {
+    mediaSource.endOfStream();
+  } catch (error) {
+    if (DEBUG) {
+      // eslint-disable-next-line no-console
+      console.warn('[Stream] failed to end stream', error);
+    }
+  }
+}
+
+function getMediaSource(): typeof MediaSource | undefined {
+  if ('ManagedMediaSource' in window) {
+    // @ts-ignore
+    return ManagedMediaSource;
+  }
+  if ('MediaSource' in window) {
+    return MediaSource;
+  }
+  return undefined;
+}

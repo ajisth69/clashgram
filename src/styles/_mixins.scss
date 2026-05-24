@@ -1,0 +1,271 @@
+// @optimization
+@mixin while-transition() {
+  .Transition_slide:not(.Transition_slide-active) & {
+    @content;
+  }
+}
+
+@mixin adapt-padding-to-scrollbar($padding, $forceSpace: 0px) {
+  padding-inline-end: calc(max($padding - var(--scrollbar-width), $forceSpace));
+}
+
+@mixin adapt-margin-to-scrollbar($margin, $forceSpace: 0px) {
+  margin-inline-end: calc(max($margin - var(--scrollbar-width), $forceSpace));
+}
+
+@mixin filter-outline($width: 0.125rem, $color) {
+  filter:
+    drop-shadow($width $width 0 $color)
+    drop-shadow((-$width) $width 0 $color)
+    drop-shadow($width (-$width) 0 $color)
+    drop-shadow((-$width) (-$width) 0 $color);
+}
+
+@mixin gradient-border-top($width, $cutout: 0px) {
+  mask-image: linear-gradient(transparent $cutout, black $width);
+}
+
+@mixin gradient-border-bottom($height, $cutout: 0px) {
+  mask-image: linear-gradient(to top, transparent $cutout, black $height);
+}
+
+@mixin gradient-border-horizontal($borderStart, $borderEnd) {
+  mask-image: linear-gradient(to right, transparent, black $borderStart, black calc(100% - $borderEnd), transparent);
+}
+
+@mixin gradient-border-left($indent, $cutout: 0px) {
+  mask-image: linear-gradient(to right, transparent $cutout, black $indent);
+}
+
+@mixin gradient-border-right($indent, $cutout: 0px) {
+  mask-image: linear-gradient(to left, transparent $cutout, black $indent);
+}
+
+@mixin gradient-border-top-bottom($top, $bottom) {
+  mask-image: linear-gradient(transparent 0%, black $top, black calc(100% - $bottom), transparent 100%);
+}
+
+@mixin peer-gradient($property, $colorCount) {
+  --_accent-color-rgb: var(--color-accent-own-rgb);
+
+  html.theme-dark {
+    --_accent-color-rgb: var(--color-text-rgb);
+  }
+
+  @if $colorCount == 2 {
+    #{$property}:
+      repeating-linear-gradient(
+        -45deg,
+        rgb(var(--_accent-color-rgb), 100%),
+        rgb(var(--_accent-color-rgb), 100%) 5px,
+        rgb(var(--_accent-color-rgb), 35%) 5px,
+        rgb(var(--_accent-color-rgb), 35%) 10px
+      );
+  }
+
+  @else {
+    #{$property}:
+      repeating-linear-gradient(
+        -45deg,
+        rgb(var(--_accent-color-rgb), 100%),
+        rgb(var(--_accent-color-rgb), 100%) 5px,
+        rgb(var(--_accent-color-rgb), 60%) 5px,
+        rgb(var(--_accent-color-rgb), 60%) 10px,
+        rgb(var(--_accent-color-rgb), 20%) 10px,
+        rgb(var(--_accent-color-rgb), 20%) 15px
+      );
+  }
+}
+
+@mixin reset-range() {
+  input[type="range"] {
+    display: block;
+
+    width: 100%;
+    margin-bottom: 0.5rem;
+
+    -webkit-appearance: none;
+    background: transparent;
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+    }
+
+    &::-moz-range-thumb {
+      -moz-appearance: none;
+    }
+
+    &::-webkit-slider-runnable-track {
+      cursor: var(--custom-cursor, pointer);
+    }
+
+    &::-moz-range-track, &::-moz-range-progress {
+      cursor: var(--custom-cursor, pointer);
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+@mixin middle-header-pane {
+  position: absolute;
+  top: 0;
+  transform: translateY(-100%);
+
+  width: 100%;
+  height: 2.875rem;
+  padding-top: 0.375rem;
+  padding-right: max(0.5rem, env(safe-area-inset-right));
+  padding-bottom: 0.375rem;
+  padding-left: max(0.75rem, env(safe-area-inset-left));
+
+  background-color: var(--color-background);
+
+  transition: transform var(--slide-transition);
+
+  &::before {
+    pointer-events: none;
+    content: "";
+
+    position: absolute;
+    top: -0.1875rem;
+    right: 0;
+    left: 0;
+
+    display: block;
+
+    height: 0.125rem;
+
+    box-shadow: 0 0.125rem 0.125rem var(--color-light-shadow);
+  }
+
+  // Some panels might unmount without animation, so we provide same background above panel to make it less noticeable
+  &::after {
+    content: "";
+
+    position: absolute;
+    z-index: -1;
+    top: -100%;
+    right: 0;
+    left: 0;
+
+    height: inherit;
+
+    background-color: inherit;
+  }
+}
+
+@mixin chat-list-pane {
+  position: absolute;
+  top: 0;
+  transform: translateY(calc(-100% - 0.5rem)); // Include top margin to hide fully
+
+  width: 100%;
+  padding: 0.5625rem;
+  border-radius: var(--border-radius-island);
+
+  background-color: var(--color-background);
+  box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.1);
+
+  transition: transform var(--chat-transform-transition);
+
+  // Some panels might unmount without animation, so we provide same background above panel to make it less noticeable
+  &::after {
+    content: "";
+
+    position: absolute;
+    z-index: -1;
+    top: -100%;
+    right: 0;
+    left: 0;
+
+    height: inherit;
+
+    background-color: inherit;
+  }
+
+  :global(html.theme-dark) & {
+    border: 1px solid var(--color-borders);
+    box-shadow: none;
+  }
+}
+
+@mixin side-panel-section {
+  border-bottom: 0.625rem solid var(--color-background-secondary);
+  background-color: var(--color-background);
+  box-shadow: inset 0 -0.0625rem 0 0 var(--color-background-secondary-accent);
+
+  &:last-child {
+    border-bottom: none;
+    box-shadow: none;
+  }
+}
+
+@mixin on-active-vt($type) {
+  :global {
+    .active-vt-#{$type} {
+      @content;
+    }
+  }
+}
+
+@mixin with-vt-type($type) {
+  :global(.active-vt-#{$type}) & {
+    view-transition-name: var(--_vtn);
+  }
+}
+
+@mixin chat-pattern-styles($path) {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  opacity: 0.4;
+  background-image: url($path);
+  background-repeat: repeat;
+  background-position: center;
+  background-size: 430px auto;
+  mix-blend-mode: soft-light;
+
+  :global(html.theme-dark) & {
+    opacity: 0.25;
+    background: linear-gradient(145deg, #4f5bd5 0%, #962fbf 35%, #dd6cb9 65%, #fec496 100%) !important;
+    background-image: none;
+    mix-blend-mode: unset;
+
+    mask-image: url($path);
+    mask-repeat: repeat;
+    mask-position: center;
+    mask-size: 430px auto;
+  }
+}
+
+@mixin chat-pattern-background($path) {
+  &::before {
+    @include chat-pattern-styles($path);
+  }
+}
+
+@mixin action-message-bg($isModule: false, $noBackground: false) {
+  @if not $noBackground {
+    background-color: var(--action-message-bg);
+  }
+
+  @if $isModule {
+    :global(body.with-message-blur) & {
+      backdrop-filter: blur(4px);
+    }
+  }
+
+  @else {
+    body.with-message-blur & {
+      backdrop-filter: blur(4px);
+    }
+  }
+}

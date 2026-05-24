@@ -1,0 +1,82 @@
+@use '../../../styles/mixins';
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.option {
+  --_background-color: var(--color-background-secondary);
+
+  cursor: var(--custom-cursor, pointer);
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  align-items: center;
+  justify-content: center;
+
+  padding: 1rem;
+  border-radius: 0.625rem;
+
+  background-color: var(--_background-color);
+
+  transition: background-color 0.25s ease-out;
+
+  &:hover {
+    --_background-color: var(--color-background-secondary-accent);
+  }
+}
+
+.active {
+  --_background-color: var(--color-background-secondary-accent);
+}
+
+.wideOption {
+  grid-column: 1 / -1;
+}
+
+.optionTop {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+}
+
+.stackedStars {
+  display: grid;
+  grid-auto-columns: 0.4375rem;
+  grid-auto-flow: column;
+  justify-items: end;
+}
+
+.stackedStar {
+  @include mixins.filter-outline(0.0625rem, var(--_background-color));
+
+  transition: filter 0.25s ease-out;
+}
+
+.optionBottom {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.moreOptions {
+  grid-column: 1/-1;
+}
+
+.iconDown {
+  margin-inline-start: 0.25rem;
+  font-size: 1.5rem;
+}
+
+@media (max-width: 450px) {
+  .optionTop {
+    font-size: 1rem;
+  }
+}

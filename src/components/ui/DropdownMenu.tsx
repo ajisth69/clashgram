@@ -1,0 +1,156 @@
+import type { FC } from '../../lib/teact/teact';
+import type React from '../../lib/teact/teact';
+import {
+  useCallback, useMemo, useRef, useState,
+} from '../../lib/teact/teact';
+
+import type { IAnchorPosition } from '../../types';
+
+import useLastCallback from '../../hooks/useLastCallback';
+
+import Button from './Button';
+import Menu from './Menu';
+
+import './DropdownMenu.scss';
+
+type OwnProps = {
+  className?: string;
+  bubbleClassName?: string;
+  trigger?: FC<{ onTrigger: () => void; isOpen?: boolean }>;
+  transformOriginX?: number;
+  transformOriginY?: number;
+  positionX?: 'left' | 'right';
+  positionY?: 'top' | 'bottom';
+  footer?: string;
+  forceOpen?: boolean;
+  withPortal?: boolean;
+  onOpen?: NoneToVoidFunction;
+  onClose?: NoneToVoidFunction;
+  onHide?: NoneToVoidFunction;
+  onTransitionEnd?: NoneToVoidFunction;
+  onMouseEnterBackdrop?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+  children: React.ReactNode;
+  autoClose?: boolean;
+};
+
+const DropdownMenu: FC<OwnProps> = ({
+  trigger,
+  className,
+  bubbleClassName,
+  children,
+  transformOriginX,
+  transformOriginY,
+  positionX = 'left',
+  positionY = 'top',
+  footer,
+  forceOpen,
+  withPortal,
+  onOpen,
+  onClose,
+  onTransitionEnd,
+  onMouseEnterBackdrop,
+  onHide,
+  autoClose = true,
+}) => {
+  const menuRef = useRef<HTMLDivElement>();
+  const triggerRef = useRef<HTMLDivElement>();
+  const [isOpen, setIsOpen] = useState(false);
+  const [menuAnchor, setMenuAnchor] = useState<IAnchorPosition | undefined>();
+
+  const toggleIsOpen = () => {
+    if (!isOpen && withPortal && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setMenuAnchor({ x: rect.left, y: rect.bottom });
+    }
+
+    setIsOpen(!isOpen);
+
+    if (isOpen) {
+      onClose?.();
+    } else {
+      onOpen?.();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<any>) => {
+    const menu = menuRef.current;
+
+    if (!isOpen || e.keyCode !== 40 || !menu) {
+      return;
+    }
+
+    const focusedElement = document.activeElement;
+    const elementChildren = Array.from(menu.children);
+
+    if (!focusedElement || elementChildren.indexOf(focusedElement) === -1) {
+      (elementChildren[0] as HTMLElement).focus();
+    }
+  };
+
+  const handleClose = useCallback(() => {
+    setIsOpen(false);
+    onClose?.();
+  }, [onClose]);
+
+  const triggerComponent: FC<{ onTrigger: () => void; isOpen?: boolean }> = useMemo(() => {
+    if (trigger) return trigger;
+
+    return ({ onTrigger, isOpen: isMenuOpen }) => (
+      <Button
+        round
+        size="smaller"
+        color="translucent"
+        className={isMenuOpen ? 'active' : ''}
+        iconName="more"
+        onClick={onTrigger}
+        ariaLabel="More actions"
+      />
+    );
+  }, [trigger]);
+
+  const getTriggerElement = useLastCallback(() => triggerRef.current);
+  const getRootElement = useLastCallback(() => document.body);
+  const getMenuElement = useLastCallback(
+    () => menuRef.current?.querySelector('.bubble') as HTMLElement | undefined,
+  );
+  const getLayout = useLastCallback(() => ({ withPortal: true }));
+
+  return (
+    <div
+      ref={triggerRef}
+      className={`DropdownMenu ${className || ''}`}
+      onKeyDown={handleKeyDown}
+      onTransitionEnd={onTransitionEnd}
+    >
+      {triggerComponent({ onTrigger: toggleIsOpen, isOpen })}
+
+      <Menu
+        ref={menuRef}
+        isOpen={isOpen || Boolean(forceOpen)}
+        className={className || ''}
+        bubbleClassName={bubbleClassName || ''}
+        transformOriginX={transformOriginX}
+        transformOriginY={transformOriginY}
+        positionX={positionX}
+        positionY={positionY}
+        footer={footer}
+        autoClose={autoClose}
+        withPortal={withPortal}
+        onClose={handleClose}
+        onCloseAnimationEnd={onHide}
+        onMouseEnterBackdrop={onMouseEnterBackdrop}
+        {...(withPortal && menuAnchor ? {
+          anchor: menuAnchor,
+          getTriggerElement,
+          getRootElement,
+          getMenuElement,
+          getLayout,
+        } : undefined)}
+      >
+        {children}
+      </Menu>
+    </div>
+  );
+};
+
+export default DropdownMenu;

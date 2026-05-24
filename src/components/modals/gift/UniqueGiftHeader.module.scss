@@ -1,0 +1,134 @@
+.root {
+  --_height: 15rem;
+
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 0.25rem;
+  align-items: center;
+
+  width: 100%;
+  height: var(--_height);
+  margin-bottom: 0.5rem;
+  padding-bottom: 1rem;
+  border-radius: 0 0 0.625rem 0.625rem;
+
+  &.withManageButtons {
+    --_height: 19.25rem;
+
+    .sticker {
+      margin-top: 2.625rem;
+    }
+
+    :global {
+      canvas {
+        transform-origin: center 32%;
+      }
+    }
+  }
+
+  &.withBadge {
+    --_height: 17rem;
+  }
+
+  :global {
+    canvas {
+      transform-origin: center 45%;
+      transition: 250ms transform;
+    }
+  }
+}
+
+.subtitleBadge, .badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+
+  line-height: 0.875rem;
+
+  background-color: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(50px);
+}
+
+.subtitleBadge {
+  margin-top: 0.25rem;
+  padding: 0.75rem;
+  padding-block: 0.25rem;
+
+  line-height: 1rem;
+
+  transition: color 150ms ease-in, background-color 0.15s !important;
+
+  &:hover {
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.15);
+  }
+}
+
+.radialPattern {
+  position: absolute;
+  inset: -5%;
+}
+
+.amount {
+  margin-bottom: 0.125rem;
+
+  font-size: 1.125rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.325;
+  color: white;
+}
+
+.sticker {
+  margin-top: 2.875rem;
+}
+
+.transition {
+  position: absolute;
+  top: 0;
+  overflow: hidden;
+  height: calc(var(--_height) + 1rem); // Account for top modal padding
+}
+
+.transitionSlide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.title {
+  margin-top: auto;
+
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.75rem;
+  color: white;
+}
+
+.badge + .title {
+  margin-top: 0;
+}
+
+.subtitle {
+  font-size: 1rem;
+  line-height: 1.375rem;
+  color: var(--tinted-text-color);
+  text-align: center;
+  text-wrap: balance;
+
+  transition: color 150ms ease-in;
+}
+
+.title, .subtitle, .badge {
+  z-index: 1;
+  margin-bottom: 0;
+}
+
+.badge {
+  margin-top: auto;
+  padding: 0.25rem 0.75rem;
+
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-medium);
+  color: white;
+}

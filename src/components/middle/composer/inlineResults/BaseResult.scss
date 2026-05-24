@@ -1,0 +1,60 @@
+.BaseResult {
+  padding-bottom: 0.5rem;
+
+  .thumb {
+    overflow: hidden;
+    display: inline-flex;
+    flex: 0 0 3rem;
+    align-content: center;
+    justify-content: center;
+
+    width: 3rem;
+    height: 3rem;
+    margin-inline-end: 0.5rem;
+    border-radius: var(--border-radius-default-tiny);
+
+    font-size: 1.5rem;
+    line-height: 3rem;
+
+    &.with-text {
+      background-color: var(--color-background-secondary);
+    }
+
+    img:not(.emoji) {
+      width: 100%;
+      object-fit: cover;
+    }
+
+    img.emoji {
+      width: 1.5rem;
+      height: 1.5rem;
+      margin: 0.75rem 0 0;
+    }
+  }
+
+  .content-inner {
+    min-width: 0;
+  }
+
+  .title {
+    unicode-bidi: plaintext;
+    font-weight: var(--font-weight-medium);
+    text-align: left;
+  }
+
+  .description {
+    unicode-bidi: plaintext;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: normal;
+  }
+  &[dir="rtl"] .title,
+  &[dir="rtl"] .description {
+    text-align: right;
+  }
+}

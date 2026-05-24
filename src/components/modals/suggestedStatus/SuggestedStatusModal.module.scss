@@ -1,0 +1,20 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.topEmoji {
+  --custom-emoji-size: 6rem;
+}
+
+.description {
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.title {
+  font-size: 1.5rem;
+  text-align: center;
+}

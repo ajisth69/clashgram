@@ -1,0 +1,75 @@
+.description {
+  margin-bottom: 1rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.picker-wrapper {
+  overflow: auto;
+  max-height: 18rem;
+}
+
+.picker-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.picker-header-info {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.selection-toggle {
+  cursor: var(--custom-cursor, pointer);
+  color: var(--color-links);
+}
+
+.foldersWrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.folders {
+  position: relative;
+
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+
+  margin-bottom: 1rem;
+
+  &::after {
+    content: '';
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    background-image:
+      linear-gradient(
+        to right,
+        var(--color-background) 0%,
+        rgba(0, 0, 0, 0) 40%,
+        rgba(0, 0, 0, 0) 60%,
+        var(--color-background) 100%
+      );
+  }
+}
+
+.folder {
+  flex-grow: 0;
+}
+
+.button-text {
+  position: relative;
+}
+
+.button-badge {
+  position: absolute;
+  top: 50%;
+  right: -0.25rem;
+  transform: translate(100%, -50%);
+}
