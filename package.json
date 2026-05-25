@@ -1,7 +1,8 @@
 {
   "name": "clashgram-t",
   "version": "1.0.0",
-  "description": "",
+  "description": "Clashgram is an advanced, privacy-hardened client for Telegram featuring selective read receipts, client-side message retention, offline Whisper AI audio transcription, and a custom glassmorphism theme.",
+  "keywords": ["clashgram", "telegram-client", "privacy", "stealth-mode", "anti-delete", "whisper-ai", "glassmorphism", "secure-chat"],
   "author": "Alexander Zinchuk (alexander@zinchuk.com)",
   "license": "GPL-3.0-or-later",
   "type": "module",
