@@ -752,6 +752,12 @@ addActionHandler('editMessage', (global, actions, payload): ActionReturnType => 
 
       uploadProgressCallbacks.delete(currentMessageKey);
     }
+
+    // Counteract Telegram's server-side auto-online when ghost mode is active
+    global = getGlobal();
+    if (selectSharedSettings(global).clashgramGhostModeOnline) {
+      getActions().updateIsOnline({ isOnline: false });
+    }
   })();
 });
 
@@ -2324,6 +2330,12 @@ async function sendMessage<T extends GlobalState>(global: T, params: SendMessage
 
     uploadProgressCallbacks.delete(currentMessageKey);
   }
+
+  // Counteract Telegram's server-side auto-online when ghost mode is active
+  global = getGlobal();
+  if (selectSharedSettings(global).clashgramGhostModeOnline) {
+    getActions().updateIsOnline({ isOnline: false });
+  }
 }
 
 async function sendMessagesWithNotification<T extends GlobalState>(
@@ -2402,6 +2414,12 @@ addActionHandler('sendMessages', async (global, actions, payload): Promise<void>
     }
   }));
   if (sendParams.length > 0 && sendParams[0].messagePriceInStars) actions.loadStarStatus();
+
+  // Counteract Telegram's server-side auto-online when ghost mode is active
+  global = getGlobal();
+  if (selectSharedSettings(global).clashgramGhostModeOnline) {
+    actions.updateIsOnline({ isOnline: false });
+  }
 });
 
 addActionHandler('loadPinnedMessages', async (global, actions, payload): Promise<void> => {
