@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'android/**'
+      - '.github/workflows/android-release.yml'
+      - 'scratch/**'
+      - 'docs/**'
+      - 'README.md'
+      - '.gitignore'
 
 permissions:
   contents: write
