@@ -9,6 +9,7 @@
 @use "icons" as iconsMixins;
 @use "common";
 @use "clashgramGlass";
+@use "mobilePerformance";
 @use "print";
 
 html,
@@ -537,3 +538,18 @@ body:not(.is-ios) {
     animation-duration: 400ms;
   }
 }
+
+body.is-android,
+body.is-ios {
+  padding-top: env(safe-area-inset-top) !important;
+  padding-bottom: env(safe-area-inset-bottom) !important;
+  padding-left: env(safe-area-inset-left) !important;
+  padding-right: env(safe-area-inset-right) !important;
+  box-sizing: border-box !important;
+}
+
+body.is-android *,
+body.is-ios * {
+  box-sizing: border-box !important;
+}
+

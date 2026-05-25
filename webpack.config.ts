@@ -111,6 +111,7 @@ export default function createConfig(
       chunkFilename: '[id].[chunkhash].js',
       assetModuleFilename: '[name].[contenthash][ext]',
       path: path.resolve(__dirname, 'dist'),
+      publicPath: '',
       clean: true,
     },
 
