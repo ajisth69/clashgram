@@ -1,0 +1,120 @@
+/* ==========================================================================
+   Clashgram Premium Emoji Spoofing — Inline CSS Layer
+   Handles transparent message containers and dynamic emoji sizing
+   ========================================================================== */
+
+/* --- Parent container: strip fallback layout when spoofed assets present --- */
+.clashgram-message-content.has-spoofed-assets {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 2px;
+  max-width: 100%;
+  line-height: 1.3125;
+}
+
+/* --- Text segments inside spoofed-asset messages --- */
+.clashgram-message-content.has-spoofed-assets .spoofed-text-segment {
+  display: inline;
+  vertical-align: middle;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: inherit;
+}
+
+/* --- Isolated animation node container --- */
+.spoofed-animation-node {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+  contain: layout style;
+}
+
+.spoofed-animation-node canvas,
+.spoofed-animation-node video,
+.spoofed-animation-node img {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* --- Dynamic sizing: counts 1–5 get 34px --- */
+.emoji-count-1 .spoofed-animation-node,
+.emoji-count-2 .spoofed-animation-node,
+.emoji-count-3 .spoofed-animation-node,
+.emoji-count-4 .spoofed-animation-node,
+.emoji-count-5 .spoofed-animation-node {
+  width: 34px;
+  height: 34px;
+}
+
+/* --- Dynamic sizing: counts 6–8 get 26px --- */
+.emoji-count-6 .spoofed-animation-node,
+.emoji-count-7 .spoofed-animation-node,
+.emoji-count-8 .spoofed-animation-node {
+  width: 26px;
+  height: 26px;
+}
+
+/* --- Fallback for emoji-count-0 or unset (text-only, no spoofed assets) --- */
+.emoji-count-0 .spoofed-animation-node {
+  width: 20px;
+  height: 20px;
+}
+
+/* --- Standalone emoji-only (no text) gets larger sizing --- */
+.clashgram-message-content.has-spoofed-assets.spoofed-emoji-only .spoofed-animation-node {
+  width: 48px;
+  height: 48px;
+}
+
+.clashgram-message-content.has-spoofed-assets.spoofed-emoji-only.emoji-count-1 .spoofed-animation-node {
+  width: 112px;
+  height: 112px;
+}
+
+.clashgram-message-content.has-spoofed-assets.spoofed-emoji-only.emoji-count-2 .spoofed-animation-node {
+  width: 72px;
+  height: 72px;
+}
+
+.clashgram-message-content.has-spoofed-assets.spoofed-emoji-only.emoji-count-3 .spoofed-animation-node {
+  width: 56px;
+  height: 56px;
+}
+
+/* --- Prevent bubble background bleed on the wrapper --- */
+.message-content.has-spoofed-assets {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* --- Animation isolation: each node gets its own stacking context --- */
+.spoofed-animation-node > div {
+  isolation: isolate;
+  will-change: contents;
+}
+
+/* --- Thumb placeholder while loading --- */
+.spoofed-animation-node .spoofed-thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  animation: spoofed-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes spoofed-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
