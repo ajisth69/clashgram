@@ -1519,7 +1519,9 @@ export async function fetchMembers({
       filter = new GramJs.ChannelParticipantsSearch({ q: query });
       break;
     default:
-      filter = new GramJs.ChannelParticipantsRecent();
+      filter = chat.type === 'chatTypeChannel'
+        ? new GramJs.ChannelParticipantsSearch({ q: '' })
+        : new GramJs.ChannelParticipantsRecent();
       break;
   }
 
