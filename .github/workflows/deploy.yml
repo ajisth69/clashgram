@@ -1,0 +1,47 @@
+name: Deploy Clashgram to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'android/**'
+      - '.github/workflows/android-release.yml'
+      - 'scratch/**'
+      - 'docs/**'
+      - 'README.md'
+      - '.gitignore'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    concurrency: ci-${{ github.ref }}
+
+    steps:
+      - name: Checkout Repository 🛎️
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 🟢
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Dependencies 📦
+        run: npm install
+
+
+      - name: Build Production App 🏗️
+        env:
+          CLASHGRAM_API_ID: ${{ secrets.CLASHGRAM_API_ID || '2496' }}
+          CLASHGRAM_API_HASH: ${{ secrets.CLASHGRAM_API_HASH || '8da85b0d5bfe62527e5b244c209159c3' }}
+          APP_ENV: production
+        run: npm run build:production
+
+      - name: Deploy to GitHub Pages 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist
+          branch: gh-pages
