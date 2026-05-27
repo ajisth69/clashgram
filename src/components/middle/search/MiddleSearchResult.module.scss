@@ -1,0 +1,66 @@
+.root {
+  cursor: var(--custom-cursor, pointer);
+
+  display: flex;
+  gap: 0.75rem;
+
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.625rem;
+
+  font-size: 0.875rem;
+  color: var(--color-text);
+
+  outline: none;
+
+  :global {
+    .matching-text-highlight {
+      display: inline-block;
+
+      padding: 0 0.125rem;
+      border-radius: 0.25rem;
+
+      color: var(--color-text);
+
+      background: #cae3f7;
+
+      :global(.theme-dark) & {
+        --color-text: #000;
+      }
+    }
+  }
+
+  @media (hover: hover) {
+    &:hover,
+    &:focus-visible,
+    &.active {
+      background-color: var(--color-chat-hover);
+    }
+  }
+}
+
+.info {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.topRow {
+  display: flex;
+}
+
+.meta {
+  margin-inline-start: auto;
+  padding-inline-start: 0.5rem;
+}
+
+.subtitle {
+  position: relative;
+
+  overflow: hidden;
+
+  line-height: 1.25;
+  color: var(--color-text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

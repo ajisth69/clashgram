@@ -1,0 +1,122 @@
+.SearchInput {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  padding-inline-end: 0.1875rem;
+  border: 2px solid var(--color-chat-hover);
+  border-radius: 1.375rem;
+
+  color: rgba(var(--color-text-secondary-rgb), 0.5);
+
+  background-color: var(--color-chat-hover);
+
+  transition: border-color 0.15s ease;
+
+  &.with-picker-item {
+    display: flex;
+
+    .icon-container-left {
+      display: none;
+    }
+
+    input {
+      padding-left: 0.5rem;
+    }
+
+    &[dir="rtl"] {
+      input {
+        padding-right: 0.5rem;
+        padding-left: 0;
+      }
+    }
+  }
+
+  &.has-focus {
+    border-color: var(--color-primary);
+    background-color: var(--color-background);
+    caret-color: var(--color-primary);
+
+    .search-icon {
+      color: var(--color-primary);
+    }
+  }
+
+  input {
+    height: 2.5rem;
+    margin-bottom: 0;
+    padding:
+      calc(0.4375rem - var(--border-width)) calc(0.625rem - var(--border-width))
+      calc(0.5rem - var(--border-width)) calc(0.75rem - var(--border-width));
+    border: none !important;
+    border-radius: 1.375rem;
+
+    background-color: transparent !important;
+    box-shadow: none !important;
+
+    &::placeholder {
+      color: var(--color-placeholders);
+    }
+  }
+
+  .icon-container-left {
+    flex-shrink: 0;
+    width: 1.5rem;
+    margin-inline-start: 0.75rem;
+  }
+
+  .icon-container-right {
+    flex-shrink: 0;
+    width: 2.5rem;
+    margin-inline-start: 0.5rem;
+  }
+
+  .icon-container-slide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .search-icon, .back-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  .back-icon {
+    color: var(--color-text-secondary);
+  }
+
+  .Loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 2.5rem;
+    height: 2.5rem;
+
+    .Spinner {
+      --spinner-size: 1.5rem;
+    }
+  }
+
+  .Button {
+    font-size: 1rem;
+  }
+
+  &[dir="rtl"] {
+    input {
+      direction: rtl;
+    }
+  }
+
+  @media (max-width: 600px) {
+    input {
+      height: 2.5rem;
+      padding-left: calc(0.75rem - var(--border-width));
+      border-radius: 1.25rem;
+    }
+  }
+}

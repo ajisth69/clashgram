@@ -1,0 +1,158 @@
+// Hack: Increase selector specificity to override Button styles
+.root.root {
+  --custom-emoji-size: 1.25rem;
+  --reaction-background: var(--color-reaction);
+  --reaction-background-hover: var(--hover-color-reaction);
+  --reaction-text-color: var(--text-color-reaction);
+
+  position: relative;
+  z-index: 1;
+
+  overflow: visible;
+  display: flex;
+  flex-direction: row;
+  gap: 0.125rem;
+
+  width: auto;
+  height: 1.875rem;
+  padding: 0 0.375rem 0 0.25rem;
+  border-radius: 1.75rem;
+
+  font-weight: var(--font-weight-medium);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.75rem;
+  color: var(--reaction-text-color);
+  text-transform: none;
+  white-space: nowrap;
+
+  background-color: var(--reaction-background) !important;
+
+  transition: background-color 150ms, color 150ms, backdrop-filter 150ms, filter 150ms !important;
+
+  &.chosen {
+    --reaction-background: var(--color-reaction-chosen);
+    --reaction-background-hover: var(--hover-color-reaction-chosen);
+    --reaction-text-color: var(--text-color-reaction-chosen);
+  }
+
+  &.paid {
+    --reaction-background: #FFBC2E33 !important;
+    --reaction-background-hover: #FFBC2E55 !important;
+    --reaction-text-color: #E98111 !important;
+
+    z-index: 2;
+
+    &.outside {
+      --reaction-text-color: #FFFFFF !important;
+      --reaction-background: #FFBC2E77 !important;
+      --reaction-background-hover: #FFBC2E99 !important;
+    }
+  }
+
+  &.paid.chosen {
+    --reaction-background: #FFB727 !important;
+    --reaction-background-hover: #FFB727CC !important;
+    --reaction-text-color: #FFFFFF !important;
+  }
+
+  &:hover {
+    --reaction-background: var(--reaction-background-hover) !important;
+
+    backdrop-filter: var(--reaction-background-hover-filter);
+
+    @supports not (backdrop-filter: var(--reaction-background-hover-filter)) {
+      filter: var(--reaction-background-hover-filter);
+    }
+  }
+}
+
+.animated-emoji {
+  margin: 0.25rem;
+}
+
+.tag.tag {
+  position: relative;
+
+  justify-content: start;
+
+  margin-right: 1rem;
+  padding-inline: 0;
+  border-radius: 0.375rem;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+
+  &::after {
+    content: '';
+
+    position: absolute;
+    top: 50%;
+    right: -0.5rem;
+    transform: translateY(-50%);
+
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 50%;
+
+    opacity: 0.4;
+    background-color: var(--text-color-reaction-chosen);
+  }
+
+  // SVG has problems with backdrop-filter
+  &:hover {
+    filter: var(--reaction-background-hover-filter);
+    backdrop-filter: unset;
+  }
+
+  .animated-emoji {
+    margin: 0.25rem 0 0.25rem 0.25rem;
+  }
+}
+
+.tail {
+  position: absolute;
+  z-index: -1;
+  right: -0.9375rem;
+  height: 100%;
+
+  .is-safari & {
+    // Safari subpixel rendering be damned. May cause slight overlap, but it's better than a gap.
+    /* stylelint-disable-next-line plugin/whole-pixel */
+    right: -14.8px;
+  }
+}
+
+.tail-fill {
+  fill: var(--reaction-background);
+  transition: fill 150ms;
+}
+
+.tag-text {
+  display: flex;
+  gap: 0.25rem;
+  margin-inline-end: 0.375rem;
+  font-size: 1rem;
+}
+
+.counter {
+  margin-inline-end: 0.125rem;
+  font-weight: var(--font-weight-semibold);
+}
+
+.disabled {
+  opacity: 0.5;
+}
+
+.paidCounter {
+  position: absolute;
+  z-index: 1;
+  top: -150%;
+  right: 50%;
+  transform: translateX(50%);
+
+  font-family: var(--font-family-numbers-rounded);
+  font-size: 2.5rem;
+  font-variant-numeric: tabular-nums;
+  color: #FFBC2E;
+
+  -webkit-text-stroke: 1px #E58E0D;
+}

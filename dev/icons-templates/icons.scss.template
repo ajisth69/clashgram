@@ -1,0 +1,21 @@
+@use "sass:map";
+
+@mixin icon {
+  /* !important to prevent issues with browser extensions that change fonts */
+  /* stylelint-disable-next-line font-family-no-missing-generic-family-keyword */
+  font-family: "{{ fontname }}" !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+$icons-map: (
+{% for icon in iconDefinitions %}  "{{ icon.publicName }}": "{{ icon.encodedCode }}",
+{% endfor -%}
+);

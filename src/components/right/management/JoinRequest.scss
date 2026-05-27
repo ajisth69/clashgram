@@ -1,0 +1,68 @@
+.JoinRequest {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 0;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--color-borders);
+  }
+
+  &__top {
+    cursor: var(--custom-cursor, pointer);
+    display: flex;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+
+    &:hover {
+      background-color: var(--color-chat-hover);
+    }
+  }
+
+  &__user {
+    overflow: hidden;
+    display: flex;
+    flex-grow: 1;
+    min-width: 0;
+  }
+
+  &__user-info {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    margin-left: 1rem;
+  }
+
+  &__user-subtitle {
+    overflow: hidden;
+    color: var(--color-text-secondary);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__user-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__date {
+    margin-left: 1rem;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+  }
+
+  &__buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: space-evenly;
+    margin-top: 1rem;
+  }
+
+  &__button {
+    width: auto;
+    height: auto;
+  }
+}

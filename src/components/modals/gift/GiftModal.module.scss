@@ -1,0 +1,331 @@
+@use '../../../styles/mixins';
+
+.root {
+  z-index: calc(var(--z-modal-low-priority) + 1);
+}
+
+.root :global(.modal-content) {
+  padding: 0;
+  background-color: var(--color-background);
+
+  :global(html.theme-dark) & {
+    --color-background: #181818;
+  }
+}
+
+.root :global(.modal-dialog),
+.transition,
+.content {
+  height: min(98vh, 49rem);
+  max-height: none !important;
+}
+
+@media (max-width: 600px) {
+  .transition,
+  .content {
+    height: 100%;
+  }
+}
+
+.root :global(.modal-dialog),
+.root :global(.modal-content),
+.transition {
+  overflow: hidden;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+}
+
+.resaleScreenRoot,
+.main {
+  overflow-y: scroll;
+  padding-bottom: 0.5rem;
+  padding-inline: 0.5rem;
+
+  @include mixins.adapt-padding-to-scrollbar(0.5rem);
+}
+
+.resaleScreenRoot {
+  height: calc(100% - 6.25rem);
+  margin-top: 6.25rem;
+}
+
+.main {
+  height: 100%;
+}
+
+.giftSection {
+  padding: 1.5rem;
+}
+
+.section {
+  padding: 0.5rem;
+}
+
+.resaleStarGiftsContainer,
+.starGiftsContainer,
+.premiumGiftsGallery {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 0.75rem;
+}
+
+.resaleStarGiftsContainer,
+.starGiftsContainer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  margin: 0rem;
+  padding: 0.125rem;
+  padding-top: 0.75rem;
+}
+
+.resaleStarGiftsContainer {
+  padding-bottom: 0.625rem;
+}
+
+.header {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  height: 3.5rem;
+  padding: 0.5rem;
+  border-bottom: 0.0625rem solid var(--color-borders);
+
+  background: var(--color-background);
+  /* stylelint-disable-next-line plugin/no-low-performance-animation-properties */
+  transition: height 0.25s ease-out, transform 0.25s ease-out, border-color 0.2s ease;
+
+  &.noBorder {
+    border-bottom-color: transparent;
+  }
+}
+
+.resaleHeader {
+  overflow: visible;
+  height: 6.25rem;
+}
+
+.resaleHeaderContentContainer {
+  align-items: center;
+  width: 100%;
+}
+
+.headerSlide {
+  display: flex;
+  align-items: center;
+}
+
+.headerText {
+  margin-bottom: 0;
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-medium);
+}
+
+.hiddenHeader {
+  transform: translateY(-100%);
+}
+
+.resaleHeaderText,
+.commonHeaderText {
+  unicode-bidi: plaintext;
+
+  margin: 0 0 0 4.5rem;
+
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25rem;
+}
+
+.resaleHeaderText {
+  margin: 0;
+  margin-bottom: 0.0625rem !important;
+  font-size: 1rem;
+  line-height: 1.3125rem;
+}
+
+.resaleHeaderTextBlock {
+  margin-left: 4.5rem;
+}
+
+.resaleHeaderDescription {
+  unicode-bidi: plaintext;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--color-text-secondary);
+}
+
+.closeButton {
+  position: absolute;
+  z-index: 3;
+  top: 0.875rem;
+  left: 0.875rem;
+}
+
+.balance {
+  position: absolute;
+  z-index: 3;
+  top: 0.75rem;
+  right: 1.25rem;
+}
+
+.avatars {
+  position: relative;
+  z-index: 1;
+
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.avatar {
+  z-index: 2;
+  transition: transform 0.25s ease-out;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.logoBackground {
+  pointer-events: none;
+
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+
+  height: 7rem;
+}
+
+.center {
+  text-align: center;
+}
+
+.description {
+  max-width: 25rem;
+  margin: 0.25rem 1rem 1rem;
+  line-height: 1.375;
+  text-align: center;
+}
+
+.starGiftsDescription {
+  margin-bottom: 0.625rem;
+}
+
+.boostIcon {
+  line-height: 1.5;
+  color: var(--color-primary);
+  vertical-align: middle;
+}
+
+.optionBottom {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.secondaryInfo {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.footer {
+  margin: 0 1.5rem 1rem;
+}
+
+.starGiftsTransition {
+  overflow: hidden;
+  height: auto;
+  min-height: calc(100% - 3.5rem);
+}
+
+.notFoundGiftsRoot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding-top: 5rem;
+}
+
+.notFoundGiftsDescription {
+  unicode-bidi: plaintext;
+
+  margin-block: 1rem;
+
+  font-size: 1rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.notFoundGiftsLink {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-links);
+  transition: opacity 0.15s ease-in;
+
+  &:active,
+  &:hover {
+    color: var(--color-links);
+    text-decoration: none;
+    opacity: 0.85;
+  }
+}
+
+.starsOnlyToggle {
+  position: absolute;
+  z-index: 1;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(1rem);
+
+  min-width: 17rem;
+  min-height: auto;
+  padding: 0.5rem 1rem 0.5rem 3rem;
+  padding-block: 0.75rem;
+  border-radius: 1.5rem;
+
+  opacity: 0;
+  background-color: rgba(255, 255, 255, 0.35) !important;
+  backdrop-filter: blur(12px);
+
+  transition: background-color 0.15s, opacity 0.2s ease, transform 0.2s ease;
+
+  &:active,
+  &:hover {
+    border-radius: 1.5rem !important;
+    background-color: rgba(255, 255, 255, 0.25) !important;
+  }
+
+  :global(.Checkbox-main)::before {
+    border-color: black;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+
+    :global(html.theme-dark) & {
+      border-color: white;
+    }
+  }
+}
+
+.starsOnlyToggleVisible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}

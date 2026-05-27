@@ -1,0 +1,236 @@
+#MediaViewer {
+  position: fixed;
+  z-index: var(--z-media-viewer);
+  top: 0;
+  left: 0;
+
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: auto 1fr;
+  row-gap: 0;
+  column-gap: 0;
+  align-items: center;
+  justify-items: stretch;
+
+  width: 100vw;
+  height: 100%;
+
+  color: #fff;
+
+  background: rgba(0, 0, 0, 0.9);
+
+  // Potential perf improvement
+  &:not(.shown) {
+    transform: scale(0);
+    display: block !important;
+  }
+
+  body.ghost-animating & {
+    > .pan-wrapper,
+    > button,
+    .MediaViewerContent img,
+    .MediaViewerContent .VideoPlayer {
+      display: none;
+    }
+  }
+
+  body:not(.no-media-viewer-animations) & {
+    transition-duration: 0.3s !important;
+  }
+
+  &:not(.open),
+  .closing {
+    .SenderInfo {
+      pointer-events: none;
+      transition: none;
+    }
+  }
+
+  &.zoomed {
+    .navigation {
+      display: none;
+    }
+
+    .media-viewer-head {
+      z-index: 2;
+    }
+
+    .MediaViewerSlide {
+      position: fixed;
+      z-index: 1;
+      top: 0;
+      left: 0;
+
+      width: 100vw;
+      height: 100vh;
+      padding: 0;
+    }
+  }
+
+  .media-viewer-head {
+    position: relative;
+    z-index: var(--z-media-viewer-head);
+
+    display: flex;
+    grid-area: 1 / 1 / 2 / -2;
+
+    min-width: 0;
+    padding: 0.5rem max(1.25rem, env(safe-area-inset-left));
+
+    background: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0) 100%);
+
+    & > .Transition {
+      width: 100%;
+      min-width: 0;
+    }
+
+    body.is-tauri.is-macos #Main:not(.is-fullscreen) & {
+      padding-left: var(--window-controls-width);
+    }
+
+    @media (max-width: 600px) {
+      padding: 0.5rem max(0.5rem, env(safe-area-inset-left));
+
+      .media-viewer-close {
+        margin-right: 1.5rem;
+      }
+    }
+  }
+
+  & > .Transition,
+  & > .pan-wrapper {
+    grid-area: 1 / 1 / -1 / -1;
+  }
+
+  & > .Transition,
+  & > .pan-wrapper .Transition {
+    position: relative;
+
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-self: center;
+
+    width: 100%;
+    height: 100%;
+
+    text-align: center;
+  }
+
+  .navigation {
+    cursor: var(--custom-cursor, pointer);
+
+    position: fixed;
+    z-index: 1;
+    top: 4rem;
+    bottom: 0;
+
+    width: 10vw;
+    margin: 0;
+    padding: 0;
+    border: none;
+
+    appearance: none;
+    opacity: 0;
+    background: transparent no-repeat;
+    background-size: 1.25rem;
+    outline: none;
+
+    transition: opacity 0.15s;
+
+    &:hover,
+    .is-touch-env & {
+      opacity: 1;
+    }
+
+    &.prev {
+      left: env(safe-area-inset-left);
+      background-image: url("../../assets/media_navigation_previous.svg");
+      background-position: 1.25rem calc(50% - 2rem);
+
+      &[dir="rtl"] {
+        right: env(safe-area-inset-right);
+        left: auto;
+        transform: scaleX(-1);
+      }
+    }
+
+    &.next {
+      right: env(safe-area-inset-right);
+      background-image: url("../../assets/media_navigation_next.svg");
+      background-position: calc(100% - 1.25rem) calc(50% - 2rem);
+
+      &[dir="rtl"] {
+        right: auto;
+        left: env(safe-area-inset-left);
+        transform: scaleX(-1);
+      }
+    }
+
+    &.inline {
+      top: calc(50% - 3rem);
+      bottom: unset;
+      height: 6rem;
+      background-position-y: center;
+
+      @media (max-width: 600px) {
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.15s ease-in;
+
+        .video-controls-visible & {
+          pointer-events: auto;
+          opacity: 1;
+        }
+      }
+    }
+
+    @media (max-width: 600px) {
+      width: 20vw;
+    }
+  }
+
+  .is-protected {
+    pointer-events: none;
+    user-select: none;
+
+    -webkit-touch-callout: none;
+  }
+
+  @media (max-width: 600px) {
+    background: rgba(0, 0, 0, 1);
+  }
+}
+
+.ghost {
+  will-change: transform, opacity;
+
+  position: absolute;
+  z-index: var(--z-media-viewer);
+
+  overflow: hidden;
+
+  border-radius: 0;
+
+  transition: transform 0.2s ease, opacity 0.2s ease;
+
+  &.rounded-corners {
+    border-radius: var(--border-radius-messages);
+  }
+
+  &.circle {
+    border-radius: 50%;
+    transition: transform 0.2s ease, opacity 0.2s ease, border-radius 0.2s ease;
+  }
+
+  img,
+  video {
+    -webkit-user-select: none;
+    user-select: none;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+  }
+}

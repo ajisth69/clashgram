@@ -1,0 +1,7 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "clashgram"
+compatibility_date = "2026-05-24"
+
+# Configure Cloudflare Pages deployment
+# Output directory containing built static assets (index.html, bundles, etc.)
+pages_build_output_dir = "./dist"

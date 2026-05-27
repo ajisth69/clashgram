@@ -1,0 +1,44 @@
+.iconPlaceholder {
+  width: 1.5rem;
+}
+
+.chatResultsContextMenu {
+  position: absolute;
+  top: 2.5rem !important;
+  right: 0.75rem;
+
+  .bubble {
+    width: auto;
+  }
+}
+
+.dropDownLink {
+  display: flex;
+  align-items: center;
+
+  .Loading {
+    height: 1rem !important;
+    margin-bottom: 0 !important;
+
+    .Spinner {
+      --spinner-size: 1rem !important;
+    }
+  }
+
+  .iconContainer {
+    flex-shrink: 0;
+    width: 1rem;
+    margin-inline-start: 0.25rem;
+  }
+
+  .iconContainerSlide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.menuOwner {
+  position: relative;
+  min-height: 20rem;
+}

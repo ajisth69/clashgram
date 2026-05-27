@@ -1,0 +1,479 @@
+@mixin active-styles() {
+  &:not(.disabled):not(:disabled) {
+    &:active,
+    &.active,
+    &:focus {
+      @content;
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        @content;
+      }
+    }
+  }
+}
+
+@mixin no-ripple-styles() {
+  body.no-page-transitions & {
+    &:not(.disabled):not(:disabled) {
+      &:active {
+        @content;
+      }
+    }
+  }
+}
+
+@layer ui.button {
+  .Button {
+    --premium-gradient: linear-gradient(88.39deg, #6c93ff -2.56%, #976fff 51.27%, #df69d1 107.39%);
+    --button-text-color: white;
+    --button-background-color: transparent;
+
+    cursor: var(--custom-cursor, pointer);
+
+    position: relative;
+
+    overflow: hidden;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 3rem;
+    padding: 0.625rem;
+    border: 0;
+    border-radius: var(--border-radius-button);
+
+    font-weight: var(--font-weight-medium);
+    line-height: 1.2;
+    color: var(--button-text-color);
+    text-decoration: none !important;
+    text-transform: uppercase;
+
+    background-color: var(--button-background-color);
+    background-size: cover;
+    outline: none !important;
+
+    transition:
+      background-color 0.2s,
+      color 0.2s,
+      opacity 0.2s;
+
+    white-space-collapse: preserve;
+
+    // @optimization
+    &:active,
+    &.clicked,
+    body.no-page-transitions & {
+      transition: none !important;
+    }
+
+    &.no-upper-case {
+      text-transform: none;
+    }
+
+    &.inline {
+      display: inline;
+    }
+
+    &.disabled {
+      cursor: var(--custom-cursor, default);
+
+      &:not(.non-interactive) {
+        opacity: 0.5 !important;
+      }
+
+      &:not(.click-allowed) {
+        pointer-events: none;
+      }
+    }
+
+    @include active-styles() {
+      color:
+        var(
+          --button-active-text-color,
+          var(--button-text-color)
+        );
+      background-color:
+        var(
+          --button-active-background-color,
+          var(--button-background-color)
+        );
+    }
+
+    @include no-ripple-styles() {
+      color:
+        var(
+          --button-no-ripple-text-color,
+          var(
+            --button-active-text-color,
+            var(--button-text-color)
+          )
+        );
+      background-color:
+        var(
+          --button-no-ripple-background-color,
+          var(
+            --button-active-background-color,
+            var(--button-background-color)
+          )
+        );
+    }
+
+    &.primary {
+      --ripple-color: rgba(0, 0, 0, 0.08);
+      --button-text-color: var(--color-white);
+      --button-background-color: var(--color-primary);
+      --button-active-text-color: var(--color-white);
+      --button-active-background-color: rgba(var(--color-primary-shade-rgb), 0.9);
+      --button-no-ripple-background-color: var(--color-primary-shade-darker);
+    }
+
+    &.secondary {
+      --ripple-color: rgba(0, 0, 0, 0.08);
+      --button-text-color: rgba(var(--color-text-secondary-rgb), 0.75);
+      --button-background-color: var(--color-background);
+      --button-active-text-color: white;
+      --button-active-background-color: var(--color-primary);
+      --button-no-ripple-background-color: var(--color-primary-shade);
+    }
+
+    &.gray {
+      --ripple-color: rgba(0, 0, 0, 0.08);
+      --button-text-color: var(--color-text-secondary);
+      --button-background-color: var(--color-background);
+      --button-active-text-color: var(--color-primary);
+      --button-no-ripple-background-color: var(--color-chat-hover);
+    }
+
+    &.danger {
+      --ripple-color: rgba(var(--color-error-rgb), 0.16);
+      --button-text-color: var(--color-error);
+      --button-background-color: var(--color-background);
+      --button-active-text-color: var(--color-white);
+      --button-active-background-color: var(--color-error);
+      --button-no-ripple-background-color: var(--color-error-shade);
+    }
+
+    &.faded {
+      opacity: 0.8;
+
+      @include active-styles() {
+        opacity: 1;
+      }
+
+      &.activated {
+        opacity: 1;
+      }
+    }
+
+    &.translucent-primary,
+    &.translucent {
+      --ripple-color: var(--color-interactive-element-hover);
+      --button-text-color: var(--color-text-secondary);
+      --button-background-color: transparent;
+      --button-active-background-color: var(--color-interactive-element-hover);
+      --button-no-ripple-background-color: rgba(var(--color-text-secondary-rgb), 0.16);
+
+      &.activated {
+        --button-active-text-color: var(--color-primary);
+
+        color: var(--button-active-text-color, var(--color-primary));
+      }
+    }
+
+    &.translucent-white {
+      --ripple-color: rgba(255, 255, 255, 0.08);
+      --button-text-color: rgba(255, 255, 255, 0.5);
+      --button-background-color: transparent;
+      --button-active-text-color: white;
+      --button-active-background-color: rgba(255, 255, 255, 0.08);
+      --button-no-ripple-background-color: rgba(255, 255, 255, 0.16);
+    }
+
+    &.translucent-black {
+      --ripple-color: rgba(0, 0, 0, 0.08);
+      --button-text-color: rgba(0, 0, 0, 0.8);
+      --button-background-color: transparent;
+      --button-active-background-color: rgba(0, 0, 0, 0.08);
+      --button-no-ripple-background-color: rgba(0, 0, 0, 0.16);
+    }
+
+    &.translucent-primary {
+      --button-text-color: var(--color-primary);
+    }
+
+    &.translucent-bordered {
+      --ripple-color: rgba(0, 0, 0, 0.08);
+      --button-text-color: var(--accent-color);
+      --button-background-color: transparent;
+      --button-active-text-color: var(--color-white);
+      --button-active-background-color: var(--accent-color);
+      --button-no-ripple-background-color: var(--active-color);
+
+      border: 1px solid var(--accent-color);
+    }
+
+    &.adaptive {
+      --ripple-color: var(--accent-background-active-color);
+      --button-text-color: var(--accent-color);
+      --button-background-color: var(--accent-background-color);
+      --button-active-background-color: var(--accent-background-active-color);
+      --button-no-ripple-background-color: var(--accent-background-active-color);
+    }
+
+    &.dark {
+      --ripple-color: rgba(255, 255, 255, 0.08);
+      --button-text-color: white;
+      --button-background-color: rgba(0, 0, 0, 0.75);
+      --button-active-text-color: white;
+      --button-active-background-color: rgba(0, 0, 0, 0.85);
+      --button-no-ripple-background-color: rgba(0, 0, 0, 0.95);
+    }
+
+    &.green {
+      --ripple-color: rgba(0, 0, 0, 0.08);
+      --button-text-color: var(--color-white);
+      --button-background-color: var(--color-green);
+      --button-active-text-color: var(--color-white);
+      --button-active-background-color: var(--color-green-darker);
+      --button-no-ripple-background-color: var(--color-green);
+    }
+
+    &.stars {
+      --ripple-color: rgba(0, 0, 0, 0.08);
+      --button-text-color: var(--color-white);
+      --button-background-color: #ffb727;
+      --button-active-text-color: var(--color-white);
+      --button-active-background-color: #ffb727cc;
+      --button-no-ripple-background-color: #ffb727;
+
+      .theme-dark & {
+        --button-background-color: #cf8920;
+      }
+    }
+
+    &.bluredStarsBadge {
+      --button-text-color: var(--color-white);
+
+      background: rgba(0, 0, 0, 0.2) !important;
+      backdrop-filter: blur(50px);
+    }
+
+    &.transparentBlured {
+      --button-text-color: white;
+      --button-background-color: rgba(255, 255, 255, 0.1);
+      --button-active-background-color: rgba(255, 255, 255, 0.2);
+
+      backdrop-filter: blur(0.5rem);
+    }
+
+    &.smaller {
+      height: 2.5rem;
+      padding: 0.3125rem;
+
+      &.round {
+        width: 2.5rem;
+      }
+
+      &.pill {
+        padding: 0.3125rem 1rem;
+        border-radius: 1.25rem;
+      }
+
+      &.with-icon {
+        padding-inline-start: 0.75rem;
+        padding-inline-end: 1.25rem;
+
+        .icon {
+          margin-inline-end: 0.5rem;
+          font-size: 1.5rem;
+        }
+      }
+    }
+
+    &.tiny {
+      --emoji-size: 1rem;
+      --custom-emoji-size: var(--emoji-size);
+
+      height: 2.25rem;
+      padding: 0.4375rem;
+      border-radius: var(--border-radius-button-tiny);
+      font-size: 0.875rem;
+
+      &.round {
+        width: 1.75rem;
+        height: 1.75rem;
+        border-radius: 50%;
+      }
+
+      .icon {
+        font-size: 1.25rem;
+      }
+
+      &.pill {
+        --emoji-size: 1.25rem;
+        --custom-emoji-size: var(--emoji-size);
+
+        height: 1.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 1rem;
+        font-size: 1rem;
+      }
+    }
+
+    &.round {
+      width: 3rem;
+      border-radius: 50%;
+
+      .icon {
+        font-size: 1.5rem;
+      }
+    }
+
+    &.content-with-icon-bottom,
+    &.content-with-icon-top {
+      height: auto;
+    }
+
+    &.fluid {
+      width: auto;
+      padding-right: 1.75rem;
+      padding-left: 1.75rem;
+
+      &.tiny {
+        padding-right: 1.375rem;
+        padding-left: 1.375rem;
+      }
+
+      &.pill {
+        padding: 0.5rem 0.75rem;
+      }
+
+      &.badge {
+        padding: 0.5rem 1.75rem;
+      }
+    }
+
+    &.pill,
+    &.badge {
+      padding-right: 1.75rem;
+      padding-left: 1.75rem;
+      border-radius: 1.75rem;
+      text-transform: none;
+    }
+
+    &.loading {
+      pointer-events: none;
+      position: relative;
+
+      .Spinner {
+        --spinner-size: 1.8125rem;
+
+        position: absolute;
+        top: 50%;
+        right: 0.875rem;
+        transform: translateY(-50%);
+      }
+    }
+
+    .emoji {
+      vertical-align: -3px;
+    }
+
+    &.shiny::before {
+      content: "";
+
+      position: absolute;
+      top: 0;
+
+      display: block;
+
+      width: 100%;
+      height: 100%;
+
+      background: linear-gradient(to right, transparent 0%, var(--color-skeleton-foreground) 50%, transparent 100%);
+
+      animation: wave 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+      @keyframes wave {
+        0% {
+          transform: translateX(-100%);
+        }
+        50% {
+          transform: translateX(100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+    }
+
+    &.premium {
+      background: var(--premium-gradient);
+    }
+
+    &.rectangular {
+      border-radius: 0;
+    }
+
+    .with-icon-top {
+      display: flex;
+      flex-direction: column;
+
+      .icon {
+        margin-bottom: 0.25rem;
+      }
+    }
+
+    .with-icon-bottom {
+      display: flex;
+      flex-direction: column-reverse;
+
+      .icon {
+        margin-top: 0.25rem;
+      }
+    }
+
+    .with-icon-start {
+      display: flex;
+      align-items: center;
+      .icon {
+        margin-inline-end: 0.25rem;
+      }
+    }
+
+    .with-icon-end {
+      display: flex;
+      flex-direction: row-reverse;
+      align-items: center;
+
+      .icon {
+        margin-inline-start: 0.25rem;
+      }
+    }
+
+    &.text {
+      --button-background-color: transparent;
+
+      &.primary {
+        --button-text-color: var(--color-primary);
+        --button-active-text-color: var(--color-primary);
+        --button-active-background-color: rgba(var(--color-primary-shade-rgb), 0.08);
+        --button-no-ripple-background-color: rgba(var(--color-primary-shade-rgb), 0.16);
+      }
+
+      &.secondary {
+        --button-text-color: var(--color-text-secondary);
+      }
+
+      &.danger {
+        --button-active-text-color: var(--color-error);
+        --button-active-background-color: rgba(var(--color-error-rgb), 0.08);
+        --button-no-ripple-background-color: rgba(var(--color-error-rgb), 0.16);
+      }
+    }
+  }
+}

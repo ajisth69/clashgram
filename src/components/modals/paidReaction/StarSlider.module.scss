@@ -1,0 +1,255 @@
+@use "../../../styles/mixins";
+
+/* stylelint-disable plugin/no-low-performance-animation-properties */
+
+.root {
+  --_size: 1.875rem;
+  --_transition: 0.15s;
+  --progress: 0;
+
+  position: relative;
+  overflow-x: hidden;
+  padding-top: 4rem;
+
+  @include mixins.reset-range();
+
+  &.dragging {
+    .progress {
+      transition: background-color var(--_transition);
+    }
+
+    .floatingBadgeWrapper {
+      transition: none;
+    }
+
+    .floatingBadgeText {
+      transition: background-color var(--_transition);
+    }
+
+    .floatingBadgeTriangle {
+      transition: none;
+    }
+  }
+}
+
+.slider {
+  cursor: pointer;
+  height: var(--_size) !important;
+  margin-bottom: 0 !important;
+
+  &::-webkit-slider-runnable-track {
+    height: var(--_size);
+    border-radius: 1rem;
+    background-color: var(--color-background-secondary);
+  }
+
+  &::-moz-range-track {
+    height: var(--_size);
+    border-radius: 1rem;
+    background-color: var(--color-background-secondary);
+  }
+
+  &::-webkit-slider-thumb {
+    width: var(--_size);
+    height: var(--_size);
+    border: none;
+
+    background-color: transparent;
+    outline: none;
+    box-shadow: none;
+  }
+
+  &::-moz-range-thumb {
+    width: var(--_size);
+    height: var(--_size);
+    border: none;
+
+    background-color: transparent;
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+.sparkles {
+
+  --_width: calc(100% - 1rem);
+
+  pointer-events: none;
+
+  bottom: 0;
+  left: 0;
+
+  height: var(--_size);
+
+  color: white;
+
+  mask-image: linear-gradient(to right, black var(--_width), transparent calc(var(--_width) + 0.5rem));
+}
+
+.progress {
+  pointer-events: none;
+
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  width: calc(var(--_size) + (var(--progress) * (100% - var(--_size))));
+  min-width: var(--_size);
+  height: var(--_size);
+  border-radius: 1rem;
+
+  background-image: var(--stars-gradient);
+
+  transition: width var(--_transition), background-color var(--_transition);
+
+  &::after {
+    content: "";
+
+    position: absolute;
+    z-index: 1;
+    top: 0.125rem;
+    right: 0.125rem;
+
+    width: 1.625rem;
+    height: 1.625rem;
+    border-radius: 50%;
+
+    background-color: white;
+  }
+
+  &.dynamicColor {
+    background-color: var(--dynamic-color);
+    background-image: none;
+  }
+}
+
+.floatingBadgeWrapper {
+  pointer-events: none;
+
+  position: absolute;
+  right: 0;
+  left: 0;
+  transform:
+  translateX(
+    clamp(
+      var(--min-badge-x, 0px),
+      calc(var(--_size) / 2 + var(--progress) * (100% - var(--_size))),
+      var(--max-badge-x, 100%)
+    )
+  );
+
+  transition: transform var(--_transition);
+}
+
+.floatingBadge {
+  --_speed: 0;
+
+  position: absolute;
+  top: -1rem;
+  left: 0;
+  transform: translate(-50%, -100%);
+
+  &.clickable {
+    pointer-events: auto;
+    cursor: pointer;
+  }
+}
+
+.floatingBadgeText {
+  position: relative;
+
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  color: white;
+  white-space: nowrap;
+
+  background-image: var(--stars-gradient);
+
+  transition:
+    border-radius var(--_transition),
+    width var(--_transition),
+    background-color var(--_transition);
+
+  &.dynamicColor {
+    background-color: var(--dynamic-color);
+    background-image: none;
+  }
+
+  &.noTransition {
+    transition: none;
+  }
+}
+
+.floatingBadgeSparkles {
+  position: absolute;
+  inset: 0;
+  color: white;
+}
+
+.floatingBadgeContent {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 1.5rem;
+
+  &.withDescription {
+    .floatingBadgeTitle {
+      transform: translateY(-0.5rem);
+      font-size: 1rem;
+    }
+
+    .floatingBadgeDescription {
+      opacity: 0.8;
+    }
+  }
+}
+
+.floatingBadgeTitle {
+  display: flex;
+  gap: 0.125rem;
+  align-items: center;
+  transition: transform var(--_transition), font-size var(--_transition);
+}
+
+.floatingBadgeDescription {
+  position: absolute;
+  bottom: -0.125rem;
+
+  font-size: 0.75rem;
+
+  opacity: 0;
+
+  transition: opacity var(--_transition);
+}
+
+.floatingBadgeTriangle {
+  position: absolute;
+  z-index: -1;
+  bottom: 0;
+  left: 50%;
+
+  transition: transform var(--_transition);
+}
+
+.floatingBadgeTrianglePath {
+  transition: fill var(--_transition);
+}
+
+.customValueIcon {
+  pointer-events: none;
+
+  position: absolute;
+  z-index: 2;
+  right: 0.375rem;
+  bottom: 0.375rem;
+
+  font-size: 1.125rem;
+  color: var(--color-text-secondary);
+}

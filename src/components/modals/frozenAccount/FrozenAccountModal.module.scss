@@ -1,0 +1,27 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  width: 100%;
+  margin-top: 0.125rem;
+  margin-bottom: 0.25rem;
+}
+
+.title {
+  padding-top: 0.25rem;
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  margin-top: 0.5rem;
+}
+
+.buttonAppeal {
+  margin-bottom: 0.5rem;
+}

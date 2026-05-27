@@ -1,0 +1,41 @@
+.root {
+  pointer-events: none;
+  position: fixed;
+  z-index: var(--z-overlay-effects);
+  inset: 0;
+}
+
+.wave {
+  --wave-width: 100vw;
+  --wave-pos-top: 0%;
+  --wave-pos-left: 0%;
+
+  position: absolute;
+  top: var(--wave-pos-top);
+  left: var(--wave-pos-left);
+
+  aspect-ratio: 1 / 1;
+  width: var(--wave-width);
+  border-radius: 50%;
+
+  background-image:
+    radial-gradient(
+      circle,
+      transparent 52%,
+      #FFFFFF06 60%,
+      transparent 68%
+    );
+  backdrop-filter: url(#wave-filter);
+
+  animation: waveGrow 1.5s ease-in;
+}
+
+@keyframes waveGrow {
+  from {
+    transform: scale(0);
+  }
+
+  to {
+    transform: scale(2.2);
+  }
+}

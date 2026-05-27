@@ -1,0 +1,103 @@
+@use "../../../styles/mixins";
+
+.SettingsGeneralBackgroundColor {
+  &:not(.is-dragging) .handle {
+    transition: transform 300ms ease;
+  }
+
+  .color-picker,
+  .hue-picker {
+    position: relative;
+  }
+
+  .color-picker {
+    height: 12rem;
+    margin-top: 1rem;
+  }
+
+  .hue-picker {
+    height: 0.5rem;
+    margin: 2rem 0;
+  }
+
+  canvas {
+    cursor: var(--custom-cursor, pointer);
+
+    display: block;
+
+    width: 100%;
+    height: 100%;
+    border-radius: var(--border-radius-default);
+  }
+
+  .handle {
+    cursor: var(--custom-cursor, grab);
+
+    position: absolute;
+    top: -0.75rem;
+    left: -0.75rem;
+
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 0.125rem solid var(--color-white);
+    border-radius: 0.75rem;
+  }
+
+  .hue-picker .handle {
+    top: -0.5rem;
+  }
+
+  .tools {
+    display: flex;
+    margin-bottom: 0.625rem;
+
+    .input-group {
+      margin-bottom: 0;
+
+      &[dir="rtl"] {
+        label {
+          transform: scale(0.75) translate(1.25rem, -2.25rem);
+        }
+      }
+    }
+
+    .input-group:first-child {
+      margin-right: 0.5rem;
+    }
+
+    .input-group:last-child {
+      margin-left: 0.5rem;
+    }
+  }
+
+  .predefined-colors {
+    display: grid;
+    grid-auto-rows: 1fr;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.0625rem;
+
+    @include mixins.side-panel-section;
+  }
+
+  .predefined-color {
+    cursor: var(--custom-cursor, pointer);
+    box-shadow: inset 0 0 0 0 var(--color-background);
+    transition: box-shadow 300ms ease;
+
+    &.active {
+      border: 0.125rem solid var(--color-primary);
+      box-shadow: inset 0 0 0 0.3125rem var(--color-background);
+    }
+
+    // A hack to make a square
+    &:before {
+      pointer-events: none;
+      content: "";
+
+      display: block;
+
+      width: 100%;
+      padding-top: 100%;
+    }
+  }
+}

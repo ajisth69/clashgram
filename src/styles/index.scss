@@ -1,0 +1,555 @@
+/* stylelint-disable @stylistic/value-list-comma-newline-after */
+/* stylelint-disable @stylistic/declaration-colon-newline-after */
+@use "reboot";
+@use "variables";
+@use "mixins";
+@use "spacing";
+@use "forms";
+@use "icons.css";
+@use "icons" as iconsMixins;
+@use "common";
+@use "clashgramGlass";
+@use "mobilePerformance";
+@use "print";
+
+html,
+body {
+  --font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Apple Color Emoji", "Segoe UI", Oxygen, Ubuntu,
+  Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  --font-family-monospace: "Cascadia Mono", "Roboto Mono", "Droid Sans Mono", 'SF Mono', "Menlo", "Ubuntu Mono",
+  "Consolas", monospace;
+  --font-family-numbers-rounded: ui-rounded, "Numbers Rounded", "Roboto", "Helvetica Neue", sans-serif;
+  --font-family-rounded: "Nunito", "Roboto", "Helvetica Neue", sans-serif;
+  --font-family-condensed: "Roboto Condensed", "Roboto", "Helvetica Neue", sans-serif;
+  --font-weight-semibold: 500; // Note: Roboto is naturally quite bold, so 500 works well as default
+
+  user-select: none;
+
+  overflow: hidden;
+  overscroll-behavior: none;
+
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+
+  font-family: var(--font-family);
+  font-size: 16px;
+  font-weight: var(--font-weight-normal);
+  line-height: 1.5;
+  color: var(--color-text);
+  text-align: left;
+
+  background-color: var(--color-background);
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  @media (max-width: 600px) {
+    height: calc(var(--vh, 1vh) * 100);
+  }
+}
+
+noscript {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+
+  width: 100%;
+  height: 100%;
+
+  .nojs-video {
+    pointer-events: none;
+
+    &::-webkit-media-controls {
+      display: none;
+    }
+  }
+}
+
+html.theme-dark {
+  color-scheme: dark;
+}
+
+body.is-ios,
+body.is-macos {
+  --font-family-rounded: ui-rounded, "Nunito", "Roboto", "Helvetica Neue", sans-serif;
+  --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Roboto", "Apple Color Emoji", "Helvetica Neue",
+  sans-serif;
+  --font-weight-semibold: 600;
+}
+
+html[lang="fa"],
+html[lang="fa"] body {
+  --font-family: "Vazirmatn", "Roboto", -apple-system, BlinkMacSystemFont, "Apple Color Emoji", "Segoe UI", Oxygen,
+  Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+
+  &.is-ios,
+  &.is-macos {
+    --font-family: "Vazirmatn", -apple-system, BlinkMacSystemFont, "Roboto", "Apple Color Emoji", "Segoe UI", Oxygen,
+    Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  }
+}
+
+body.is-ios {
+  --border-radius-messages: 1rem;
+  --border-radius-messages-small: 0.5rem;
+}
+
+body.is-tauri {
+  --custom-cursor: default;
+  --window-controls-width: 5rem;
+}
+
+body.cursor-grabbing {
+  --custom-cursor: grabbing;
+
+  cursor: grabbing !important;
+}
+
+body.cursor-ew-resize {
+  --custom-cursor: ew-resize;
+
+  cursor: ew-resize !important;
+}
+
+#root,
+.full-height {
+  height: 100%;
+
+  &.is-auth {
+    background: var(--color-background);
+  }
+
+  @media (max-width: 600px) {
+    height: calc(var(--vh, 1vh) * 100);
+  }
+}
+
+#middle-column-portals,
+#portals {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+
+  height: 0;
+}
+
+#middle-column-portals {
+  top: calc(0rem - var(--call-header-height, 0rem));
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.svg-definitions {
+  position: fixed; // Firefox requires definition to be visible
+  top: -99999px;
+}
+
+.allow-selection {
+  user-select: text;
+}
+
+.no-selection {
+  user-select: none !important;
+}
+
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+/*
+ See the article for more information on this visually-hidden pattern.
+ https://snook.ca/archives/html_and_css/hiding-content-for-accessibility
+*/
+.visually-hidden {
+  position: absolute !important;
+  z-index: -1;
+
+  overflow: hidden;
+
+  width: 0;
+  height: 0;
+
+  clip-path: inset(50%);
+}
+
+.custom-scroll,
+.custom-scroll-x {
+  // Fix scroll lock on iOS
+  pointer-events: auto;
+  scrollbar-color: transparent transparent;
+  scrollbar-width: thin;
+
+  transition: scrollbar-color 0.3s ease;
+
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 0.375rem;
+    background-color: transparent;
+    // `box-shadow` prevents repaint on macOS when hovering out of scrollable container
+    box-shadow: 0 0 1px rgba(255, 255, 255, 0.01);
+  }
+
+  &:hover,
+  &:focus,
+  &:focus-within {
+    scrollbar-color: var(--color-scrollbar) transparent;
+
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--color-scrollbar);
+    }
+  }
+}
+
+body:not(.is-ios) {
+  .custom-scroll {
+    &::-webkit-scrollbar {
+      width: 0.375rem;
+    }
+  }
+
+  .custom-scroll-x {
+    &::-webkit-scrollbar {
+      height: 0.375rem;
+    }
+  }
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.no-overscroll {
+  overscroll-behavior: none;
+}
+
+.no-touch {
+  touch-action: none;
+}
+
+.flex-grow {
+  flex-grow: 1;
+}
+
+.icon {
+  @include iconsMixins.icon;
+}
+
+.emoji-small {
+  overflow: hidden;
+  display: inline-block;
+  flex-shrink: 0;
+
+  width: var(--emoji-size);
+  height: var(--emoji-size);
+  margin-inline-end: 1px;
+
+  color: transparent;
+
+  background: no-repeat;
+  background-size: var(--emoji-size);
+
+  &::selection {
+    color: transparent;
+    background-color: var(--color-selection-highlight-emoji);
+  }
+}
+
+.div-button {
+  cursor: var(--custom-cursor, pointer);
+  outline: none !important;
+}
+
+.opacity-transition {
+  opacity: 1;
+  transition: opacity 0.15s ease;
+
+  &.not-open {
+    opacity: 0;
+  }
+
+  &.not-shown {
+    display: none;
+  }
+
+  &.slow {
+    transition-duration: 0.3s;
+  }
+}
+
+.interactive-gift {
+  canvas {
+    transition: 250ms transform;
+  }
+
+  @media (hover: hover) {
+    &:hover, &:focus-visible {
+      canvas {
+        transform: scale(1.1);
+      }
+    }
+  }
+}
+
+.color-primary {
+  color: var(--color-primary) !important;
+}
+
+.color-danger {
+  color: var(--color-error) !important;
+}
+
+.text-muted {
+  color: var(--color-text-secondary) !important;
+}
+
+.protector {
+  user-select: none;
+
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  -webkit-touch-callout: none;
+}
+
+.for-ios-autocapitalization-fix {
+  position: fixed;
+  z-index: -1;
+  bottom: 1rem;
+
+  font-size: 16px;
+
+  opacity: 0;
+}
+
+.emoji-test-element {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  display: inline;
+
+  white-space: nowrap;
+
+  opacity: 0;
+}
+
+.in-text-icon {
+  line-height: inherit;
+  vertical-align: bottom;
+}
+
+.link-arrow-icon {
+  font-size: var(--next-arrow-size, 0.5625em);
+  font-weight: var(--next-arrow-weight, inherit);
+  line-height: inherit;
+}
+
+.shared-canvas-container {
+  position: relative;
+}
+
+.shared-canvas,
+.absolute-video-container {
+  pointer-events: none;
+
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+}
+
+.with-notch {
+  &::before {
+    content: "";
+
+    position: absolute;
+    z-index: var(--z-scroll-notch);
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 1px;
+
+    opacity: 0;
+    background-color: var(--color-borders);
+
+    transition: opacity 0.2s ease-in-out;
+  }
+
+  &.scrolled {
+    &::before {
+      opacity: 1;
+    }
+  }
+}
+
+.with-bottom-notch {
+  border-bottom: 1px solid var(--color-borders);
+  transition: border-color 0.2s ease-in-out;
+
+  &.scrolled-to-end {
+    border-bottom-color: transparent;
+  }
+}
+
+@keyframes grow-icon {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes hide-icon {
+  from {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+
+  to {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+}
+
+@keyframes vt-expand-icon-spin {
+  to {
+    transform: rotate(180deg);
+  }
+}
+
+@keyframes vt-collapse-icon-spin {
+  to {
+    transform: rotate(-180deg);
+  }
+}
+
+.component-theme-dark {
+  --color-background: rgb(33, 33, 33);
+  --color-background-compact-menu: rgb(33, 33, 33, 0.867);
+  --color-background-compact-menu-reactions: rgb(33, 33, 33, 0.867);
+  --color-background-compact-menu-hover: rgb(0, 0, 0, 0.4);
+  --color-background-menu-separator: rgba(255, 255, 255, 0.102);
+  --color-background-secondary: rgb(15, 15, 15);
+  --color-background-secondary-accent: rgb(25, 25, 25);
+  --color-background-own: rgb(118, 106, 200);
+  --color-background-own-apple: rgb(118, 106, 200);
+  --color-background-selected: rgb(44, 44, 44);
+  --color-background-own-selected: rgb(101, 73, 212);
+  --color-chat-hover: rgb(44, 44, 44);
+  --color-chat-active: rgb(118, 106, 200);
+  --color-chat-active-greyed: rgb(146, 136, 211);
+  --color-item-hover: rgb(44, 44, 44);
+  --color-item-active: rgb(41, 41, 41);
+  --color-text: rgb(255, 255, 255);
+  --color-text-rgb: 255, 255, 255;
+  --color-text-secondary: rgb(170, 170, 170);
+  --color-text-secondary-rgb: 170, 170, 170;
+  --color-icon-secondary: rgb(170, 170, 170);
+  --color-text-secondary-apple: rgb(170, 170, 170);
+  --color-borders: rgb(48, 48, 48);
+  --color-borders-input: rgb(91, 91, 90);
+  --color-dividers: rgb(59, 59, 61);
+  --color-dividers-android: rgb(15, 15, 15);
+  --color-links: rgb(135, 116, 225);
+  --color-gray: rgb(113, 117, 121);
+  --color-list-icon: rgb(112, 117, 121);
+  --color-default-shadow: rgb(16, 16, 16, 0.612);
+  --color-light-shadow: rgb(0, 0, 0, 0.251);
+  --color-active: rgb(135, 116, 225);
+  --color-success: rgb(0, 199, 62);
+  --color-text-meta-colored: rgb(131, 120, 219);
+  --color-reply-hover: rgb(39, 39, 39);
+  --color-reply-active: rgb(46, 47, 47);
+  --color-reply-own-hover: rgb(135, 117, 218);
+  --color-reply-own-hover-apple: rgb(135, 117, 218);
+  --color-reply-own-active: rgb(145, 125, 234);
+  --color-reply-own-active-apple: rgb(145, 125, 234);
+  --color-accent-own: rgb(255, 255, 255);
+  --color-accent-own-rgb: 255, 255, 255;
+  --color-message-meta-own: rgb(255, 255, 255, 0.533);
+  --color-own-links: rgb(255, 255, 255);
+  --color-code: rgb(135, 116, 225);
+  --color-code-own: rgb(255, 255, 255);
+  --color-code-bg: rgb(0, 0, 0, 0.502);
+  --color-code-own-bg: rgb(0, 0, 0, 0.314);
+  --color-composer-button: rgb(170, 170, 170, 0.8);
+  --color-message-reaction: rgb(43, 42, 53);
+  --color-message-reaction-hover: rgb(52, 49, 71);
+  --color-message-reaction-own: rgb(103, 92, 175);
+  --color-message-reaction-hover-own: rgb(91, 82, 155);
+  --color-message-reaction-chosen-hover: rgb(120, 100, 221);
+  --color-message-reaction-chosen-hover-own: rgb(245, 245, 245);
+  --color-message-non-contact: rgb(204, 238, 191);
+  --color-voice-transcribe-button: rgb(42, 42, 60);
+  --color-voice-transcribe-button-own: rgb(131, 115, 211);
+  --color-topic-blue: rgb(111, 249, 240);
+  --color-topic-yellow: rgb(255, 214, 126);
+  --color-topic-violet: rgb(203, 134, 219);
+  --color-topic-green: rgb(142, 238, 152);
+  --color-topic-rose: rgb(255, 147, 178);
+  --color-topic-red: rgb(251, 111, 95);
+  --color-topic-grey: rgb(153, 153, 153);
+  --color-forum-unread-topic-hover: rgb(54, 54, 54);
+  --color-forum-hover-unread-topic-hover: rgb(63, 63, 63);
+  --color-chat-username: rgb(233, 238, 244);
+}
+
+@view-transition {
+  navigation: auto;
+  types: page;
+}
+
+:root {
+  view-transition-name: none;
+
+  @include mixins.with-vt-type('page');
+}
+
+@include mixins.on-active-vt('page') {
+  &::view-transition-group(root) {
+    animation-duration: 400ms;
+  }
+}
+
+body.is-android,
+body.is-ios {
+  padding-top: env(safe-area-inset-top) !important;
+  padding-bottom: env(safe-area-inset-bottom) !important;
+  padding-left: env(safe-area-inset-left) !important;
+  padding-right: env(safe-area-inset-right) !important;
+  box-sizing: border-box !important;
+}
+
+body.is-android *,
+body.is-ios * {
+  box-sizing: border-box !important;
+}
+

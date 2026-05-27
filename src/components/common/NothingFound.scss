@@ -1,0 +1,29 @@
+.NothingFound {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-meta);
+
+  &.with-description,
+  &.with-sticker {
+    flex-direction: column;
+  }
+
+  .sticker {
+    margin-bottom: 1rem;
+  }
+
+  .AnimatedSticker {
+    margin: 0 auto;
+  }
+
+  .description {
+    unicode-bidi: plaintext;
+
+    margin: 1rem 0 0;
+
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    text-align: center;
+  }
+}

@@ -1,0 +1,17 @@
+.root {
+  cursor: pointer;
+}
+
+.lock-icon {
+  position: absolute;
+  top: 50%;
+  left: 1.3125rem;
+  transform: translateY(-50%);
+
+  font-size: 0.875rem;
+  color: var(--color-gray);
+}
+
+.checked .lock-icon {
+  color: var(--color-primary);
+}

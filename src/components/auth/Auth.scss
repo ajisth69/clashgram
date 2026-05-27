@@ -1,0 +1,260 @@
+.Auth {
+  height: 100%;
+}
+
+.auth-form {
+  width: 100%;
+  max-width: 25.5rem;
+  margin: 0 auto;
+  padding: 6rem 1rem 1rem;
+
+  text-align: center;
+
+  #logo,
+  .AvatarEditable label {
+    display: block;
+
+    width: 7.5rem;
+    height: 7.5rem;
+    margin-right: auto;
+    margin-bottom: 1.75rem;
+    margin-left: auto;
+
+    body.is-tauri & {
+      width: 6rem;
+      height: 6rem;
+      margin-bottom: 1.75rem;
+    }
+
+    @media (min-width: 600px) and (min-height: 450px) {
+      width: 10rem;
+      height: 10rem;
+      margin-bottom: 2.5rem;
+    }
+  }
+
+  #logo {
+    background: url("../../assets/clashgram-logo.svg") center no-repeat;
+    background-size: 100%;
+  }
+
+  h1 {
+    font-size: 1.25rem;
+    line-height: 1;
+
+    @media (min-width: 600px) {
+      font-size: 2rem;
+      line-height: 1.5;
+    }
+  }
+
+  .note {
+    margin-bottom: 2.5rem;
+    font-size: 0.875rem;
+    line-height: 1.35;
+    color: var(--color-text-secondary);
+
+    @media (min-width: 600px) {
+      margin-bottom: 3rem;
+      font-size: 1rem;
+    }
+  }
+
+  body.is-tauri #auth-phone-number-form & {
+    padding-top: 3rem;
+
+    .form {
+      min-height: 0;
+    }
+  }
+
+  @media (min-width: 600px) and (min-height: 450px) {
+    padding: 6.8125rem 1.5rem 1.5rem;
+
+    &.qr {
+      padding-top: 4rem;
+    }
+  }
+}
+
+#auth-registration-form,
+#auth-phone-number-form,
+#auth-code-form,
+#auth-password-form,
+#auth-qr-form {
+  overflow-y: auto;
+  height: 100%;
+}
+
+#auth-phone-number-form {
+  .form {
+    min-height: 26.25rem;
+  }
+}
+
+#auth-code-form,
+#auth-password-form {
+  h1 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.auth-number-edit {
+  cursor: var(--custom-cursor, pointer);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0.5rem;
+
+  font-size: 1.5rem;
+  color: var(--color-text-secondary);
+
+  opacity: 0.75;
+
+  &:hover,
+  &:focus {
+    opacity: 1;
+  }
+}
+
+.auth-button {
+  margin-top: 2.5rem;
+}
+
+.auth-button + .auth-button {
+  margin-top: 0.5rem;
+}
+
+.auth-button.text + .auth-button.text {
+  margin-top: 0;
+}
+
+#auth-qr-form {
+  .qr-outer {
+    position: relative;
+    height: 280px;
+  }
+
+  .qr-inner,
+  .qr-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    display: flex;
+    justify-content: center;
+
+    width: 100%;
+    height: 280px;
+  }
+
+  .qr-inner {
+    transition: none !important;
+    &.open {
+      animation: qr-show 400ms ease-in-out forwards;
+    }
+
+    &:not(.shown) {
+      display: none;
+    }
+  }
+
+  .qr-loading {
+    transition: opacity 1ms;
+  }
+
+  .qr-plane {
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    border-radius: 50%;
+
+    background-color: var(--color-clashgram-blue);
+  }
+
+  .qr-container {
+    overflow: hidden;
+    border-radius: 1.5rem;
+    background-color: white;
+  }
+
+  h1 {
+    margin: 1.5rem 0 1rem 0;
+    font-size: 1.25rem;
+  }
+
+  ol {
+    counter-reset: item;
+    padding: 0 1.75rem;
+    list-style: none;
+
+    li {
+      counter-increment: item;
+      display: flex;
+      margin: 0.75rem 0;
+      text-align: left;
+
+      &::before {
+        content: counter(item);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        min-width: 1.375rem;
+        height: 1.375rem;
+        margin: 0.0625rem 0.75rem 0 0;
+        padding: 0;
+        border-radius: 50%;
+
+        font-size: 0.875rem;
+        color: white;
+
+        background: var(--color-primary);
+      }
+    }
+  }
+}
+
+#sign-in-password {
+  word-break: normal !important;
+}
+
+.test-server-badge {
+  position: fixed;
+  right: 0.5rem;
+  bottom: 0.5rem;
+}
+
+.auth-close {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+
+  body.is-tauri & {
+    left: var(--window-controls-width);
+  }
+}
+
+@keyframes qr-show {
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}

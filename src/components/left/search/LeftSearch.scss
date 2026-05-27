@@ -1,0 +1,287 @@
+@use "../../../styles/mixins";
+
+.LeftSearch {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  & > .Transition {
+    overflow: hidden;
+    flex: 1;
+  }
+
+  .SquareTabList {
+    z-index: 1;
+  }
+
+  &--content {
+    overflow-y: auto;
+    height: 100%;
+    padding-top: 0.5rem;
+  }
+
+  &--media {
+    padding-top: 0;
+  }
+
+  .documents-list {
+    padding-bottom: 1.25rem;
+    padding-left: 0.75rem;
+
+    .ListItem {
+      padding-inline: 0.5rem;
+    }
+
+    .ListItem + .ListItem {
+      padding-block: 0.5rem;
+    }
+  }
+
+  .section-heading {
+    position: relative;
+
+    margin-bottom: 1rem;
+    padding-top: 0.625rem;
+    padding-left: 0.5rem;
+
+    font-size: 1rem;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+
+    &-first {
+      padding-top: 0.75rem;
+    }
+
+    &[dir="rtl"],
+    &[dir="auto"] {
+      margin: 0 -1.25rem 0 1rem !important;
+      padding-right: 1.25rem;
+      padding-left: 0;
+      text-align: initial;
+
+      &::before {
+        right: 0.625rem;
+        left: auto;
+      }
+    }
+
+    &.topic-search-heading {
+      margin-left: -1.0625rem !important;
+      padding-left: 2.125rem;
+    }
+  }
+
+  .LeftSearch .search-section .section-heading,
+  .RecentContacts .search-section .section-heading {
+    &::before {
+      display: none;
+    }
+
+    &.without-border {
+      box-shadow: none;
+    }
+  }
+
+  .WebLink {
+    display: flex;
+  }
+
+  .content:not(.with-seekline) {
+    overflow: hidden;
+    flex-grow: 1;
+    align-self: center;
+
+    min-width: 0;
+
+    text-overflow: ellipsis;
+    overflow-wrap: anywhere;
+  }
+
+  .message-date {
+    padding-left: 1rem;
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+  }
+
+  .media-list {
+    display: grid;
+    grid-auto-rows: 1fr;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.25rem;
+
+    padding: 0.5rem;
+
+    @include mixins.adapt-padding-to-scrollbar(0.5rem);
+  }
+
+  .Audio {
+    .ProgressSpinner {
+      margin: -0.1875rem 0 0 -0.1875rem;
+    }
+  }
+
+  .ListItem.search-result {
+    .ListItem-button {
+      padding: 0.375rem;
+    }
+
+    .ChatInfo {
+      margin: -0.0625rem;
+      // Fix for overflow hidden and stories indicator
+      padding: 0.0625rem;
+
+      .handle {
+        unicode-bidi: plaintext;
+        color: var(--color-primary);
+
+        &::before {
+          content: "@";
+          html[lang="ar"] & {
+            content: " ،@";
+            margin-inline-end: 0.25rem;
+          }
+        }
+
+        &.withStatus::after {
+          content: ", ";
+          color: var(--color-text-secondary);
+
+          html[lang="ar"] & {
+            content: "";
+          }
+        }
+      }
+
+      &[dir="rtl"] {
+        .status {
+          text-align: right;
+
+          .handle {
+            float: right;
+          }
+        }
+      }
+    }
+
+    .topic-item {
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+
+      font-size: 1rem;
+      font-weight: var(--font-weight-medium);
+      line-height: 1.6875rem;
+
+      .topic-icon {
+        --custom-emoji-size: 2rem;
+
+        width: 2rem;
+        height: 2rem;
+        margin-inline-end: 0.25rem !important;
+        font-size: 2rem !important;
+      }
+
+      .fullName {
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    .search-sponsored-badge {
+      cursor: pointer;
+      display: flex;
+      align-self: flex-start;
+      &:hover {
+        filter: brightness(1.1);
+      }
+    }
+
+    .search-result-miniapp-button {
+      height: auto !important;
+      padding: 0 0.4375rem !important;
+      font-size: 0.875rem !important;
+      line-height: 1.5rem;
+    }
+  }
+
+  .search-section {
+    padding: 0.5rem;
+
+    @include mixins.adapt-padding-to-scrollbar(0.5rem);
+
+    .section-heading {
+      margin-bottom: 0.625rem !important;
+
+      .Link {
+        float: right;
+
+        margin-right: 0.5rem;
+
+        font-weight: var(--font-weight-medium);
+        color: var(--color-links);
+
+        transition: opacity 0.15s ease-in;
+
+        &:active,
+        &:hover {
+          text-decoration: none;
+          opacity: 0.85;
+        }
+      }
+
+      &[dir="rtl"],
+      &[dir="auto"] {
+        .Link {
+          float: left;
+          margin-right: 0;
+          margin-left: 1rem;
+        }
+      }
+    }
+
+    .Loading {
+      height: 4.5rem;
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  .chat-selection {
+    overflow-x: auto;
+    overflow-y: hidden;
+    display: flex;
+    flex-shrink: 0;
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    padding-bottom: 0.5rem;
+    padding-inline: 0.25rem;
+
+    background-color: var(--color-background);
+    box-shadow: inset 0 -1px 0 0 var(--color-borders);
+
+    -webkit-overflow-scrolling: touch;
+
+    &::after {
+      content: "";
+      flex-grow: 1;
+    }
+
+    .left-search-local-suggestion {
+      flex-shrink: 0;
+    }
+  }
+
+  .NothingFound {
+    height: 100%;
+  }
+
+  [dir="rtl"] {
+    .message-date {
+      padding-right: 1rem;
+      padding-left: 0;
+    }
+  }
+}

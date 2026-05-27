@@ -1,0 +1,44 @@
+@mixin gpu-layer {
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+@mixin compositor-transition($properties...) {
+  transition-property: $properties;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+.gpu-layer {
+  @include gpu-layer;
+}
+
+.compositor-fade {
+  will-change: opacity;
+}
+
+.compositor-move {
+  @include gpu-layer;
+}
+
+.virtual-scroll-viewport {
+  contain: strict;
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.virtual-scroll-spacer {
+  flex: none;
+  width: 100%;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gpu-layer,
+  .compositor-fade,
+  .compositor-move {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+  }
+}

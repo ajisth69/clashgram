@@ -1,0 +1,54 @@
+.root {
+  --_status-size: 1.25rem;
+
+  display: flex !important;
+  gap: 0.25rem;
+  align-items: center;
+
+  .statusTransition {
+    width: var(--_status-size) !important;
+    height: var(--_status-size) !important;
+  }
+}
+
+.fullName {
+  overflow: hidden;
+
+  margin-bottom: 0;
+
+  font-size: 1em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &.canCopy {
+    pointer-events: all;
+  }
+}
+
+.statusTransitionSlide {
+  display: flex;
+  align-items: center;
+}
+
+.monoforumBadge {
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+
+  font-size: 0.625rem;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-white);
+
+  background-color: var(--color-gray);
+}
+
+.statusPrimaryColor {
+  color: var(--color-primary);
+
+  :global(.statusSparkles) {
+    color: var(--accent-color);
+    :global(.selected) & {
+      color: white;
+    }
+  }
+}

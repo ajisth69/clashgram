@@ -1,0 +1,95 @@
+.root {
+  position: relative;
+  z-index: 2;
+
+  display: grid;
+  grid-auto-columns: 0.5rem;
+  grid-auto-rows: 0.5rem;
+  place-content: center;
+  place-items: center;
+
+  height: 5rem;
+}
+
+.preview {
+  grid-auto-columns: 0.25rem;
+  grid-auto-rows: 0.25rem;
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.count {
+  z-index: 1;
+
+  display: flex;
+  align-items: center;
+
+  font-size: 2rem;
+  line-height: 1;
+  color: white;
+}
+
+.thumb {
+  position: relative;
+
+  overflow: hidden;
+
+  width: 5rem;
+  height: 5rem;
+  border-radius: 1rem;
+
+  outline: 0.25rem solid var(--color-background);
+}
+
+.preview .thumb {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  outline-width: 0.125rem;
+}
+
+.noOutline {
+  outline: none;
+}
+
+.thumb:nth-child(1),
+.itemCount1 .count {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.thumb:nth-child(2),
+.itemCount2 .count {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.thumb:nth-child(3),
+.itemCount3 .count {
+  grid-column: 3;
+  grid-row: 3;
+}
+
+.blurry, .full {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.full {
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

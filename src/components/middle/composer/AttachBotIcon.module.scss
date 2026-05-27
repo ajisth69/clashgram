@@ -1,0 +1,22 @@
+.root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 1.5rem;
+  height: 1.5rem;
+
+  &.compact {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+.image {
+  position: absolute;
+  width: 1.75rem;
+
+  &.compact {
+    width: 1.5rem;
+  }
+}

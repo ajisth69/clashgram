@@ -1,0 +1,37 @@
+@layer ui.input {
+  .root {
+    cursor: var(--custom-cursor, pointer);
+
+    flex-shrink: 0;
+
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0;
+    border: 0.125rem solid var(--ui-border-color, var(--color-borders-input));
+    border-radius: 50%;
+
+    appearance: none;
+    background-color: var(--ui-bg-color, transparent);
+    background-image: radial-gradient(circle, var(--ui-accent-color, var(--color-primary)) 0 55%, transparent 60%);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 0 0;
+
+    transition: border-color 0.15s ease, background-size 0.15s ease;
+
+    &:checked {
+      border-color: var(--ui-accent-color, var(--color-primary));
+      background-size: 0.5rem 0.5rem;
+    }
+
+    &:disabled {
+      cursor: default;
+      opacity: var(--input-disabled-opacity, 0.5);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ui-accent-color, var(--color-primary));
+      outline-offset: 2px;
+    }
+  }
+}

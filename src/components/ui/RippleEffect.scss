@@ -1,0 +1,42 @@
+@keyframes ripple-animation {
+  from {
+    transform: scale(0);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  to {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.ripple-container {
+  pointer-events: none;
+
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  body.no-page-transitions & {
+    display: none;
+  }
+
+  .ripple-wave {
+    pointer-events: none;
+
+    position: absolute;
+    transform: scale(0);
+
+    display: block;
+
+    border-radius: 50%;
+
+    background-color: var(--ripple-color, rgba(0, 0, 0, 0.08));
+
+    animation: ripple-animation 700ms;
+  }
+}

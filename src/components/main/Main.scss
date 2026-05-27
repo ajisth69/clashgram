@@ -1,0 +1,235 @@
+#Main {
+  overflow: hidden;
+  height: 100%;
+  text-align: left;
+
+  &.folders-sidebar-visible {
+    grid-template-columns: auto auto 1fr;
+  }
+
+  @media (min-width: 1276px) {
+    position: relative;
+  }
+
+  @media (max-width: 600px) {
+    height: calc(var(--vh, 1vh) * 100);
+  }
+
+  @media (min-width: 926px) {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: 100%;
+  }
+}
+
+.has-call-header {
+  --call-header-height: 2rem;
+
+  #LeftColumn, #MiddleColumn, #RightColumn-wrapper {
+    height: calc(100% - var(--call-header-height));
+    margin-top: var(--call-header-height);
+  }
+}
+
+#LeftColumn {
+  --left-column-min-width: 16rem;
+  --left-column-max-width: 26.5rem;
+
+  position: relative;
+
+  overflow: hidden;
+
+  width: 33vw;
+  min-width: var(--left-column-min-width);
+  max-width: var(--left-column-max-width);
+  height: 100%;
+
+  background-color: var(--color-background);
+
+  @media (min-width: 926px) {
+    --left-column-max-width: 40vw;
+
+    .folders-sidebar-visible & {
+      --left-column-max-width: calc(40vw - var(--folders-sidebar-width));
+    }
+  }
+
+  @media (min-width: 1276px) {
+    --left-column-max-width: 33vw;
+
+    width: 25vw;
+
+    .folders-sidebar-visible & {
+      --left-column-max-width: calc(33vw - var(--folders-sidebar-width));
+    }
+  }
+
+  @media (max-width: 925px) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translate3d(-5rem, 0, 0);
+
+    width: 26.5rem !important;
+    height: calc(var(--vh, 1vh) * 100);
+
+    transition: transform var(--layer-transition);
+
+    &::after {
+      pointer-events: none;
+      content: '';
+
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+
+      display: block;
+
+      opacity: 0;
+      background: black;
+
+      transition: opacity var(--layer-transition);
+
+      body.no-page-transitions & {
+        transition: none;
+      }
+
+      // @optimization
+      body.is-android & {
+        display: none;
+      }
+
+      body.is-android #Main.left-column-animating &,
+      body.is-android #Main:not(.left-column-open) & {
+        display: block;
+      }
+
+      body:not(.is-android) #Main:not(.left-column-open) &,
+      body.android-left-blackout-open & {
+        opacity: var(--layer-blackout-opacity);
+      }
+    }
+
+    body.no-page-transitions & {
+      transition: none;
+    }
+
+    #Main.left-column-open & {
+      transform: translate3d(0, 0, 0);
+    }
+
+    #Main.history-animation-disabled & {
+      transition: none;
+
+      &:after {
+        transition: none;
+      }
+    }
+  }
+
+  @media (max-width: 600px) {
+    --left-column-max-width: calc(100vw - env(safe-area-inset-left));
+
+    left: env(safe-area-inset-left) !important;
+    transform: translate3d(-20vw, 0, 0);
+
+    width: calc(100vw - env(safe-area-inset-left)) !important;
+    max-width: none;
+    height: calc(var(--vh, 1vh) * 100);
+
+    // Fix: when opening the SymbolMenu, the chat list flashes in the background
+    body.is-symbol-menu-open &::before {
+      content: '';
+
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+
+      background: var(--color-background);
+    }
+  }
+}
+
+#RightColumn {
+
+  #Main.history-animation-disabled & {
+    transition: none;
+
+    .overlay-backdrop {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    height: calc(var(--vh, 1vh) * 100 + 1px);
+  }
+}
+
+#Main.history-animation-disabled .overlay-backdrop {
+  transition: none;
+}
+
+#MiddleColumn {
+  border-left: 1px solid var(--color-borders);
+
+  #Main.history-animation-disabled & {
+    transition: none;
+
+    &:after {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 925px) {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translate3d(0, 0, 0);
+
+    max-width: none;
+
+    transition: transform var(--layer-transition);
+
+    body.no-page-transitions & {
+      transition: none;
+    }
+
+    #Main.left-column-open & {
+      transform: translate3d(26.5rem, 0, 0);
+    }
+
+    body.no-right-column-animations #Main.right-column-open &,
+    body.no-right-column-animations #Main.right-column-shown & {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    border-left: none;
+
+    #Main.left-column-open & {
+      transform: translate3d(100vw, 0, 0);
+    }
+
+    #Main.right-column-open & {
+      transform: translate3d(-20vw, 0, 0);
+    }
+  }
+}
+
+@media (max-width: 925px) {
+  .folders-sidebar-visible {
+    #LeftColumn {
+      left: var(--folders-sidebar-width) !important;
+      width: 21.5rem !important;
+    }
+  }
+}

@@ -1,0 +1,71 @@
+@use "../../../styles/mixins";
+
+.EmojiPicker {
+  --emoji-size: 2.25rem;
+  --color-primary: var(--color-text);
+
+  height: 100%;
+
+  &-main {
+    overflow-y: auto;
+    height: calc(100% - 3rem);
+    padding: 0.5rem 0.75rem;
+
+    @include mixins.adapt-padding-to-scrollbar(0.75rem);
+
+    @media (max-width: 600px) {
+      padding: 0.5rem 0.25rem;
+
+      @include mixins.adapt-padding-to-scrollbar(0.25rem);
+    }
+  }
+
+  &-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    height: 3rem;
+
+    &.with-top-border {
+      /* stylelint-disable-next-line plugin/whole-pixel */
+      box-shadow: inset 0 -0.5px 0 0 var(--color-borders-alternate);
+    }
+
+    @media (max-width: 600px) {
+      scrollbar-color: rgba(0, 0, 0, 0);
+      scrollbar-width: none;
+
+      overflow-x: auto;
+      overflow-y: hidden;
+      justify-content: space-between;
+
+      padding: 0.4375rem 0;
+
+      white-space: nowrap;
+
+      &::-webkit-scrollbar {
+        height: 0;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0);
+      }
+
+      // Spacer to counter last button margin not being accounted in scroll width
+      &::after {
+        content: "";
+
+        display: block;
+        flex-shrink: 0;
+
+        width: 1px;
+        height: 1rem;
+      }
+
+      .symbol-set-button {
+        display: inline-flex;
+        vertical-align: middle;
+      }
+    }
+  }
+}

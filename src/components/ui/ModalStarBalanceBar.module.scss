@@ -1,0 +1,50 @@
+.root {
+  z-index: var(--z-modal);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 2rem;
+
+  font-size: 0.875rem;
+  color: var(--color-text);
+  white-space: nowrap;
+
+  background-color: var(--color-background);
+
+  transition: transform 0.2s ease, opacity 0.2s ease;
+
+  &.hidden {
+    pointer-events: none;
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  :global(.confirm) & {
+    z-index: var(--z-modal-confirm);
+  }
+
+  :global(.low-priority) & {
+    z-index: var(--z-modal-low-priority);
+  }
+
+  :global(body:not(.no-page-transitions)) .dots {
+    transform: none !important;
+    transition: none;
+  }
+}
+
+.tonInUsdDescription {
+  color: var(--color-text-secondary);
+}
+
+.tonInUsdDescription,
+.getMoreStarsLink {
+  --next-arrow-weight: 600;
+
+  font-weight: var(--font-weight-semibold);
+}

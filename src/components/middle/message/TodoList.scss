@@ -1,0 +1,147 @@
+.todo-list {
+  min-width: 15rem;
+  text-align: initial;
+
+  .todo-list-readonly-item {
+    display: flex;
+    align-items: center;
+    padding-bottom: 0.5rem;
+  }
+
+  .todo-readonly-item-checkbox {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+
+    width: 1rem;
+    height: 1rem;
+    margin-inline-end: 0.5rem;
+
+    font-weight: var(--font-weight-semibold);
+    color: var(--accent-color);
+  }
+
+  .readonly-item-label {
+    overflow-wrap: anywhere;
+  }
+
+  .todo-item-bullet-point {
+    width: 0.25rem;
+    height: 0.25rem;
+    border-radius: 50%;
+    background-color: var(--accent-color);
+  }
+
+  .completed-label {
+    text-decoration: line-through;
+  }
+
+  .Checkbox {
+    min-height: 2.5rem;
+    padding-bottom: 1.25rem;
+    padding-left: 2.5rem;
+
+    &.withSubLabel {
+      padding-bottom: 0.25rem;
+    }
+
+    &.disabled {
+      opacity: 1 !important;
+
+      .Checkbox-main {
+        &::before,
+        &::after {
+          pointer-events: auto;
+        }
+      }
+    }
+
+    &:hover {
+      background: none;
+    }
+
+    .Checkbox-main {
+      padding: 0 !important;
+
+      &::before {
+        --color-borders-input: var(--secondary-color);
+
+        background-color: var(--background-color);
+      }
+
+      &::after {
+        background-color: var(--accent-color);
+        outline: 1px solid var(--background-color);
+
+        .theme-dark .Message.own & {
+          color: var(--color-primary);
+        }
+      }
+
+      .user-avatar,
+      &::before,
+      &::after {
+        top: 0.6875rem;
+        left: 0.125rem;
+      }
+
+      .user-avatar {
+        left: 0.875rem;
+      }
+
+      .label {
+        line-height: 1.3125rem;
+      }
+
+      .subLabel {
+        margin-top: 0;
+        font-size: 0.75rem;
+        color: var(--secondary-color);
+      }
+    }
+
+    input:checked ~ .Checkbox-main {
+      &::before {
+        border-color: var(--accent-color);
+      }
+    }
+
+    .Spinner {
+      top: 0.6875rem;
+      left: 0.125rem;
+    }
+
+    &.loading {
+      .Spinner {
+        top: 0;
+      }
+    }
+  }
+
+  .todo-list-title {
+    margin: 0.125rem 0;
+    font-weight: var(--font-weight-medium);
+    line-height: 1.25rem;
+    overflow-wrap: anywhere;
+  }
+
+  .list-type,
+  .completed-tasks-count {
+    font-size: 0.875rem;
+    color: var(--secondary-color);
+  }
+
+  .list-type {
+    margin-bottom: 0.5rem;
+  }
+
+  .completed-tasks-count {
+    margin: 0 0 1.125rem;
+    text-align: center;
+  }
+
+  @media (max-width: 600px) {
+    min-width: 50vw;
+  }
+}

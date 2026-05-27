@@ -1,0 +1,20 @@
+@use "../../../styles/mixins";
+
+.root {
+  @include mixins.middle-header-pane;
+
+  display: flex;
+  justify-content: center;
+
+  height: auto;
+  padding-inline: 1rem;
+
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.icon {
+  --custom-emoji-size: 1rem;
+
+  padding-inline-end: 0.125rem;
+}

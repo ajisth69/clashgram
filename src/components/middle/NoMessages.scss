@@ -1,0 +1,81 @@
+@use "../../styles/mixins";
+
+.NoMessages {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+
+  .no-messages-icon {
+    margin: 0 auto 1rem;
+    font-size: 5rem;
+  }
+
+  .topic-icon {
+    --custom-emoji-size: 3rem;
+
+    width: 3rem;
+    height: 3rem;
+    font-size: 2rem;
+  }
+
+  .wrapper {
+    display: inline-flex;
+    flex-direction: column;
+
+    max-width: 20rem;
+    padding: 0.75rem 1rem;
+    border-radius: 1.5rem;
+
+    color: #fff;
+
+    @include mixins.action-message-bg;
+
+    &[dir="rtl"] {
+      text-align: right;
+    }
+  }
+
+  .title {
+    unicode-bidi: plaintext;
+
+    margin-bottom: 0.25rem;
+
+    font-size: 1rem;
+    font-weight: var(--font-weight-medium);
+    text-align: center;
+  }
+
+  .description {
+    unicode-bidi: plaintext;
+
+    margin: 0;
+    padding: 0;
+
+    font-size: 0.9375rem;
+    list-style: none;
+  }
+
+  .topic-description {
+    padding: 0 1rem;
+    text-align: center;
+  }
+
+  .list-checkmarks {
+    unicode-bidi: plaintext;
+
+    margin: 0.25rem 0 0;
+    padding: 0;
+
+    font-size: 0.9375rem;
+    line-height: 1.8;
+    list-style: none;
+
+    li::before {
+      content: "✓";
+      margin-inline-end: 0.5rem;
+    }
+  }
+}

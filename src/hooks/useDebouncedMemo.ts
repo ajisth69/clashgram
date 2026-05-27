@@ -1,0 +1,57 @@
+import {
+  getIsHeavyAnimating, useCallback, useRef, useState,
+} from '../lib/teact/teact';
+
+import useForceUpdate from './useForceUpdate';
+import useHeavyAnimation from './useHeavyAnimation';
+import useRunDebounced from './useRunDebounced';
+import useSyncEffect from './useSyncEffect';
+
+export default function useDebouncedMemo<R, D extends unknown[]>(
+  resolverFn: () => R, ms: number, dependencies: D,
+): R | undefined {
+  const [value, setValue] = useState<R>();
+  const { isFrozen, updateWhenUnfrozen } = useHeavyAnimationFreeze();
+  const runDebounced = useRunDebounced(ms, true);
+
+  useSyncEffect(() => {
+    if (isFrozen) {
+      updateWhenUnfrozen();
+      return;
+    }
+
+    runDebounced(() => {
+      setValue(resolverFn());
+    });
+  // eslint-disable-next-line react-hooks-static-deps/exhaustive-deps
+  }, [...dependencies, isFrozen]);
+
+  return value;
+}
+
+function useHeavyAnimationFreeze() {
+  const isPendingRef = useRef(false);
+
+  const updateWhenUnfrozen = useCallback(() => {
+    isPendingRef.current = true;
+  }, []);
+
+  const forceUpdate = useForceUpdate();
+  const handleUnfreeze = useCallback(() => {
+    if (!isPendingRef.current) {
+      return;
+    }
+
+    isPendingRef.current = false;
+    forceUpdate();
+  }, [forceUpdate]);
+  useHeavyAnimation(noop, handleUnfreeze);
+
+  return {
+    isFrozen: getIsHeavyAnimating(),
+    updateWhenUnfrozen,
+  };
+}
+
+function noop() {
+}

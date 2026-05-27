@@ -1,0 +1,28 @@
+@font-face {
+  font-family: "{{ fontname }}";
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+  src: url("./{{ fontname }}.woff2?{{ fontHash }}") format("woff2"),
+url("./{{ fontname }}.woff?{{ fontHash }}") format("woff");
+}
+
+.icon-char::before {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  content: attr(data-char);
+  width: 1em;
+  text-align: center;
+  display: block;
+}
+
+.icon-placeholder::before {
+  content: '';
+  display: block;
+  width: 1em;
+}
+
+{% for icon in iconDefinitions -%}
+.icon-{{ icon.publicName }}::before {
+  content: "{{ icon.encodedCode }}";
+}
+{% endfor -%}

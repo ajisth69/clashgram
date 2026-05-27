@@ -1,0 +1,189 @@
+@use '../../../styles/mixins';
+
+.root {
+  --premium-gradient: linear-gradient(88.39deg, #6C93FF -2.56%, #976FFF 51.27%, #DF69D1 107.39%);
+  --premium-feature-background: linear-gradient(65.85deg, #6C93FF -0.24%, #976FFF 53.99%, #DF69D1 110.53%);
+
+  user-select: none;
+}
+
+.root :global(.modal-content) {
+  padding: 0;
+}
+
+.root :global(.modal-dialog) {
+  // The preview must always be a square
+  max-width: 55vh;
+}
+
+.root :global(.modal-dialog), .root :global(.modal-content) {
+  overflow: hidden;
+}
+
+.transition {
+  // TODO Refactor to get rid of unobvious constants
+  height: min(calc(55vh + 41px + 193px), 90vh);
+}
+
+.button {
+  height: 3rem;
+  font-size: 1rem;
+  font-weight: var(--font-weight-semibold);
+}
+
+.main {
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  height: 100%;
+  padding: 1rem 0.5rem;
+
+  @include mixins.adapt-padding-to-scrollbar(0.5rem);
+}
+
+.status-emoji {
+  --custom-emoji-size: 8rem;
+
+  cursor: var(--custom-cursor, pointer);
+  margin: 1rem;
+}
+
+.sticker-wrapper {
+  position: relative;
+  margin: 1rem;
+}
+
+.header-text {
+  margin-inline: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+}
+
+.description {
+  margin-bottom: 2rem;
+  margin-inline: 0.5rem;
+  text-align: center;
+}
+
+.list {
+  width: 100%;
+  margin-bottom: 5rem;
+}
+
+.no-button {
+  margin-bottom: 0;
+}
+
+.header {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  height: 3.5rem;
+  padding: 0.5rem;
+  border-bottom: 0.0625rem solid var(--color-borders);
+
+  background: var(--color-background);
+
+  transition: 0.25s ease-out transform;
+}
+
+.hidden-header {
+  transform: translateY(-100%);
+}
+
+.close-button {
+  position: absolute;
+  z-index: 3;
+  top: 0.875rem;
+  left: 0.875rem;
+}
+
+.premium-header-text {
+  unicode-bidi: plaintext;
+  margin: 0 0 0 3rem;
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-medium);
+}
+
+.footer-text {
+  unicode-bidi: plaintext;
+  margin: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.primary-footer-text {
+  color: var(--color-text);
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  width: 100%;
+  padding: 1rem;
+  border-top: 0.0625rem solid var(--color-borders);
+
+  background: var(--color-background);
+}
+
+.stickerSetText {
+  font-size: 1.25rem;
+}
+
+.stickerSetLink {
+  --custom-emoji-size: 1.5rem;
+
+  cursor: var(--custom-cursor, pointer);
+  color: var(--color-links);
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.stickerSetLinkIcon {
+  margin-inline-end: 0.25rem;
+  vertical-align: middle;
+}
+
+@media (max-width: 600px) {
+  .root :global(.modal-content) {
+    max-height: 100%;
+  }
+
+  .root .transition {
+    height: 100%;
+  }
+}
+
+.subscriptionOptions {
+  width: 100%;
+}
+
+.subscriptionOption {
+  margin: 0.8125rem;
+}
+
+.starParticlesHeader,
+.giftParticlesHeader {
+  position: relative !important;
+}
+
+.starParticlesHeader {
+  padding-top: 10rem !important;
+}
+
+.giftParticlesHeader {
+  padding-top: 11rem !important;
+}

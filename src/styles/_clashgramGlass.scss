@@ -1,0 +1,221 @@
+.clashgram-native-glass {
+  --cg-glass-bg: rgba(33, 33, 33, 0.64);
+  --cg-glass-shadow: rgba(0, 0, 0, 0.15);
+  --cg-glass-refraction: rgba(255, 255, 255, 0.08);
+
+  #LeftColumn,
+  #RightColumn,
+  .MiddleHeader,
+  .Modal .modal-dialog,
+  .Menu.compact:not(.SymbolMenu):not(.AttachMenu--menu) > .bubble,
+  .tg-structural-layer {
+    will-change: backdrop-filter, background-color;
+
+    transform: translateZ(0);
+
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0)) border-box,
+      var(--cg-glass-bg) padding-box !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    box-shadow:
+      inset 0 0 0 1px var(--cg-glass-refraction),
+      0 4px 16px var(--cg-glass-shadow) !important;
+  }
+
+  // Nested elements within LeftColumn, Settings, and RightColumn should be transparent to prevent stacking
+  #LeftColumn-main,
+  #Settings,
+  .Profile,
+  .ArchivedChats,
+  .LeftSearch,
+  .search-content,
+  .ForumPanel,
+  .chat-list,
+  .left-header,
+  .RightHeader,
+  .settings-content,
+  .settings-main-menu,
+  .custom-scroll,
+  .Transition,
+  .Transition_slide,
+  .profileInfo,
+  .ProfileInfo,
+  .sharedMedia,
+  #LeftColumn-main .ChatFolders-content,
+  #LeftColumn-main .ChatFolders,
+  #LeftColumn-main > .Transition,
+  #Settings > .Transition,
+  #RightColumn > .Transition {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .Island,
+  .sharedMediaIsland {
+    background: rgba(var(--color-text-rgb), 0.03) padding-box !important;
+    border: 1px solid rgba(var(--color-text-rgb), 0.06) !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .profileInfo,
+  .ProfileInfo {
+    --profile-info-bg: transparent !important;
+  }
+
+  .sharedMediaTabs {
+    --fade-mask-color: var(--cg-glass-bg) !important;
+  }
+
+  // Prevent transition wrappers from applying solid background colors during animations
+  [class*="Transition"] {
+    background: transparent !important;
+    background-color: transparent !important;
+  }
+
+  // Non-selected list items should be transparent to show the glass background
+  .ListItem:not(.selected) {
+    --background-color: transparent !important;
+
+    &:hover,
+    &.ListItem.has-menu-open,
+    &.focus {
+      --background-color: var(--color-chat-hover) !important;
+    }
+  }
+
+  .Chat:not(.selected):not(.selected-forum) {
+    --background-color: transparent !important;
+
+    &:hover,
+    &.ListItem.has-menu-open,
+    &.focus {
+      --background-color: var(--color-chat-hover) !important;
+    }
+  }
+
+  .left-header,
+  .MiddleHeader,
+  .RightHeader {
+    box-shadow:
+      inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+      0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  .MiddleHeader .header-tools {
+    background-color: transparent !important;
+  }
+
+  .settings-item,
+  .settings-item-simple {
+    background: rgba(var(--color-text-rgb), 0.02) !important;
+    border-bottom: 1px solid rgba(var(--color-text-rgb), 0.06) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+  }
+
+  .settings-credits-banner {
+    background: linear-gradient(180deg, rgba(var(--color-text-rgb), 0.04) 0%, rgba(var(--color-text-rgb), 0) 100%) !important;
+    border-bottom: 1px solid rgba(var(--color-text-rgb), 0.08) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+  }
+
+  .SearchInput {
+    background-color: rgba(var(--color-text-rgb), 0.06) !important;
+    input {
+      color: var(--color-text) !important;
+      &::placeholder {
+        color: var(--color-text-secondary) !important;
+      }
+    }
+  }
+
+  .Menu.compact:not(.SymbolMenu):not(.AttachMenu--menu) > .bubble,
+  .Modal .modal-dialog {
+    box-shadow:
+      inset 0 0 0 1px var(--cg-glass-refraction),
+      0 8px 24px rgba(0, 0, 0, 0.18) !important;
+  }
+
+  .MessageList,
+  .Message,
+  .message-content,
+  .message-content-wrapper,
+  .content-inner,
+  .Composer,
+  .Composer::before,
+  .Composer .composer-wrapper,
+  .Composer .message-input-wrapper,
+  .MessageSelectToolbar,
+  .middle-column-footer,
+  .SymbolMenu,
+  .SymbolMenu .bubble,
+  .AttachMenu--menu .bubble,
+  .GifPicker,
+  .GifPicker .bubble,
+  .StickerPicker,
+  .StickerPicker .bubble,
+  .BotKeyboardMenu .bubble,
+  .media-inner,
+  .media-inner *,
+  .AnimatedSticker,
+  .CustomEmoji,
+  canvas,
+  video,
+  img {
+    will-change: auto !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .Composer .composer-wrapper,
+  .Composer .message-input-wrapper,
+  .messaging-disabled-inner,
+  .MessageSelectToolbar-inner {
+    background-color: var(--color-background) !important;
+  }
+
+  .SymbolMenu .bubble,
+  .AttachMenu--menu .bubble,
+  .GifPicker .bubble,
+  .StickerPicker .bubble,
+  .BotKeyboardMenu .bubble {
+    background: var(--color-background) !important;
+  }
+
+  .Message .message-content.has-solid-background,
+  .Message.own .message-content.has-solid-background {
+    background-color: var(--background-color) !important;
+  }
+}
+
+.clashgram-native-glass.theme-dark {
+  --cg-glass-refraction: rgba(255, 255, 255, 0.07);
+  --cg-glass-shadow: rgba(0, 0, 0, 0.18);
+}
+
+.clashgram-native-glass.theme-light {
+  --cg-glass-refraction: rgba(255, 255, 255, 0.42);
+  --cg-glass-shadow: rgba(31, 41, 55, 0.12);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .clashgram-native-glass {
+    #LeftColumn,
+    #RightColumn,
+    .MiddleHeader,
+    .Modal .modal-dialog,
+    .Menu.compact:not(.SymbolMenu):not(.AttachMenu--menu) > .bubble,
+    .tg-structural-layer {
+      background: var(--color-background) !important;
+    }
+  }
+}

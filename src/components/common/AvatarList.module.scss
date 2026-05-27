@@ -1,0 +1,46 @@
+.root {
+  --_size: 0px;
+  --half-size: calc(var(--_size) / 2);
+  --spacing: calc(var(--_size) * 0.4);
+  --spacing-gap: calc(var(--_size) * 0.04);
+
+  position: relative;
+  display: flex;
+}
+
+.avatar {
+  --radius: calc(var(--half-size) + var(--spacing-gap));
+
+  margin-inline-start: calc(var(--spacing-gap) - var(--spacing));
+  mask: radial-gradient(circle var(--radius) at var(--offset) 50%, transparent 99%, #fff 100%);
+
+  &:first-child {
+    margin-inline-start: 0;
+    mask: none;
+  }
+}
+
+.root[dir="ltr"] .avatar {
+  --offset: calc(0% - var(--half-size) + var(--spacing));
+}
+
+.root[dir="rtl"] .avatar {
+  --offset: calc(100% + var(--half-size) - var(--spacing));
+}
+
+.badge {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+
+  padding: 0rem 0.25rem;
+  border: 1px solid var(--color-background);
+  border-radius: 1rem;
+
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1rem;
+  color: var(--color-white);
+
+  background-color: var(--color-primary);
+}

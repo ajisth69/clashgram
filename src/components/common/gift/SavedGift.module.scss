@@ -1,0 +1,93 @@
+.root {
+  cursor: var(--custom-cursor, pointer);
+
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+
+  min-width: 0;
+  padding: 0.625rem;
+  padding-top: 0.875rem;
+  border-radius: 0.625rem;
+
+  background-color: var(--color-background);
+
+  &::before {
+    pointer-events: none;
+    content: "";
+
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+
+    border-radius: 0.625rem;
+
+    opacity: 0;
+    background-color: var(--color-hover-overlay);
+  }
+
+  &:hover::before {
+    opacity: 0.75;
+  }
+}
+
+.star {
+  font-size: 0.75rem;
+}
+
+.priceBadge {
+  position: absolute;
+  bottom: 0.5rem;
+
+  overflow: visible;
+
+  height: 1.5rem;
+  margin-top: 0.625rem;
+  padding-block: 0.375rem;
+
+  font-size: 0.6875rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+
+  background-color: var(--color-light-shadow);
+  backdrop-filter: blur(0.5rem);
+}
+
+.topIcon {
+  position: absolute;
+  top: 0.25rem;
+  left: 0.25rem;
+  color: white;
+}
+
+.hiddenGift {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  display: grid;
+  place-items: center;
+
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+
+  font-size: 1.25rem;
+  color: white;
+
+  background-color: var(--color-light-shadow);
+  backdrop-filter: blur(0.5rem);
+}
+
+.radialPattern {
+  position: absolute;
+  inset: 0;
+}
+
+.stickerWrapper {
+  position: relative;
+}

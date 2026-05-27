@@ -1,0 +1,58 @@
+.root {
+  display: flex;
+}
+
+.button {
+  margin-inline-end: 0.5rem;
+  color: var(--color-accent) !important;
+
+  :global(.own) & {
+    color: var(--color-accent-own) !important;
+  }
+}
+
+.info {
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  margin-inline-end: 0.5rem;
+}
+
+.reason {
+  font-weight: var(--font-weight-medium);
+}
+
+.arrow {
+  transform: rotateZ(-45deg);
+  display: inline-block;
+  font-size: 1.125rem;
+  color: #4fae4e;
+
+  &.incoming {
+    transform: rotateZ(135deg);
+  }
+
+  :global(.own) & {
+    color: var(--color-accent-own);
+  }
+
+  &.missed, &.canceled {
+    color: var(--color-error);
+  }
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  margin-left: -0.1875rem;
+}
+
+.duration {
+  margin-inline-start: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+
+  :global(.own) & {
+    color: var(--color-message-meta-own);
+  }
+}

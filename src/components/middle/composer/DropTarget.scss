@@ -1,0 +1,130 @@
+.DropTarget {
+  position: relative;
+
+  display: flex;
+  flex: 1 1 auto;
+
+  width: 100%;
+  max-width: 43.75rem;
+  margin-right: auto;
+  margin-bottom: 0.3125rem;
+  margin-left: auto;
+  padding: 1.25rem;
+  border-radius: var(--border-radius-default);
+
+  color: #a4acb3;
+
+  background: var(--color-background);
+  box-shadow: 0 1px 2px var(--color-default-shadow);
+
+  &.hovered {
+    .target-content {
+      color: var(--color-primary);
+    }
+
+    .target-outline {
+      stroke: var(--color-primary);
+      animation-play-state: running;
+    }
+  }
+
+  & + & {
+    margin-top: 0.3125rem;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .target-outline-container {
+    pointer-events: none;
+    overflow: visible;
+    width: 100%;
+    height: 100%;
+  }
+
+  .target-outline {
+    fill: none;
+    stroke: var(--color-placeholders);
+    stroke-dasharray: 11, 8;
+    stroke-dashoffset: 0;
+    stroke-linecap: round;
+    stroke-width: 2;
+
+    transition: 0.2s stroke;
+    animation: outline 0.5s linear infinite;
+    animation-play-state: paused;
+  }
+
+  .target-content {
+    pointer-events: none;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    display: flex;
+    flex: 1 1 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 0.5rem;
+
+    transition: 0.2s color;
+  }
+
+  .icon {
+    margin-bottom: 2.25rem;
+    font-size: 6.25rem;
+    line-height: 4.6875rem;
+
+    @media (max-height: 520px) {
+      margin-bottom: 1rem;
+      font-size: 4.25rem;
+      line-height: 3.5rem;
+    }
+
+    @media (max-height: 450px) {
+      margin-top: 0.25rem;
+      margin-bottom: 0.5rem;
+      font-size: 2rem;
+      line-height: 1rem;
+    }
+  }
+
+  .title {
+    font-size: 1.3125rem;
+    font-weight: var(--font-weight-medium);
+    text-align: center;
+    letter-spacing: -0.18px;
+
+    @media (max-height: 450px) {
+      font-size: 1rem;
+    }
+  }
+
+  .description {
+    font-size: 1rem;
+    text-align: center;
+    letter-spacing: 0.3px;
+
+    @media (max-height: 450px) {
+      font-size: 0.875rem;
+    }
+  }
+
+  @media (max-height: 350px) {
+    padding: 0.75rem;
+  }
+
+  @keyframes outline {
+    from {
+      stroke-dashoffset: 0;
+    }
+    to {
+      stroke-dashoffset: -19;
+    }
+  }
+}

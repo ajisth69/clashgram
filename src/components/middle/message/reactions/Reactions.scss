@@ -1,0 +1,50 @@
+@use "../../../../styles/mixins";
+
+.Reactions {
+  overflow: visible;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+
+  width: 100%;
+  max-width: calc(var(--max-width) + 2.25rem);
+  margin-top: 0.25rem;
+  margin-bottom: 0.1875rem;
+
+  &.is-outside {
+    margin-top: 0.25rem;
+
+    .message-reaction {
+      @include mixins.action-message-bg($noBackground: true);
+    }
+  }
+
+  .is-forwarded.is-inverted-media & {
+    margin-top: 0.5rem;
+    margin-bottom: 0.125rem;
+  }
+
+  &.is-service {
+    justify-content: center;
+    max-width: 19rem;
+    margin-top: 0.3125rem;
+  }
+
+  .own &.is-outside {
+    flex-direction: row-reverse;
+  }
+
+  .theme-light &.is-outside .message-reaction {
+    --reaction-background: var(--pattern-color);
+    --reaction-background-hover: var(--pattern-color);
+    --reaction-background-hover-filter: brightness(115%);
+    --reaction-text-color: white;
+
+    &.chosen {
+      --reaction-background: rgb(255, 255, 255, 0.6);
+      --reaction-background-hover: rgb(255, 255, 255, 0.75);
+      --reaction-text-color: rgb(62 62 62);
+    }
+  }
+}

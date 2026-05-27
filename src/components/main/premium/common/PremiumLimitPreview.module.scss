@@ -1,0 +1,22 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  unicode-bidi: plaintext;
+  margin-left: 0.75rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.description {
+  unicode-bidi: plaintext;
+
+  margin-bottom: 0.5rem;
+  margin-left: 0.75rem;
+
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}

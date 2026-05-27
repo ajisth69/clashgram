@@ -1,0 +1,42 @@
+.AttachMenu {
+  align-self: flex-end;
+
+  &--button {
+    &:focus {
+      color: var(--color-primary);
+    }
+  }
+
+  &--menu {
+    position: relative;
+    top: -3rem;
+
+    .bubble {
+      overflow: auto;
+      max-height: 20rem;
+    }
+
+    .is-pointer-env & {
+      > .backdrop {
+        position: absolute;
+        top: -0.5rem;
+        right: 0;
+        left: auto;
+
+        width: 3.5rem;
+      }
+    }
+
+    .media-disabled > button {
+      white-space: normal;
+    }
+
+    @media (max-width: 600px) {
+      top: -2.875rem;
+    }
+  }
+}
+
+.bot-attach-context-menu {
+  position: absolute;
+}

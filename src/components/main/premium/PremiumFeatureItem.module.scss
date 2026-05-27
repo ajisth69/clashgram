@@ -1,0 +1,42 @@
+.root {
+  display: flex;
+  padding: 0.5rem !important;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  margin-inline-start: 1.75rem !important;
+}
+
+.header {
+  display: flex;
+}
+
+.description {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--color-text-secondary);
+  white-space: pre-wrap;
+}
+
+.icon {
+  align-self: center;
+
+  min-width: 2rem;
+  height: 2rem;
+  margin-left: 1rem;
+  border-radius: 0.625rem;
+
+  background: var(--item-color, #000);
+}
+
+.font-icon {
+  align-self: center;
+
+  margin-right: 0 !important;
+  margin-left: 1rem;
+
+  font-size: 2rem !important;
+  color: var(--item-color, #000) !important;
+}

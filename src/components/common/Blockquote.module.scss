@@ -1,0 +1,37 @@
+@use '../../styles/mixins';
+
+.root {
+  display: inline-block;
+  width: 100%;
+}
+
+.collapsed .blockquote {
+  max-height: 4lh;
+}
+
+.gradientContainer {
+  max-height: inherit;
+  margin-top: 0.125rem;
+  margin-bottom: 0.125rem;
+
+  .collapsed & {
+    @include mixins.gradient-border-bottom(1rem);
+  }
+}
+
+.collapseIcon {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+
+  display: grid;
+  place-items: center;
+
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+}
+
+.clickable {
+  cursor: var(--custom-cursor, pointer);
+}
