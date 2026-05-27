@@ -35,3 +35,18 @@ Clashgram Web A is packed with premium, custom-tailored stealth and utility feat
 
 ⚡ **Utility Actions**
 • Quickly clean your inbox with the "Mark All Chats Read" utility action.
+
+🎙️ **Native Voice Changer**
+• Native Voice Changer for your voice notes (go troll your friends lmao).
+
+♾️ **Unlimited Favorites**
+• Unlimited favorite GIFs & stickers.
+
+🎨 **Animated Themes & Fonts**
+• Animated chat themes + Custom fonts.
+
+⚡ **8 Premium Emojis**
+• 8 Premium Emojis unlocked (via insane WebM asset spoofing).
+
+🛠️ **Zero Lag**
+• Fixed UI bugs, rendering issues, and tab throttling. It’s buttery smooth now.
