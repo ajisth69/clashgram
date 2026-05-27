@@ -1408,10 +1408,14 @@ export default memo(withGlobal<OwnProps>(
     const isGroup = chat && isChatGroup(chat);
     const isChannel = chat && isChatChannel(chat);
     const isBot = user && isUserBot(user);
-    const hasMembersTab = !isTopicInfo && !isSavedDialog && isGroup && !chat?.isMonoforum;
+    const hasMembersTab = !isTopicInfo && !isSavedDialog && !chat?.isMonoforum && (
+      isGroup || (isChannel && (chat.isCreator || Boolean(chat.adminRights)))
+    );
     const members = chatFullInfo?.members;
     const adminMembersById = chatFullInfo?.adminMembersById;
+    const isChatAdminOrCreator = chat && (chat.isCreator || Boolean(chat.adminRights));
     const areMembersHidden = hasMembersTab && chat
+      && !isChatAdminOrCreator
       && (chat.isForbidden || (chatFullInfo && !chatFullInfo.canViewMembers));
     const canAddMembers = hasMembersTab && chat
       && (getHasAdminRight(chat, 'inviteUsers') || (!isChannel && !isUserRightBanned(chat, 'inviteUsers'))

@@ -1,7 +1,7 @@
 import type { FC } from '../../../lib/teact/teact';
 import type React from '../../../lib/teact/teact';
 import {
-  memo, useMemo, useRef, useState,
+  memo, useEffect, useMemo, useRef, useState,
 } from '../../../lib/teact/teact';
 import { getActions, getGlobal, withGlobal } from '../../../global';
 
@@ -85,6 +85,7 @@ const ManageGroupMembers: FC<OwnProps & StateProps> = ({
   const {
     openChat, setUserSearchQuery, closeManagement,
     toggleParticipantsHidden, setNewChatMembersDialogState, toggleManagement,
+    loadMoreMembers,
   } = getActions();
   const lang = useOldLang();
   const inputRef = useRef<HTMLInputElement>();
@@ -114,6 +115,12 @@ const ManageGroupMembers: FC<OwnProps & StateProps> = ({
 
   usePeerStoriesPolling(memberIds);
 
+  useEffect(() => {
+    if (isActive) {
+      loadMoreMembers({ chatId });
+    }
+  }, [chatId, isActive, loadMoreMembers]);
+
   const displayedIds = useMemo(() => {
     // No need for expensive global updates on users, so we avoid them
     const usersById = getGlobal().users.byId;
@@ -140,7 +147,11 @@ const ManageGroupMembers: FC<OwnProps & StateProps> = ({
     );
   }, [memberIds, localContactIds, searchQuery, localUserIds, globalUserIds, isChannel, noAdmins, adminIds]);
 
-  const [viewportIds, getMore] = useInfiniteScroll(undefined, displayedIds, Boolean(searchQuery));
+  const handleLoadMoreMembers = useLastCallback(() => {
+    loadMoreMembers({ chatId });
+  });
+
+  const [viewportIds, getMore] = useInfiniteScroll(handleLoadMoreMembers, displayedIds, Boolean(searchQuery));
 
   const handleMemberClick = useLastCallback((id: string) => {
     if (noAdmins) {

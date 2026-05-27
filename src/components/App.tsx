@@ -215,8 +215,13 @@ const App = ({
 
   useEffect(() => {
     let pingTimeout: ReturnType<typeof setTimeout> | undefined;
+    let lastCheckAt = 0;
 
     const handleReconnectCheck = () => {
+      const now = Date.now();
+      if (now - lastCheckAt < 10000) return; // Throttle checks to once per 10 seconds
+      lastCheckAt = now;
+
       const global = getGlobal();
       const actions = getActions();
 
@@ -244,12 +249,20 @@ const App = ({
       });
     };
 
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        handleReconnectCheck();
+      }
+    };
+
     window.addEventListener('online', handleReconnectCheck);
     window.addEventListener('focus', handleReconnectCheck);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       window.removeEventListener('online', handleReconnectCheck);
       window.removeEventListener('focus', handleReconnectCheck);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (pingTimeout) clearTimeout(pingTimeout);
     };
   }, []);

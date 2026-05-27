@@ -25,7 +25,7 @@ type RequestState = {
 
 type EnsurePromise<T> = Promise<Awaited<T>>;
 
-const HEALTH_CHECK_TIMEOUT = 150;
+const HEALTH_CHECK_TIMEOUT = 500;
 const HEALTH_CHECK_MIN_DELAY = 5 * 1000; // 5 sec
 const NO_QUEUE_BEFORE_INIT = new Set(['destroy']);
 
@@ -103,9 +103,7 @@ export function initApi(onUpdate: OnApiUpdate, initialArgs: ApiInitialArgs) {
     });
     subscribeToWorker(onUpdate);
 
-    if (IS_SAFARI || (initialArgs.platform === 'macOS' && IS_TAURI)) {
-      setupHealthCheck();
-    }
+    setupHealthCheck();
   }
 
   return makeRequest({
@@ -420,12 +418,19 @@ function makeRequest(message: OriginPayload) {
 
 const startedAt = Date.now();
 
-// Workaround for iOS sometimes stops interacting with worker
+// Workaround for background/sleep tab worker suspension and iOS issues
 function setupHealthCheck() {
-  window.addEventListener('focus', () => {
+  const runPing = () => {
     void ensureWorkerPing();
     // Sometimes a single check is not enough
     setTimeout(() => ensureWorkerPing(), 1000);
+  };
+
+  window.addEventListener('focus', runPing);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      runPing();
+    }
   });
 }
 
