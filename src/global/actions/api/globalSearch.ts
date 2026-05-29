@@ -39,7 +39,7 @@ addActionHandler('setGlobalSearchQuery', (global, actions, payload): ActionRetur
     void searchThrottled(async () => {
       const [searchResult, sponsoredResult] = await Promise.all([
         callApi('searchChats', { query }),
-        callApi('fetchSponsoredPeer', { query }),
+        undefined, // Clashgram: ads always blocked
       ]);
 
       global = getGlobal();

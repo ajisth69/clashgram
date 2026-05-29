@@ -1004,7 +1004,7 @@ export default memo(withGlobal<OwnProps>(
     const isEmptyThread = selectThreadInfo(global, chatId, threadId)?.messagesCount === 0;
 
     const isCurrentUserPremium = selectIsCurrentUserPremium(global);
-    const areAdsEnabled = !isCurrentUserPremium || selectUserFullInfo(global, currentUserId)?.areAdsEnabled;
+    const areAdsEnabled = false; // Clashgram: ads always blocked
     const isAccountFrozen = selectIsCurrentUserFrozen(global);
 
     const hasCustomGreeting = Boolean(userFullInfo?.businessIntro);
