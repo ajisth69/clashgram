@@ -58,7 +58,6 @@ import {
   SUPPORTED_VIDEO_CONTENT_TYPES,
 } from '../../../config';
 import { fetchFile } from '../../../util/files';
-import { getMediaHash, getMediaFilename } from '../../../global/helpers/messageMedia';
 import { compact, split } from '../../../util/iteratees';
 import { getMessageKey } from '../../../util/keys/messageKey';
 import { getServerTime } from '../../../util/serverTime';
@@ -2078,6 +2077,46 @@ export function forwardMessagesLocal(params: ForwardMessagesParams) {
   return Promise.resolve({ messageIds, localMessages });
 }
 
+function getDownloadMediaHash(media: any): string | undefined {
+  if (!media || !media.id) return undefined;
+  const base = media.mediaType === 'photo' ? `photo${media.id}` : `document${media.id}`;
+  if (media.mediaType === 'photo' || media.mediaType === 'document') {
+    return base;
+  }
+  if (media.mediaType === 'video' || media.mediaType === 'audio' || media.mediaType === 'voice' || media.mediaType === 'sticker') {
+    return `${base}?download`;
+  }
+  if (media.mediaType === 'webDocument') {
+    return `webDocument:${media.url}`;
+  }
+  return undefined;
+}
+
+function getDownloadMediaFilename(media: any) {
+  if ('fileName' in media && media.fileName) {
+    return media.fileName;
+  }
+
+  if (media.mediaType === 'sticker') {
+    const extension = media.isLottie ? 'tgs' : media.isVideo ? 'webm' : 'webp';
+    return `${media.id}.${extension}`;
+  }
+
+  if (media.mediaType === 'photo') {
+    return `${media.id}.${media.isVideo ? 'mp4' : 'jpg'}`;
+  }
+
+  if (media.mediaType === 'voice') {
+    return `${media.id}.ogg`;
+  }
+
+  if ('id' in media && media.id) {
+    return media.id;
+  }
+
+  return `${media.mediaType}-${Math.random().toString(36).slice(4)}`;
+}
+
 function getMessageDownloadableMedia(message: ApiMessage) {
   const { content } = message;
   return content.photo || content.video || content.document || content.sticker || content.audio || content.voice;
@@ -2108,14 +2147,14 @@ export async function forwardApiMessages(params: ForwardMessagesParams) {
       let attachment: ApiAttachment | undefined;
 
       if (media) {
-        const mediaHash = getMediaHash(media, 'download');
+        const mediaHash = getDownloadMediaHash(media);
         if (mediaHash) {
           try {
             const downloaded = await downloadMedia({ url: mediaHash, mediaFormat: ApiMediaFormat.BlobUrl });
             if (downloaded && downloaded.dataBlob) {
               const blobUrl = URL.createObjectURL(downloaded.dataBlob as Blob);
               attachment = {
-                filename: getMediaFilename(media),
+                filename: getDownloadMediaFilename(media),
                 blobUrl,
                 mimeType: downloaded.mimeType || (media as any).mimeType || 'application/octet-stream',
                 size: (downloaded.dataBlob as Blob).size,
