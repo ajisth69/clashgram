@@ -11,12 +11,28 @@ import { toSignedLittleBuffer } from '../Helpers';
 // eslint-disable-next-line no-restricted-globals
 const CACHING_SUPPORTED = typeof self !== 'undefined' && self.localStorage !== undefined;
 
-const CACHE_KEY = 'GramJs:apiCache';
+const CACHE_KEY = `GramJs:apiCache:${tlContent.length}_${schemeContent.length}`;
 
 type UnsaveVirtualClass = Record<string, any>;
 
 export function buildApiFromTlSchema() {
     let definitions;
+
+    // Clean up old cached schemas to free up localStorage space
+    if (CACHING_SUPPORTED) {
+        try {
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('GramJs:apiCache') && key !== CACHE_KEY) {
+                    localStorage.removeItem(key);
+                    i--;
+                }
+            }
+        } catch (e) {
+            // Ignored
+        }
+    }
+
     const fromCache = CACHING_SUPPORTED && loadFromCache();
 
     if (fromCache) {

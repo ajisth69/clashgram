@@ -34,6 +34,10 @@ import type {
   ApiUserStatus,
   ApiWebPage,
   MediaContent,
+  ApiPhoto,
+  ApiVideo,
+  ApiVoice,
+  ApiAudio,
 } from '../../types';
 import {
   MAIN_THREAD_ID,
@@ -54,6 +58,7 @@ import {
   SUPPORTED_VIDEO_CONTENT_TYPES,
 } from '../../../config';
 import { fetchFile } from '../../../util/files';
+import { getMediaHash, getMediaFilename } from '../../../global/helpers/messageMedia';
 import { compact, split } from '../../../util/iteratees';
 import { getMessageKey } from '../../../util/keys/messageKey';
 import { getServerTime } from '../../../util/serverTime';
@@ -2073,6 +2078,11 @@ export function forwardMessagesLocal(params: ForwardMessagesParams) {
   return Promise.resolve({ messageIds, localMessages });
 }
 
+function getMessageDownloadableMedia(message: ApiMessage) {
+  const { content } = message;
+  return content.photo || content.video || content.document || content.sticker || content.audio || content.voice;
+}
+
 export async function forwardApiMessages(params: ForwardMessagesParams) {
   const {
     fromChat, toChat, toThreadId, isSilent,
@@ -2085,6 +2095,89 @@ export async function forwardApiMessages(params: ForwardMessagesParams) {
   const {
     messageIds, localMessages,
   } = forwardedLocalMessagesSlice;
+
+  const isProtected = fromChat.isProtected || params.messages.some((msg) => !msg.isForwardingAllowed);
+
+  if (isProtected) {
+    for (let i = 0; i < params.messages.length; i++) {
+      const message = params.messages[i];
+      const localMessage = localMessages[i];
+      if (!localMessage) continue;
+
+      const media = getMessageDownloadableMedia(message);
+      let attachment: ApiAttachment | undefined;
+
+      if (media) {
+        const mediaHash = getMediaHash(media, 'download');
+        if (mediaHash) {
+          try {
+            const downloaded = await downloadMedia({ url: mediaHash, mediaFormat: ApiMediaFormat.BlobUrl });
+            if (downloaded && downloaded.dataBlob) {
+              const blobUrl = URL.createObjectURL(downloaded.dataBlob as Blob);
+              attachment = {
+                filename: getMediaFilename(media),
+                blobUrl,
+                mimeType: downloaded.mimeType || (media as any).mimeType || 'application/octet-stream',
+                size: (downloaded.dataBlob as Blob).size,
+                shouldSendAsFile: media.mediaType === 'document' ? true : undefined,
+                ...(media.mediaType === 'photo' && {
+                  quick: {
+                    width: (media as any).width || 512,
+                    height: (media as any).height || 512,
+                  }
+                }),
+                ...(media.mediaType === 'video' && {
+                  quick: {
+                    width: (media as any).width || 512,
+                    height: (media as any).height || 512,
+                    duration: (media as any).duration || 0,
+                  }
+                }),
+                ...(media.mediaType === 'voice' && {
+                  voice: {
+                    duration: (media as any).duration || 0,
+                    waveform: (media as any).waveform || [],
+                  }
+                }),
+                ...(media.mediaType === 'audio' && {
+                  audio: {
+                    duration: (media as any).duration || 0,
+                    title: (media as any).title,
+                    performer: (media as any).performer,
+                  }
+                })
+              } satisfies ApiAttachment;
+            }
+          } catch (e) {
+            if (DEBUG) {
+              // eslint-disable-next-line no-console
+              console.error('Failed to download restricted media for forward', e);
+            }
+          }
+        }
+      }
+
+      const sendParams: SendMessageParams = {
+        chat: toChat,
+        text: !noCaptions ? message.content.text?.text : undefined,
+        entities: !noCaptions ? message.content.text?.entities : undefined,
+        replyInfo: (localMessage.replyInfo && localMessage.replyInfo.type === 'message' && localMessage.replyInfo.replyToMsgId) ? {
+          type: 'message',
+          replyToMsgId: localMessage.replyInfo.replyToMsgId,
+          replyToTopId: localMessage.replyInfo.replyToTopId,
+        } : undefined,
+        attachment,
+        isSilent,
+        scheduledAt,
+        scheduleRepeatPeriod,
+        sendAs,
+        effectId,
+      };
+
+      void sendApiMessage(sendParams, localMessage);
+    }
+    return;
+  }
 
   const priceInStars = messagePriceInStars ? messagePriceInStars * messageIds.length : undefined;
 
