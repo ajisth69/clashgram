@@ -136,11 +136,11 @@ const LeftSideMenuItems = ({
   });
 
   const handleOpenTipsChat = useLastCallback(() => {
-    openChatByUsername({ username: lang('ClashgramFeaturesUsername') });
+    openChatByUsername({ username: 'clashgramclient' });
   });
 
   const handleBugReportClick = useLastCallback(() => {
-    openUrl({ url: FEEDBACK_URL });
+    openChatByUsername({ username: 'clashgramclient' });
   });
 
   return (

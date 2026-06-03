@@ -1502,7 +1502,7 @@ addActionHandler('markChatUnread', (global, actions, payload): ActionReturnType 
 
 addActionHandler('markChatMessagesRead', async (global, actions, payload): Promise<void> => {
   if (selectIsCurrentUserFrozen(global)) return;
-  const { id } = payload;
+  const { id, forceServer } = payload;
 
   if (selectIsCurrentUserFrozen(global)) {
     actions.openFrozenAccountModal({ tabId: getCurrentTabId() });
@@ -1515,7 +1515,7 @@ addActionHandler('markChatMessagesRead', async (global, actions, payload): Promi
 
   if (!chat.isForum) {
     const { clashgramGhostModeRead } = selectSharedSettings(global);
-    if (!clashgramGhostModeRead) {
+    if (!clashgramGhostModeRead || forceServer) {
       await callApi('markMessageListRead', { chat, threadId: MAIN_THREAD_ID });
     }
     actions.readAllMentions({ chatId: id });
@@ -1575,7 +1575,7 @@ addActionHandler('markChatMessagesRead', async (global, actions, payload): Promi
     setGlobal(global);
 
     topicIdsToMarkRead.forEach((topicId) => {
-      actions.markTopicRead({ chatId: id, topicId });
+      actions.markTopicRead({ chatId: id, topicId, forceServer });
     });
 
     lastTopic = result.topics[result.topics.length - 1].topic;
@@ -1603,7 +1603,7 @@ addActionHandler('markChatRead', (global, actions, payload): ActionReturnType =>
 
 addActionHandler('markTopicRead', (global, actions, payload): ActionReturnType => {
   if (selectIsCurrentUserFrozen(global)) return;
-  const { chatId, topicId } = payload;
+  const { chatId, topicId, forceServer } = payload;
   const chat = selectChat(global, chatId);
   if (!chat) return;
 
@@ -1612,7 +1612,7 @@ addActionHandler('markTopicRead', (global, actions, payload): ActionReturnType =
   if (!lastTopicMessageId) return;
 
   const { clashgramGhostModeRead } = selectSharedSettings(global);
-  if (!clashgramGhostModeRead) {
+  if (!clashgramGhostModeRead || forceServer) {
     void callApi('markMessageListRead', {
       chat,
       threadId: topicId,

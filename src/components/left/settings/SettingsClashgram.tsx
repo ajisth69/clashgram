@@ -8,6 +8,7 @@ import { MAIN_THREAD_ID } from '../../../api/types';
 import { SettingsScreens } from '../../../types';
 
 import { selectSharedSettings } from '../../../global/selectors/sharedState';
+import { selectTabState, selectCurrentMessageList } from '../../../global/selectors';
 import {
   applyClashgramGlassTheme,
   DEFAULT_CLASHGRAM_GLASS_COLOR_VALUE,
@@ -63,6 +64,7 @@ type StateProps = {
   unreadChatIds: string[];
   clashgramCustomAnimation?: string;
   clashgramSendSilently?: boolean;
+  activeChatId?: string;
 };
 
 const IMPORT_CONTAINER_STYLE = 'display: flex; flex-direction: column; '
@@ -111,6 +113,7 @@ const SettingsClashgram = ({
   unreadChatIds,
   clashgramCustomAnimation,
   clashgramSendSilently,
+  activeChatId,
   onReset,
 }: OwnProps & StateProps) => {
   const { setSharedSettingOption, showNotification } = getActions();
@@ -299,6 +302,13 @@ const SettingsClashgram = ({
     processBatch();
   });
 
+  const handleReadOnServer = useLastCallback(() => {
+    if (!activeChatId) return;
+    const { markChatMessagesRead } = getActions();
+    markChatMessagesRead({ id: activeChatId, forceServer: true });
+    showNotification({ message: 'Marked active chat messages read on server' });
+  });
+
   const filteredFontsList = googleFontInput.trim()
     ? fontsList.filter((f) => f.label.toLowerCase().includes(googleFontInput.toLowerCase()))
     : fontsList;
@@ -406,6 +416,28 @@ const SettingsClashgram = ({
               checked={Boolean(clashgramGhostModeRead)}
               onCheck={() => setSharedSettingOption({ clashgramGhostModeRead: !clashgramGhostModeRead })}
             />
+
+            <ListItem
+              icon="readchats"
+              narrow
+              onClick={handleReadOnServer}
+              style={!activeChatId ? 'opacity: 0.5; pointer-events: none;' : undefined}
+            >
+              <div className="multiline-item" style="min-width: 0; flex: 1; overflow: hidden;">
+                <span
+                  className="title"
+                  style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;"
+                >
+                  Read on Server
+                </span>
+                <span
+                  className="subtitle"
+                  style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;"
+                >
+                  Force-mark active chat messages read on Telegram server
+                </span>
+              </div>
+            </ListItem>
 
             <Checkbox
               label="Hide Story Views"
@@ -817,6 +849,8 @@ export default memo(withGlobal(
       return readState && ((readState.unreadCount || 0) > 0 || readState.hasUnreadMark);
     });
 
+    const activeChatId = selectCurrentMessageList(global)?.chatId;
+
     return {
       clashgramGhostModeRead,
       clashgramGhostModeTyping,
@@ -838,6 +872,7 @@ export default memo(withGlobal(
       unreadChatIds,
       clashgramCustomAnimation,
       clashgramSendSilently,
+      activeChatId,
     };
   },
 )(SettingsClashgram));

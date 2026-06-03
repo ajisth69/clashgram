@@ -431,7 +431,7 @@ export interface ActionPayloads {
   };
   markChatUnread: { id: string };
   markChatRead: { id: string };
-  markChatMessagesRead: { id: string };
+  markChatMessagesRead: { id: string; forceServer?: boolean };
   loadChatFolders: undefined;
   loadRecommendedChatFolders: undefined;
   editChatFolder: {
@@ -3135,6 +3135,7 @@ export interface ActionPayloads {
   markTopicRead: {
     chatId: string;
     topicId: number;
+    forceServer?: boolean;
   };
 
   updateTopicMutedState: {
