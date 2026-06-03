@@ -3,6 +3,7 @@ import { memo, useMemo } from '../../../lib/teact/teact';
 import { getActions, withGlobal } from '../../../global';
 
 import type { ApiUser } from '../../../api/types';
+import { MAIN_THREAD_ID } from '../../../api/types';
 import type { GlobalState } from '../../../global/types';
 import type { AnimationLevel, ThemeKey } from '../../../types';
 
@@ -58,6 +59,7 @@ type StateProps = {
   canInstall?: boolean;
   attachBots: GlobalState['attachMenu']['bots'];
   accountsTotalLimit: number;
+  unreadChatIds: string[];
 } & Pick<GlobalState, 'currentUserId' | 'archiveSettings'>;
 
 const LeftSideMenuItems = ({
@@ -69,6 +71,7 @@ const LeftSideMenuItems = ({
   attachBots,
   currentUser,
   accountsTotalLimit,
+  unreadChatIds,
   onSelectArchived,
   onSelectContacts,
   onSelectSettings,
@@ -83,6 +86,8 @@ const LeftSideMenuItems = ({
     openChatByUsername,
     openUrl,
     openChatWithInfo,
+    showNotification,
+    markChatMessagesRead,
   } = getActions();
   const lang = useLang();
 
@@ -143,6 +148,31 @@ const LeftSideMenuItems = ({
     openChatByUsername({ username: 'clashgramclient' });
   });
 
+  const handleReadOnServer = useLastCallback(() => {
+    if (!unreadChatIds.length) {
+      showNotification({ message: 'No unread messages found' });
+      return;
+    }
+    const ids = [...unreadChatIds];
+
+    function processBatch() {
+      const batch = ids.splice(0, 10);
+      if (batch.length === 0) return;
+
+      batch.forEach((chatId) => {
+        markChatMessagesRead({ id: chatId, forceServer: true });
+      });
+
+      if (ids.length > 0) {
+        setTimeout(processBatch, 16);
+      } else {
+        showNotification({ message: 'All messages successfully read on server' });
+      }
+    }
+
+    processBatch();
+  });
+
   return (
     <>
       {IS_MULTIACCOUNT_SUPPORTED && currentUser && (
@@ -194,6 +224,16 @@ const LeftSideMenuItems = ({
           onMenuClosed={onBotMenuClosed}
         />
       ))}
+      <MenuItem
+        icon="readchats"
+        onClick={handleReadOnServer}
+        disabled={unreadChatIds.length === 0}
+      >
+        <span className="menu-item-name">Read on Server</span>
+        {unreadChatIds.length > 0 && (
+          <div className="right-badge">{unreadChatIds.length}</div>
+        )}
+      </MenuItem>
       <MenuItem
         icon="settings"
         onClick={onSelectSettings}
@@ -281,6 +321,12 @@ export default memo(withGlobal<OwnProps>(
     const { animationLevel } = selectSharedSettings(global);
     const attachBots = global.attachMenu.bots;
 
+    const chatsById = global.chats.byId;
+    const unreadChatIds = Object.keys(chatsById).filter((id) => {
+      const readState = global.messages.byChatId[id]?.threadsById?.[MAIN_THREAD_ID]?.readState;
+      return readState && ((readState.unreadCount || 0) > 0 || readState.hasUnreadMark);
+    });
+
     return {
       currentUserId,
       currentUser: selectUser(global, currentUserId!),
@@ -290,6 +336,7 @@ export default memo(withGlobal<OwnProps>(
       archiveSettings,
       attachBots,
       accountsTotalLimit: selectPremiumLimit(global, 'moreAccounts'),
+      unreadChatIds,
     };
   },
 )(LeftSideMenuItems));
