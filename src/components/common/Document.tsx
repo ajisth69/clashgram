@@ -126,7 +126,12 @@ const Document = ({
   const shouldForceDownload = document.innerMediaType === 'photo' && document.mediaSize
     && !document.mediaSize.fromDocumentAttribute && !document.mediaSize.fromPreload;
 
-  const withMediaViewer = onMediaClick && document.innerMediaType && !shouldForceDownload;
+  const isDocViewable = (() => {
+    const ext = document.fileName.split('.').pop()?.toLowerCase() || '';
+    return ['pdf', 'csv', 'txt', 'doc', 'docx'].includes(ext) && size <= 50 * 1024 * 1024;
+  })();
+
+  const withMediaViewer = onMediaClick && (document.innerMediaType || isDocViewable) && !shouldForceDownload;
 
   useEffect(() => {
     const fileEl = ref.current;

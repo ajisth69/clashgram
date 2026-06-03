@@ -178,7 +178,7 @@ const FullNameTitle = ({
               </GiftEffectWrapper>
             </Transition>
           )}
-          {canShowEmojiStatus && !emojiStatus && isPremium && <StarIcon />}
+          {canShowEmojiStatus && !emojiStatus && isPremium && <StarIcon size="adaptive" />}
           {isMonoforum && (
             <div className={buildClassName(styles.monoforumBadge, monoforumBadgeClassName)}>
               {lang('MonoforumBadge')}

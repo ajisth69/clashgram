@@ -23,6 +23,24 @@ type OwnProps = {
 
 type StateProps = Pick<AccountSettings, 'doNotTranslate'>;
 
+const ORIGINAL_NAMES_CACHE = new Map<string, string>();
+
+function getOriginalLanguageName(langCode: string) {
+  if (ORIGINAL_NAMES_CACHE.has(langCode)) {
+    return ORIGINAL_NAMES_CACHE.get(langCode)!;
+  }
+  try {
+    const originalName = new Intl.DisplayNames([langCode], { type: 'language' }).of(langCode);
+    if (originalName) {
+      ORIGINAL_NAMES_CACHE.set(langCode, originalName);
+      return originalName;
+    }
+  } catch (e) {
+    // Fallback
+  }
+  return langCode;
+}
+
 const SettingsDoNotTranslate = ({
   isActive,
   doNotTranslate,
@@ -38,9 +56,7 @@ const SettingsDoNotTranslate = ({
     const translatedNames = new Intl.DisplayNames([language], { type: 'language' });
     const options = SUPPORTED_TRANSLATION_LANGUAGES.map((langCode: string) => {
       const translatedName = translatedNames.of(langCode);
-
-      const originalName = new Intl.DisplayNames([langCode], { type: 'language' })
-        .of(langCode);
+      const originalName = getOriginalLanguageName(langCode);
 
       if (!translatedName || !originalName) {
         return undefined;

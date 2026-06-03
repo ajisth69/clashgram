@@ -171,7 +171,6 @@
   canvas,
   video,
   img {
-    will-change: auto !important;
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
   }
@@ -195,16 +194,27 @@
   .Message.own .message-content.has-solid-background {
     background-color: var(--background-color) !important;
   }
+
+  .Menu:not(.compact) > .bubble {
+    background-color: var(--color-background) !important;
+    box-shadow: 0 0.25rem 0.5rem 0.125rem var(--color-default-shadow) !important;
+  }
 }
 
-.clashgram-native-glass.theme-dark {
-  --cg-glass-refraction: rgba(255, 255, 255, 0.07);
-  --cg-glass-shadow: rgba(0, 0, 0, 0.18);
-}
+.clashgram-native-glass {
+  &.theme-dark,
+  .theme-dark & {
+    --cg-glass-bg: rgba(33, 33, 33, 0.88);
+    --cg-glass-refraction: rgba(255, 255, 255, 0.07);
+    --cg-glass-shadow: rgba(0, 0, 0, 0.18);
+  }
 
-.clashgram-native-glass.theme-light {
-  --cg-glass-refraction: rgba(255, 255, 255, 0.42);
-  --cg-glass-shadow: rgba(31, 41, 55, 0.12);
+  &.theme-light,
+  .theme-light & {
+    --cg-glass-bg: rgba(255, 255, 255, 0.88);
+    --cg-glass-refraction: rgba(255, 255, 255, 0.42);
+    --cg-glass-shadow: rgba(31, 41, 55, 0.12);
+  }
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {

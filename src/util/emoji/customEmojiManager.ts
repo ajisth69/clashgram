@@ -30,13 +30,16 @@ const renderCallbacks = createCallbackManager<CustomEmojiInputRenderCallback>();
 let prevGlobal: GlobalState | undefined;
 
 addCallback((global: GlobalState) => {
-  if (
-    global.customEmojis.byId !== prevGlobal?.customEmojis.byId
-    || selectCanPlayAnimatedEmojis(global) !== selectCanPlayAnimatedEmojis(prevGlobal)
-  ) {
+  const customEmojisChanged = !prevGlobal || global.customEmojis.byId !== prevGlobal.customEmojis.byId;
+  const canPlayChanged = !prevGlobal || selectCanPlayAnimatedEmojis(global) !== selectCanPlayAnimatedEmojis(prevGlobal);
+
+  if (customEmojisChanged || canPlayChanged) {
     for (const entry of handlers) {
       const [handler, id] = entry;
-      if (selectCustomEmoji(global, id)) {
+      const prevEmoji = prevGlobal ? selectCustomEmoji(prevGlobal, id) : undefined;
+      const newEmoji = selectCustomEmoji(global, id);
+
+      if (canPlayChanged || (newEmoji && newEmoji !== prevEmoji)) {
         handler(global.customEmojis);
       }
     }

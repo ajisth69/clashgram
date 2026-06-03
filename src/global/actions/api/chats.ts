@@ -38,6 +38,7 @@ import { formatShareText, processDeepLink } from '../../../util/deeplink';
 import { isDeepLink } from '../../../util/deepLinkParser';
 import { isUserId } from '../../../util/entities/ids';
 import { getCurrentTabId } from '../../../util/establishMultitabRole';
+import { getUnlockedChatIds, getUnlockedFolderIds } from '../../../util/clashgramSessionVault';
 import { getOrderedIds } from '../../../util/folderManager';
 import {
   buildCollectionByKey, omit, unique,
@@ -223,17 +224,14 @@ addActionHandler('openChat', (global, actions, payload): ActionReturnType => {
   } = payload;
 
   if (id) {
-    if (!(window as any).clashgramUnlockedChatIds) {
-      (window as any).clashgramUnlockedChatIds = new Set();
-    }
     const activeChatId = selectCurrentMessageList(global, tabId)?.chatId;
     if (activeChatId && String(activeChatId) !== String(id)) {
-      (window as any).clashgramUnlockedChatIds.delete(String(activeChatId));
+      getUnlockedChatIds().delete(String(activeChatId));
     }
 
     const lockedChats = JSON.parse(localStorage.getItem('clashgramLockedChatIds') || '[]');
     const isLocked = lockedChats.includes(String(id));
-    const isUnlocked = (window as any).clashgramUnlockedChatIds?.has(String(id));
+    const isUnlocked = getUnlockedChatIds().has(String(id));
     if (isLocked && !isUnlocked) {
       actions.openClashgramPasscodeModal({
         type: 'chat',
@@ -244,9 +242,7 @@ addActionHandler('openChat', (global, actions, payload): ActionReturnType => {
       return undefined;
     }
   } else {
-    if ((window as any).clashgramUnlockedChatIds) {
-      (window as any).clashgramUnlockedChatIds.clear();
-    }
+    getUnlockedChatIds().clear();
   }
 
   actions.processOpenChatOrThread({
@@ -2417,17 +2413,14 @@ addActionHandler('setActiveChatFolder', (global, actions, payload): ActionReturn
   const { activeChatFolder, tabId = getCurrentTabId() } = payload;
 
   if (activeChatFolder !== undefined) {
-    if (!(window as any).clashgramUnlockedFolderIds) {
-      (window as any).clashgramUnlockedFolderIds = new Set();
-    }
     const currentFolder = selectTabState(global, tabId).activeChatFolder;
     if (currentFolder !== undefined && Number(currentFolder) !== Number(activeChatFolder)) {
-      (window as any).clashgramUnlockedFolderIds.delete(String(currentFolder));
+      getUnlockedFolderIds().delete(String(currentFolder));
     }
 
     const lockedFolders = JSON.parse(localStorage.getItem('clashgramLockedFolderIds') || '[]');
     const isLocked = lockedFolders.includes(Number(activeChatFolder));
-    const isUnlocked = (window as any).clashgramUnlockedFolderIds?.has(String(activeChatFolder));
+    const isUnlocked = getUnlockedFolderIds().has(String(activeChatFolder));
     if (isLocked && !isUnlocked) {
       actions.openClashgramPasscodeModal({
         type: 'folder',

@@ -73,6 +73,7 @@ type OwnProps = {
   onUpdate: (html: string) => void;
   onSuppressedFocus?: () => void;
   onSend: () => void;
+  onSendSilent?: () => void;
   onScroll?: (event: React.UIEvent<HTMLElement>) => void;
   onFocus?: NoneToVoidFunction;
   onBlur?: NoneToVoidFunction;
@@ -138,6 +139,7 @@ const MessageInput = ({
   onUpdate,
   onSuppressedFocus,
   onSend,
+  onSendSilent,
   onScroll,
   onFocus,
   onBlur,
@@ -381,6 +383,19 @@ const MessageInput = ({
     onSend();
   });
 
+  const isSendSilentShortcut = useLastCallback((e: KeyboardEvent | React.KeyboardEvent<HTMLDivElement>) => {
+    return e.key === 'Enter'
+      && !isMobileDevice
+      && (e.ctrlKey || e.metaKey)
+      && e.shiftKey;
+  });
+
+  const handleSendSilentShortcut = useLastCallback((e: KeyboardEvent | React.KeyboardEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    closeTextFormatter();
+    onSendSilent!();
+  });
+
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     // https://levelup.gitconnected.com/javascript-events-handlers-keyboard-and-load-events-1b3e46a6b0c3#1960
     const { isComposing } = e;
@@ -396,7 +411,9 @@ const MessageInput = ({
       }
     }
 
-    if (!isComposing && isSendShortcut(e)) {
+    if (!isComposing && onSendSilent && isSendSilentShortcut(e)) {
+      handleSendSilentShortcut(e);
+    } else if (!isComposing && isSendShortcut(e)) {
       handleSendShortcut(e);
     } else if (!isComposing && e.key === 'ArrowUp' && !html && !e.metaKey && !e.ctrlKey && !e.altKey) {
       e.preventDefault();
@@ -485,6 +502,11 @@ const MessageInput = ({
         && !hasActiveHandler('Enter');
 
       if (!shouldHandleDocumentKeyDown) return;
+
+      if (onSendSilent && isSendSilentShortcut(e)) {
+        handleSendSilentShortcut(e);
+        return;
+      }
 
       if (isSendShortcut(e)) {
         handleSendShortcut(e);

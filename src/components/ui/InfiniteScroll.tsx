@@ -255,7 +255,7 @@ const InfiniteScroll: FC<OwnProps> = ({
 
     const handleNativeScroll = (e: Event) => handleScroll(e as unknown as UIEvent<HTMLDivElement>);
 
-    scrollContainer.addEventListener('scroll', handleNativeScroll);
+    scrollContainer.addEventListener('scroll', handleNativeScroll, { passive: true });
 
     return () => {
       scrollContainer.removeEventListener('scroll', handleNativeScroll);
@@ -276,7 +276,7 @@ const InfiniteScroll: FC<OwnProps> = ({
       {withAbsolutePositioning && items?.length ? (
         <div
           teactFastList={!noFastList}
-          style={buildStyle('position: relative', IS_ANDROID && `height: ${maxHeight}px`)}
+          style={buildStyle('position: relative', maxHeight !== undefined && `height: ${maxHeight}px`)}
         >
           {children}
         </div>

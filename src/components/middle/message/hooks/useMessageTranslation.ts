@@ -9,6 +9,15 @@ import { throttle } from '../../../../util/schedulers';
 const MESSAGE_LIMIT_PER_REQUEST = 20;
 const THROTTLE_DELAY = 500;
 const PENDING_TRANSLATIONS = new Map<string, Map<string, number[]>>();
+const PENDING_MARK_ACTIONS = new Map<string, { chatId: string, messageIds: number[], toLanguageCode: string, tone?: TranslationTone }>();
+
+const throttledMarkPending = throttle(() => {
+  const { markMessagesTranslationPending } = getActions();
+  PENDING_MARK_ACTIONS.forEach((action) => {
+    markMessagesTranslationPending(action);
+  });
+  PENDING_MARK_ACTIONS.clear();
+}, 50);
 
 export default function useMessageTranslation(
   chatTranslations: ChatTranslatedMessages | undefined,
@@ -90,7 +99,9 @@ function addPendingTranslation(
   languageTranslations.set(chatId, messageIds);
   PENDING_TRANSLATIONS.set(cacheKey, languageTranslations);
 
-  getActions().markMessagesTranslationPending({ chatId, messageIds, toLanguageCode, tone });
+  const actionKey = `${chatId}-${toLanguageCode}-${tone || ''}`;
+  PENDING_MARK_ACTIONS.set(actionKey, { chatId, messageIds: [...messageIds], toLanguageCode, tone });
+  throttledMarkPending();
 
   throttledProcessPending();
 }

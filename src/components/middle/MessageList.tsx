@@ -178,7 +178,7 @@ const BOTTOM_THRESHOLD = 50;
 const BOTTOM_SNAP_THRESHOLD = 7;
 
 const UNREAD_DIVIDER_TOP = 10;
-const SCROLL_DEBOUNCE = 200;
+const SCROLL_DEBOUNCE = 1000;
 const MESSAGE_ANIMATION_DURATION = 500;
 const BOTTOM_FOCUS_MARGIN = 0.5 * REM;
 const SELECT_MODE_ANIMATION_DURATION = 200;
@@ -328,6 +328,15 @@ const MessageList = ({
   }, [shouldAutoTranslate, canTranslate, translationLanguage, chatId]);
 
   useNativeCopySelectedMessages(copyMessagesByIds);
+
+  // Save scroll position immediately on unmount
+  useEffect(() => {
+    return () => {
+      if (type === 'thread' && !isQuickPreview && scrollOffsetRef.current) {
+        setScrollOffset({ chatId, threadId, scrollOffset: scrollOffsetRef.current });
+      }
+    };
+  }, [chatId, threadId, type, isQuickPreview, setScrollOffset]);
 
   const messageGroups = useMemo(() => {
     if (!messageIds?.length || !messagesById) {

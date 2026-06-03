@@ -60,7 +60,6 @@ export default function useAnimatedEmoji(
     if (soundMediaData) {
       if (audio) {
         audio.pause();
-        audio.remove();
       }
       audioRef.current = new Audio();
       audioRef.current.src = soundMediaData;
@@ -70,6 +69,15 @@ export default function useAnimatedEmoji(
       }, { once: true });
     }
   });
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = undefined;
+      }
+    };
+  }, []);
 
   const handleClick = useLastCallback(() => {
     play();

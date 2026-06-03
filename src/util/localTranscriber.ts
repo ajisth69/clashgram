@@ -30,7 +30,18 @@ async function loadTransformers(): Promise<any> {
 
 async function decodeAudio(arrayBuffer: ArrayBuffer): Promise<Float32Array> {
   const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+  if (!AudioContextClass) {
+    throw new Error('Web Audio API is not supported in this browser');
+  }
   const audioContext = new AudioContextClass();
+  
+  if (audioContext.state === 'suspended') {
+    try {
+      await audioContext.resume();
+    } catch (err) {
+      console.warn('AudioContext is suspended and could not be resumed automatically:', err);
+    }
+  }
   
   let audioBuffer: AudioBuffer;
   try {
@@ -122,11 +133,26 @@ export async function transcribeLocal(
     };
 
     const originalSAB = (window as any).SharedArrayBuffer;
+    let didSpoof = false;
     try {
       // Temporarily spoof SharedArrayBuffer as undefined to force the ONNX Runtime feature detector
       // to fallback to the stable, matching single-threaded WASM binaries from its CDN natively.
       if ('SharedArrayBuffer' in window) {
-        delete (window as any).SharedArrayBuffer;
+        try {
+          (window as any).SharedArrayBuffer = undefined;
+          didSpoof = true;
+        } catch (e) {
+          try {
+            Object.defineProperty(window, 'SharedArrayBuffer', {
+              value: undefined,
+              writable: true,
+              configurable: true
+            });
+            didSpoof = true;
+          } catch (e2) {
+            console.warn('Could not spoof SharedArrayBuffer:', e2);
+          }
+        }
       }
 
       pipelineInstance = await transformers.pipeline('automatic-speech-recognition', fullModelName, {
@@ -140,8 +166,20 @@ export async function transcribeLocal(
       console.error('Failed to load local speech-to-text pipeline:', err);
       throw err;
     } finally {
-      if (originalSAB !== undefined) {
-        (window as any).SharedArrayBuffer = originalSAB;
+      if (didSpoof && originalSAB !== undefined) {
+        try {
+          (window as any).SharedArrayBuffer = originalSAB;
+        } catch (e) {
+          try {
+            Object.defineProperty(window, 'SharedArrayBuffer', {
+              value: originalSAB,
+              writable: true,
+              configurable: true
+            });
+          } catch (e2) {
+            console.error('Failed to restore SharedArrayBuffer:', e2);
+          }
+        }
       }
     }
 

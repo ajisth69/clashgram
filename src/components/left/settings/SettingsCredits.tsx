@@ -35,7 +35,7 @@ const SettingsCredits: FC<OwnProps> = ({
           noLoop={false}
         />
         <h2 className="credits-title">Clashgram Client</h2>
-        <p className="credits-subtitle">Enhanced Telegram Web Client</p>
+        <p className="credits-subtitle">Enhanced Telegram Client</p>
       </div>
 
       <div className="settings-item">
@@ -71,7 +71,7 @@ const SettingsCredits: FC<OwnProps> = ({
           inactive
         >
           <span className="title">Version</span>
-          <span className="subtitle" dir="auto">Clashgram Web v1.0.0</span>
+          <span className="subtitle" dir="auto">Clashgram 3.0</span>
         </ListItem>
         <ListItem
           icon="heart"

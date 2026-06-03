@@ -69,15 +69,17 @@ const AiTextTranslateEditor = ({
 
   const currentLanguageCode = lang.code;
 
-  const languages = useMemo(() => SUPPORTED_TRANSLATION_LANGUAGES.map((langCode: string) => {
+  const languages = useMemo(() => {
     const displayNames = new Intl.DisplayNames([currentLanguageCode], { type: 'language' });
-    const displayName = displayNames.of(langCode) || langCode;
+    return SUPPORTED_TRANSLATION_LANGUAGES.map((langCode: string) => {
+      const displayName = displayNames.of(langCode) || langCode;
 
-    return {
-      langCode,
-      displayName,
-    };
-  }), [currentLanguageCode]);
+      return {
+        langCode,
+        displayName,
+      };
+    });
+  }, [currentLanguageCode]);
 
   const detectedLanguageName = useMemo(() => {
     if (!detectedLanguage) return undefined;

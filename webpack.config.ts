@@ -42,9 +42,10 @@ const CSP = `
   default-src 'self';
   connect-src 'self' wss://*.web.telegram.org blob: http: https: ${APP_ENV === 'development' ? 'wss: ipc:' : ''};
   script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://t.me/_websync_ https://telegram.me/_websync_;
-  style-src 'self' 'unsafe-inline';
-  img-src 'self' data: blob: https://ss3.4sqi.net/img/categories_v2/;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  img-src 'self' data: blob: https://images.unsplash.com https://ss3.4sqi.net/img/categories_v2/;
   media-src 'self' blob: data:;
+  font-src 'self' https://fonts.gstatic.com;
   object-src 'none';
   frame-src http: https:
     bitkeep: bnc: bybitapp: echooo: imtokenv2: mytonwallet-tc:

@@ -4,6 +4,21 @@
   display: flex !important;
   gap: 0.25rem;
   align-items: center;
+  flex-wrap: nowrap;
+
+  :global(.VerifiedIcon),
+  :global(.StarIcon) {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    flex-shrink: 0;
+    margin: 0;
+
+    img, svg {
+      vertical-align: middle;
+    }
+  }
 
   .statusTransition {
     width: var(--_status-size) !important;

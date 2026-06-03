@@ -52,14 +52,12 @@ const SettingsMain: FC<OwnProps & StateProps> = ({
   const {
     loadMoreProfilePhotos,
     openPremiumModal,
-    openSupportChat,
+    openChatByUsername,
     openUrl,
     openGiftRecipientPicker,
     openStarsBalanceModal,
     openSettingsScreen,
   } = getActions();
-
-  const [isSupportDialogOpen, openSupportDialog, closeSupportDialog] = useFlag(false);
 
   const lang = useLang();
 
@@ -72,11 +70,6 @@ const SettingsMain: FC<OwnProps & StateProps> = ({
   useHistoryBack({
     isActive,
     onBack: onReset,
-  });
-
-  const handleOpenSupport = useLastCallback(() => {
-    openSupportChat();
-    closeSupportDialog();
   });
 
   return (
@@ -231,7 +224,7 @@ const SettingsMain: FC<OwnProps & StateProps> = ({
         <ListItem
           icon="ask-support"
           narrow
-          onClick={openSupportDialog}
+          onClick={() => openChatByUsername({ username: 'clashgramclient' })}
         >
           {lang('AskAQuestion')}
         </ListItem>
@@ -239,7 +232,7 @@ const SettingsMain: FC<OwnProps & StateProps> = ({
           icon="help"
           narrow
 
-          onClick={() => openUrl({ url: FAQ_URL })}
+          onClick={() => openChatByUsername({ username: 'clashgramclient' })}
         >
           {lang('MenuClashgramFaq')}
         </ListItem>
@@ -260,14 +253,6 @@ const SettingsMain: FC<OwnProps & StateProps> = ({
           Credits
         </ListItem>
       </div>
-      <ConfirmDialog
-        isOpen={isSupportDialogOpen}
-        confirmLabel={lang('OK')}
-        title={lang('AskAQuestion')}
-        textParts={lang('MenuAskText', undefined, { withNodes: true, renderTextFilters: ['br'] })}
-        confirmHandler={handleOpenSupport}
-        onClose={closeSupportDialog}
-      />
     </div>
   );
 };

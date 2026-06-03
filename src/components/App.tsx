@@ -307,7 +307,7 @@ const App = ({
 
   useLayoutEffect(() => {
     if (clashgramCustomFont && clashgramCustomFont !== 'default') {
-      document.body.style.setProperty('--font-family', `"${clashgramCustomFont}", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`);
+      document.body.style.setProperty('--font-family', `"${clashgramCustomFont}", -apple-system, BlinkMacSystemFont, "Segoe UI", "Segoe UI Symbol", Roboto, Helvetica, Arial, sans-serif`);
     } else {
       document.body.style.removeProperty('--font-family');
     }

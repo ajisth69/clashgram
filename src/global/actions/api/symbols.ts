@@ -14,7 +14,9 @@ async function getLocalFavoriteStickers(): Promise<ApiSticker[]> {
 async function saveLocalFavoriteStickers(stickers: ApiSticker[]) {
   try {
     await setIndexedDBKey<ApiSticker[]>('clashgram_unlimited_favorite_stickers', stickers);
-  } catch (e) {}
+  } catch (e) {
+    console.error('Failed to save local favorite stickers:', e);
+  }
 }
 
 async function getLocalSavedGifs(): Promise<ApiVideo[]> {
@@ -28,7 +30,9 @@ async function getLocalSavedGifs(): Promise<ApiVideo[]> {
 async function saveLocalSavedGifs(gifs: ApiVideo[]) {
   try {
     await setIndexedDBKey<ApiVideo[]>('clashgram_unlimited_saved_gifs', gifs);
-  } catch (e) {}
+  } catch (e) {
+    console.error('Failed to save local saved gifs:', e);
+  }
 }
 import type { RequiredGlobalActions } from '../../index';
 import type { ActionReturnType, GlobalState, TabArgs } from '../../types';
@@ -252,7 +256,9 @@ addActionHandler('loadFavoriteStickers', async (global): Promise<void> => {
         },
       };
       setGlobal(global);
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Failed to recover local favorite stickers fallback:', e);
+    }
   }
 });
 
@@ -610,7 +616,9 @@ addActionHandler('loadSavedGifs', async (global): Promise<void> => {
         },
       };
       setGlobal(global);
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Failed to recover local saved gifs fallback:', e);
+    }
   }
 });
 

@@ -6,6 +6,8 @@ import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import buildClassName from '../../util/buildClassName';
 import styles from './ClashgramPasscodeModal.module.scss';
+import { getUnlockedChatIds, getUnlockedFolderIds } from '../../util/clashgramSessionVault';
+
 
 export type OwnProps = {};
 
@@ -62,15 +64,9 @@ function ClashgramPasscodeModal({
   const unlockAndClose = () => {
     // Success! Add to session unlocked
     if (type === 'chat' && targetId) {
-      if (!(window as any).clashgramUnlockedChatIds) {
-        (window as any).clashgramUnlockedChatIds = new Set();
-      }
-      (window as any).clashgramUnlockedChatIds.add(String(targetId));
+      getUnlockedChatIds().add(String(targetId));
     } else if (type === 'folder' && targetId !== undefined) {
-      if (!(window as any).clashgramUnlockedFolderIds) {
-        (window as any).clashgramUnlockedFolderIds = new Set();
-      }
-      (window as any).clashgramUnlockedFolderIds.add(String(targetId));
+      getUnlockedFolderIds().add(String(targetId));
     }
 
     // Close and execute pending action
@@ -84,13 +80,13 @@ function ClashgramPasscodeModal({
         const lockedChats = JSON.parse(localStorage.getItem('clashgramLockedChatIds') || '[]');
         const nextLocked = lockedChats.filter((id: string) => id !== String(targetId));
         localStorage.setItem('clashgramLockedChatIds', JSON.stringify(nextLocked));
-        (window as any).clashgramUnlockedChatIds?.delete(String(targetId));
+        getUnlockedChatIds().delete(String(targetId));
         getActions().setSharedSettingOption({});
       } else if (pendingAction.type === 'clashgramUnlockFolder') {
         const lockedFolders = JSON.parse(localStorage.getItem('clashgramLockedFolderIds') || '[]');
         const nextLocked = lockedFolders.filter((id: number) => id !== Number(targetId));
         localStorage.setItem('clashgramLockedFolderIds', JSON.stringify(nextLocked));
-        (window as any).clashgramUnlockedFolderIds?.delete(String(targetId));
+        getUnlockedFolderIds().delete(String(targetId));
         getActions().setSharedSettingOption({});
       }
     }
@@ -151,8 +147,8 @@ function ClashgramPasscodeModal({
   const handleClose = () => {
     closeClashgramPasscodeModal();
     const isUnlocked = type === 'chat'
-      ? (window as any).clashgramUnlockedChatIds?.has(String(targetId))
-      : (window as any).clashgramUnlockedFolderIds?.has(String(targetId));
+      ? getUnlockedChatIds().has(String(targetId))
+      : getUnlockedFolderIds().has(String(targetId));
 
     if (!isUnlocked) {
       if (type === 'chat') {
@@ -193,12 +189,8 @@ function ClashgramPasscodeModal({
     localStorage.removeItem('clashgramRecoveryPasscodeHash');
     localStorage.removeItem('clashgramLockedChatIds');
     localStorage.removeItem('clashgramLockedFolderIds');
-    if ((window as any).clashgramUnlockedChatIds) {
-      (window as any).clashgramUnlockedChatIds.clear();
-    }
-    if ((window as any).clashgramUnlockedFolderIds) {
-      (window as any).clashgramUnlockedFolderIds.clear();
-    }
+    getUnlockedChatIds().clear();
+    getUnlockedFolderIds().clear();
     closeClashgramPasscodeModal();
     signOut({ forceInitApi: true });
   };
@@ -296,7 +288,7 @@ function ClashgramPasscodeModal({
                 ref={inputRef}
                 type="text"
                 className={styles.passcodeInput}
-                style="-webkit-text-security: disc; text-security: disc;"
+                style={{ WebkitTextSecurity: 'disc', textSecurity: 'disc' } as any}
                 autoComplete="off"
                 autoCorrect="off"
                 autoCapitalize="off"

@@ -111,7 +111,12 @@ export default function selectViewableMedia(
     };
   }
 
-  if (document && (isDocumentPhoto(document) || isDocumentVideo(document))) {
+  const isDocViewable = document && (() => {
+    const ext = document.fileName.split('.').pop()?.toLowerCase() || '';
+    return ['pdf', 'csv', 'txt', 'doc', 'docx'].includes(ext) && document.size <= 50 * 1024 * 1024;
+  })();
+
+  if (document && (isDocumentPhoto(document) || isDocumentVideo(document) || isDocViewable)) {
     return {
       media: document,
     };

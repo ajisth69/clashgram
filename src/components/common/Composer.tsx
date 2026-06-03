@@ -2408,6 +2408,7 @@ const Composer = ({
             shouldSuppressTextFormatter={isEmojiTooltipOpen || isMentionTooltipOpen || isInlineBotTooltipOpen}
             onUpdate={setHtml}
             onSend={onSend}
+            onSendSilent={handleSendSilent}
             onSuppressedFocus={closeSymbolMenu}
             onFocus={markInputHasFocus}
             onBlur={unmarkInputHasFocus}
@@ -2688,7 +2689,7 @@ const Composer = ({
           isOpen={isCustomSendMenuOpen}
           canSchedule={canSchedule && isInMessageList && !isViewOnceEnabled}
           canScheduleUntilOnline={canScheduleUntilOnline && !isViewOnceEnabled}
-          onSendSilent={!isChatWithSelf ? handleSendSilent : undefined}
+          onSendSilent={handleSendSilent}
           onSendSchedule={!isInScheduledList ? handleSendScheduled : undefined}
           onSendWhenOnline={handleSendWhenOnline}
           onRemoveEffect={handleRemoveEffect}
@@ -2868,11 +2869,11 @@ export default memo(withGlobal<OwnProps>(
     const canSendQuickReplies = isChatWithUser && !isChatWithBot && !isInScheduledList && !isChatWithSelf;
 
     const noWebPage = selectNoWebPage(global, chatId, threadId);
-    const isSilentPosting = chat && getChatNotifySettings(
+    const isSilentPosting = (chat && getChatNotifySettings(
       chat,
       selectNotifyDefaults(global),
       selectNotifyException(global, chatId),
-    )?.isSilentPosting;
+    )?.isSilentPosting) || selectSharedSettings(global).clashgramSendSilently;
 
     const areEffectsSupported = isChatWithUser && !isChatWithBot
       && !isInScheduledList && !isChatWithSelf && type !== 'story' && chatId !== SERVICE_NOTIFICATIONS_USER_ID;

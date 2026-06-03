@@ -152,7 +152,6 @@ const HeaderActions: FC<OwnProps & StateProps> = ({
     unblockUser,
     setViewForumAsMessages,
     openFrozenAccountModal,
-    openCocoonModal,
     createGroupCall,
     requestMasterAndJoinGroupCall,
   } = getActions();
@@ -300,10 +299,6 @@ const HeaderActions: FC<OwnProps & StateProps> = ({
     openChatLanguageModal({ chatId });
   });
 
-  const handleCocoonClick = useLastCallback(() => {
-    openCocoonModal();
-  });
-
   const handleDoNotTranslate = useLastCallback(() => {
     if (!detectedChatLanguage) return;
 
@@ -388,22 +383,6 @@ const HeaderActions: FC<OwnProps & StateProps> = ({
           {detectedChatLanguage
             && <MenuItem icon="hand-stop" onClick={handleDoNotTranslate}>{doNotTranslateText}</MenuItem>}
           <MenuItem icon="close-circle" onClick={handleHide}>{oldLang('Hide')}</MenuItem>
-          <MenuSeparator />
-          <MenuItem withWrap onClick={handleCocoonClick}>
-            {lang('TranslateMenuCocoon', {
-              link: (
-                <Link isPrimary onClick={(e) => e.preventDefault()}>
-                  {lang('TranslateMenuCocoonLinkText')}
-                </Link>
-              ),
-            }, {
-              withNodes: true,
-              withMarkdown: true,
-              specialReplacement: {
-                '🥚': <CustomEmoji documentId={COCOON_EMOJI_ID} />,
-              },
-            })}
-          </MenuItem>
         </DropdownMenu>
       )}
       {!isMobile && (

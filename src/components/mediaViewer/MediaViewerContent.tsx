@@ -32,6 +32,7 @@ import { useMediaProps } from './hooks/useMediaProps';
 import Spinner from '../ui/Spinner';
 import MediaViewerFooter from './MediaViewerFooter';
 import VideoPlayer from './VideoPlayer';
+import DocumentViewer from './DocumentViewer';
 
 import './MediaViewerContent.scss';
 
@@ -101,6 +102,7 @@ const MediaViewerContent = ({
     isVideoAvatar,
     mediaSize,
     loadProgress,
+    isDocument,
   } = useMediaProps({
     media, isAvatar, origin, delay: withAnimation ? ANIMATION_DURATION : false,
   });
@@ -184,47 +186,57 @@ const MediaViewerContent = ({
   const posterSize = calculateMediaViewerDimensions(dimensions!, hasFooter, isVideo);
   const isForceMobileVersion = isMobile || shouldForceMobileVersion(posterSize);
 
+  const fileName = (media && 'fileName' in media) ? media.fileName : '';
+  const extension = fileName.split('.').pop()?.toLowerCase() || '';
+  const isCustomDoc = isDocument && ['pdf', 'csv', 'txt', 'doc', 'docx', 'xls', 'xlsx'].includes(extension);
+
   return (
     <div
       className={buildClassName('MediaViewerContent', hasFooter && 'has-footer')}
       onMouseMove={isForceMobileVersion && !IS_TOUCH_ENV ? toggleControlsOnMove : undefined}
     >
-      {isPhoto && renderPhoto(
-        bestData,
-        posterSize,
-        !isMobile && !isProtected,
-        isProtected,
-      )}
-      {isVideo && (!isActive ? renderVideoPreview(
-        bestImageData,
-        posterSize,
-        !isMobile && !isProtected,
-        isProtected,
+      {isCustomDoc ? (
+        <DocumentViewer media={media as any} blobUrl={bestData!} />
       ) : (
-        <VideoPlayer
-          key={media.id}
-          url={bestData}
-          storyboardInfo={'storyboardInfo' in media ? media.storyboardInfo : undefined}
-          isGif={isGif}
-          posterData={bestImageData}
-          posterSize={posterSize}
-          loadProgress={loadProgress}
-          fileSize={mediaSize!}
-          isMediaViewerOpen={isOpen && isActive}
-          noPlay={!isActive}
-          onClose={onClose}
-          isMuted={isMuted}
-          isHidden={isHidden}
-          isForceMobileVersion={isForceMobileVersion}
-          isProtected={isProtected}
-          volume={volume}
-          isClickDisabled={isMoving}
-          playbackRate={playbackRate}
-          isSponsoredMessage={isSponsoredMessage}
-          handleSponsoredClick={handleSponsoredClick}
-          timestamp={timestamp}
-        />
-      ))}
+        <>
+          {isPhoto && renderPhoto(
+            bestData,
+            posterSize,
+            !isMobile && !isProtected,
+            isProtected,
+          )}
+          {isVideo && (!isActive ? renderVideoPreview(
+            bestImageData,
+            posterSize,
+            !isMobile && !isProtected,
+            isProtected,
+          ) : (
+            <VideoPlayer
+              key={media.id}
+              url={bestData}
+              storyboardInfo={'storyboardInfo' in media ? media.storyboardInfo : undefined}
+              isGif={isGif}
+              posterData={bestImageData}
+              posterSize={posterSize}
+              loadProgress={loadProgress}
+              fileSize={mediaSize!}
+              isMediaViewerOpen={isOpen && isActive}
+              noPlay={!isActive}
+              onClose={onClose}
+              isMuted={isMuted}
+              isHidden={isHidden}
+              isForceMobileVersion={isForceMobileVersion}
+              isProtected={isProtected}
+              volume={volume}
+              isClickDisabled={isMoving}
+              playbackRate={playbackRate}
+              isSponsoredMessage={isSponsoredMessage}
+              handleSponsoredClick={handleSponsoredClick}
+              timestamp={timestamp}
+            />
+          ))}
+        </>
+      )}
       {textParts && (
         <MediaViewerFooter
           text={textParts}

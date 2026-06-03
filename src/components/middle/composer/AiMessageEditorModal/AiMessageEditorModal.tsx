@@ -344,7 +344,7 @@ const AiMessageEditorModal = ({
             isOpen={isCustomSendMenuOpen}
             canSchedule
             canScheduleUntilOnline={canScheduleUntilOnline}
-            onSendSilent={!isChatWithSelf ? handleSendSilent : undefined}
+            onSendSilent={handleSendSilent}
             onSendSchedule={handleSendSchedule}
             onSendWhenOnline={handleSendWhenOnline}
             onClose={handleContextMenuClose}

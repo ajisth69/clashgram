@@ -25,6 +25,7 @@ import {
   selectPeerPaidMessagesStars,
   selectTabState,
 } from '../../../global/selectors';
+import { selectSharedSettings } from '../../../global/selectors/sharedState';
 import buildClassName from '../../../util/buildClassName';
 import { formatDateTimeToString, formatShortDuration } from '../../../util/dates/oldDateFormat';
 import { DAY, HOUR } from '../../../util/dates/units';
@@ -930,11 +931,11 @@ export default memo(withGlobal<OwnProps>(
       isPaymentMessageConfirmDialogOpen: tabState.isPaymentMessageConfirmDialogOpen,
       starsBalance: global.stars?.balance.amount || 0,
       isStarsBalanceModalOpen: Boolean(tabState.starsBalanceModal),
-      isSilentPosting: chat ? getChatNotifySettings(
+      isSilentPosting: (chat ? getChatNotifySettings(
         chat,
         selectNotifyDefaults(global),
         selectNotifyException(global, chat.id),
-      )?.isSilentPosting : undefined,
+      )?.isSilentPosting : undefined) || selectSharedSettings(global).clashgramSendSilently,
     };
   },
 )(PollModal));

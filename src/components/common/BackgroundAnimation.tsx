@@ -2,16 +2,17 @@ import { memo, useEffect, useRef } from '../../lib/teact/teact';
 import './BackgroundAnimation.scss';
 
 type Props = {
-  type: 'none' | 'starfall' | 'neon-rain' | 'fluid-gradients' | 'cosmic-dust' | 'bubbles';
+  type: 'none' | 'starfall' | 'neon-rain' | 'fluid-gradients' | 'cosmic-dust' | 'bubbles' | 'custom';
   theme: string;
+  customConfig?: string;
 };
 
-const BackgroundAnimation = ({ type, theme }: Props) => {
+const BackgroundAnimation = ({ type, theme, customConfig }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null as any);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || type === 'none') return undefined;
+    if (!canvas || type === 'none' || type === 'custom') return undefined;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return undefined;
@@ -827,6 +828,203 @@ const BackgroundAnimation = ({ type, theme }: Props) => {
       cancelAnimationFrame(animationFrameId);
     };
   }, [type, theme]);
+
+  // Custom JSON particle renderer
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || type !== 'custom' || !customConfig) return undefined;
+
+    let parsed: any;
+    try {
+      parsed = JSON.parse(customConfig);
+    } catch {
+      return undefined;
+    }
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return undefined;
+
+    const particleCount = Math.min(parsed.particleCount || 65, 300);
+    const colors: string[] = parsed.colors || ['#ff7b00', '#ff007b', '#7b00ff', '#00ffff'];
+    const minSpeed = parsed.minSpeed ?? 0.4;
+    const maxSpeed = parsed.maxSpeed ?? 1.2;
+    const minSize = parsed.minSize ?? 1.5;
+    const maxSize = parsed.maxSize ?? 4.5;
+    const glowEffect = parsed.glowEffect !== false;
+    const spawnOnClick = parsed.spawnOnClick !== false;
+    const gravity = parsed.gravity ?? 0;
+    const drift = parsed.drift ?? 0.05;
+
+    let animFrameId: number;
+    let width = 0;
+    let height = 0;
+    let dpr = window.devicePixelRatio || 1;
+
+    interface CustomParticle {
+      x: number; y: number; vx: number; vy: number;
+      size: number; color: string; alpha: number; life: number; maxLife: number;
+    }
+
+    let particles: CustomParticle[] = [];
+
+    const rand = (a: number, b: number) => a + Math.random() * (b - a);
+
+    const spawnParticle = (x?: number, y?: number): CustomParticle => ({
+      x: x ?? Math.random() * width,
+      y: y ?? Math.random() * height,
+      vx: (Math.random() - 0.5) * drift * 60,
+      vy: -(rand(minSpeed, maxSpeed)),
+      size: rand(minSize, maxSize),
+      color: colors[Math.floor(Math.random() * colors.length)],
+      alpha: rand(0.3, 0.9),
+      life: 0,
+      maxLife: rand(120, 360),
+    });
+
+    const resize = () => {
+      dpr = window.devicePixelRatio || 1;
+      width = canvas.parentElement?.clientWidth || window.innerWidth;
+      height = canvas.parentElement?.clientHeight || window.innerHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Initialize particles
+    for (let i = 0; i < particleCount; i++) {
+      const p = spawnParticle();
+      p.life = Math.random() * p.maxLife;
+      particles.push(p);
+    }
+
+    // Click spawner
+    const handleClick = (e: MouseEvent) => {
+      if (!spawnOnClick) return;
+      const rect = canvas.getBoundingClientRect();
+      const cx = e.clientX - rect.left;
+      const cy = e.clientY - rect.top;
+      for (let i = 0; i < 8; i++) {
+        particles.push(spawnParticle(
+          cx + (Math.random() - 0.5) * 40,
+          cy + (Math.random() - 0.5) * 40,
+        ));
+      }
+    };
+    window.addEventListener('click', handleClick);
+
+    // Background config
+    const bgConfig = parsed.background || undefined;
+    const bgType = bgConfig?.type || 'none';
+    const bgColors: string[] = bgConfig?.colors || ['#0a0a1a'];
+    const bgAnimSpeedStr: string = bgConfig?.animationSpeed || '15s';
+    const bgAnimSpeed = parseFloat(bgAnimSpeedStr) || 15;
+
+    const render = () => {
+      if (document.hidden) {
+        animFrameId = requestAnimationFrame(render);
+        return;
+      }
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Draw background
+      if (bgType === 'animated-gradient' && bgColors.length >= 2) {
+        const t = (Date.now() / (bgAnimSpeed * 1000)) % 1;
+        const angle = t * Math.PI * 2;
+        const cx = width / 2;
+        const cy = height / 2;
+        const diagLen = Math.sqrt(width * width + height * height);
+        const x0 = cx + Math.cos(angle) * diagLen * 0.5;
+        const y0 = cy + Math.sin(angle) * diagLen * 0.5;
+        const x1 = cx - Math.cos(angle) * diagLen * 0.5;
+        const y1 = cy - Math.sin(angle) * diagLen * 0.5;
+        const grad = ctx.createLinearGradient(x0, y0, x1, y1);
+        bgColors.forEach((c: string, idx: number) => {
+          grad.addColorStop(idx / Math.max(1, bgColors.length - 1), c);
+        });
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+      } else if (bgType === 'radial-gradient' && bgColors.length >= 2) {
+        const t = (Date.now() / (bgAnimSpeed * 1000)) % 1;
+        const pulse = 0.35 + Math.sin(t * Math.PI * 2) * 0.15;
+        const grad = ctx.createRadialGradient(
+          width / 2, height / 2, 0,
+          width / 2, height / 2, Math.max(width, height) * pulse,
+        );
+        bgColors.forEach((c: string, idx: number) => {
+          grad.addColorStop(idx / Math.max(1, bgColors.length - 1), c);
+        });
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+      } else if (bgType === 'static-gradient' && bgColors.length >= 2) {
+        const grad = ctx.createLinearGradient(0, 0, 0, height);
+        bgColors.forEach((c: string, idx: number) => {
+          grad.addColorStop(idx / Math.max(1, bgColors.length - 1), c);
+        });
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+      } else if (bgType === 'solid' && bgColors.length >= 1) {
+        ctx.fillStyle = bgColors[0];
+        ctx.fillRect(0, 0, width, height);
+      }
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.life++;
+        p.vy += gravity;
+        p.vx += (Math.random() - 0.5) * drift;
+        p.x += p.vx;
+        p.y += p.vy;
+
+        const lifeRatio = p.life / p.maxLife;
+        let opacity = p.alpha;
+        if (lifeRatio < 0.1) opacity *= lifeRatio / 0.1;
+        else if (lifeRatio > 0.8) opacity *= (1 - lifeRatio) / 0.2;
+
+        if (p.life >= p.maxLife || p.y < -20 || p.y > height + 20 || p.x < -20 || p.x > width + 20) {
+          if (particles.length <= particleCount) {
+            particles[i] = spawnParticle();
+          } else {
+            particles.splice(i, 1);
+          }
+          continue;
+        }
+
+        if (glowEffect) {
+          const hexOpacity = Math.round(opacity * 80).toString(16).padStart(2, '0');
+          const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 4);
+          glow.addColorStop(0, p.color + hexOpacity);
+          glow.addColorStop(1, p.color + '00');
+          ctx.fillStyle = glow;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.globalAlpha = Math.max(0, opacity);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.globalAlpha = 1;
+      animFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      window.removeEventListener('click', handleClick);
+      cancelAnimationFrame(animFrameId);
+    };
+  }, [type, customConfig]);
 
   return <canvas ref={canvasRef} className="clashgram-bg-animation" />;
 };

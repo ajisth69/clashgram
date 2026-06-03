@@ -2,7 +2,16 @@
   "name": "clashgram-t",
   "version": "1.0.0",
   "description": "Clashgram is an advanced, privacy-hardened client for Telegram featuring selective read receipts, client-side message retention, offline Whisper AI audio transcription, and a custom glassmorphism theme.",
-  "keywords": ["clashgram", "telegram-client", "privacy", "stealth-mode", "anti-delete", "whisper-ai", "glassmorphism", "secure-chat"],
+  "keywords": [
+    "clashgram",
+    "telegram-client",
+    "privacy",
+    "stealth-mode",
+    "anti-delete",
+    "whisper-ai",
+    "glassmorphism",
+    "secure-chat"
+  ],
   "author": "Alexander Zinchuk (alexander@zinchuk.com)",
   "license": "GPL-3.0-or-later",
   "type": "module",
@@ -10,10 +19,10 @@
   "scripts": {
     "dev": "cross-env APP_ENV=development webpack serve --mode development",
     "dev:mocked": "cross-env APP_ENV=test APP_MOCKED_CLIENT=1 webpack serve --mode development --port 1235",
-    "build:dev": "webpack --mode development && bash ./deploy/copy_to_dist.sh",
+    "build:dev": "webpack --mode development && node ./deploy/copy_to_dist.js",
     "build:staging": "cross-env APP_ENV=staging npm run build:dev",
     "build:mocked": "cross-env APP_ENV=test APP_MOCKED_CLIENT=1 npm run build:dev",
-    "build:production": "webpack && bash ./deploy/copy_to_dist.sh",
+    "build:production": "webpack && node ./deploy/copy_to_dist.js",
     "web:release:production": "npm i && npm run build:production && git add -A && git commit -a -m '[Build]' --no-verify && git push",
     "cap": "cap",
     "cap:sync": "npm run build:production && cap sync",
@@ -155,7 +164,8 @@
     "opus-recorder": "github:Ajaxy/opus-recorder#116830a",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
-    "qr-code-styling": "^1.9.2"
+    "qr-code-styling": "^1.9.2",
+    "react-dom": "^19.2.4"
   },
   "browserslist": [
     "baseline widely available"

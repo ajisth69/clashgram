@@ -142,7 +142,8 @@ type StateProps = {
   withRightColumnAnimation?: boolean;
   shouldSkipHistoryAnimations?: boolean;
   currentTransitionKey: number;
-  clashgramBackgroundAnimation?: 'none' | 'starfall' | 'neon-rain' | 'fluid-gradients' | 'cosmic-dust' | 'bubbles';
+  clashgramBackgroundAnimation?: 'none' | 'starfall' | 'neon-rain' | 'fluid-gradients' | 'cosmic-dust' | 'bubbles' | 'custom';
+  clashgramCustomAnimation?: string;
   isChannel?: boolean;
   arePeerSettingsLoaded?: boolean;
   canSubscribe?: boolean;
@@ -211,6 +212,7 @@ function MiddleColumn({
   shouldSkipHistoryAnimations,
   currentTransitionKey,
   clashgramBackgroundAnimation,
+  clashgramCustomAnimation,
   isChannel,
   arePeerSettingsLoaded,
   canSubscribe,
@@ -534,7 +536,7 @@ function MiddleColumn({
         data-tauri-drag-region={IS_TAURI && IS_MAC_OS && !(renderingChatId && renderingThreadId) ? true : undefined}
       />
       {clashgramBackgroundAnimation && clashgramBackgroundAnimation !== 'none' && (
-        <BackgroundAnimation type={clashgramBackgroundAnimation} theme={theme} />
+        <BackgroundAnimation type={clashgramBackgroundAnimation} theme={theme} customConfig={clashgramCustomAnimation} />
       )}
       <div id="middle-column-portals" />
       {Boolean(renderingChatId && renderingThreadId) && (
@@ -781,6 +783,7 @@ export default memo(withGlobal<OwnProps>(
       isChatLanguageModalOpen: Boolean(chatLanguageModal),
       animationLevel: selectSharedSettings(global).animationLevel,
       clashgramBackgroundAnimation: selectSharedSettings(global).clashgramBackgroundAnimation,
+      clashgramCustomAnimation: selectSharedSettings(global).clashgramCustomAnimation,
       withInterfaceAnimations: selectCanAnimateInterface(global),
       withRightColumnAnimation: selectCanAnimateRightColumn(global),
       currentTransitionKey: Math.max(0, messageLists.length - 1),

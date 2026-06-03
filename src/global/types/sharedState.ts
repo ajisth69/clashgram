@@ -46,7 +46,9 @@ export interface SharedSettings {
   clashgramNativeGlass?: boolean;
   clashgramNativeGlassColorValue?: number;
   clashgramNativeGlassOpacityValue?: number;
-  clashgramBackgroundAnimation?: 'none' | 'starfall' | 'neon-rain' | 'fluid-gradients' | 'cosmic-dust' | 'bubbles';
+  clashgramBackgroundAnimation?: 'none' | 'starfall' | 'neon-rain' | 'fluid-gradients' | 'cosmic-dust' | 'bubbles' | 'custom';
   clashgramCustomFont?: string;
   clashgramVoiceChangerEnabled?: boolean;
+  clashgramCustomAnimation?: string;
+  clashgramSendSilently?: boolean;
 }

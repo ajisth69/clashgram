@@ -180,7 +180,7 @@ export default function useScrollHooks({
     return () => {
       container.removeEventListener('scrollend', updateScrollTools);
     };
-  }, [containerRef]);
+  }, [containerRef, isReady]);
 
   const freezeShortly = useLastCallback(() => {
     freezeForFab();

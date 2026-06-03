@@ -1,4 +1,4 @@
-﻿import { getIsHeavyAnimating, onFullyIdle } from '../lib/teact/teact';
+import { getIsHeavyAnimating, onFullyIdle } from '../lib/teact/teact';
 import { addCallback, removeCallback } from '../lib/teact/teactn';
 
 import type {
@@ -257,6 +257,10 @@ export function migrateCache(cached: GlobalState, initialState: GlobalState) {
 function unsafeMigrateCache(cached: GlobalState, initialState: GlobalState) {
   const untypedCached = cached as any;
   // Pre-fill settings with defaults
+  cached.settings = {
+    ...initialState.settings,
+    ...cached.settings,
+  };
   cached.settings.byKey = {
     ...initialState.settings.byKey,
     ...cached.settings.byKey,

@@ -109,6 +109,7 @@ type StateProps = {
   shouldSaveAttachmentsCompression?: boolean;
   shouldOpenMessageMediaEditor?: boolean;
   aiMessageEditorPendingResult?: TabState['aiMessageEditorPendingResult'];
+  clashgramSendSilently?: boolean;
 };
 
 const ATTACHMENT_MODAL_INPUT_ID = 'caption-input-text';
@@ -157,6 +158,7 @@ const AttachmentModal = ({
   onRemoveSymbol,
   onEmojiSelect,
   onSendWhenOnline,
+  clashgramSendSilently,
 }: OwnProps & StateProps) => {
   const ref = useRef<HTMLDivElement>();
   const svgRef = useRef<SVGSVGElement>();
@@ -348,6 +350,8 @@ const AttachmentModal = ({
     isSilent?: boolean, scheduledAt?: number | true, scheduleRepeatPeriod?: number,
   ) => {
     if (!isOpen) return;
+
+    isSilent = isSilent || clashgramSendSilently;
 
     const shouldSendScheduled = (shouldSchedule || scheduledAt) && isForMessage && !editingMessage;
     if (shouldSendScheduled) {
@@ -923,6 +927,7 @@ const AttachmentModal = ({
               placeholder={lang('AttachmentCaptionPlaceholder')}
               onUpdate={onCaptionUpdate}
               onSend={handleSendClick}
+              onSendSilent={handleSendSilent}
               canAutoFocus={Boolean(isReady && isForCurrentMessageList && attachments.length)}
               captionLimit={leftChars}
               shouldSuppressFocus={isMobile && isSymbolMenuOpen}
@@ -946,7 +951,7 @@ const AttachmentModal = ({
                 <CustomSendMenu
                   isOpen={isCustomSendMenuOpen}
                   canSchedule={canSchedule && isForMessage}
-                  onSendSilent={!isChatWithSelf ? handleSendSilent : undefined}
+                  onSendSilent={handleSendSilent}
                   onSendSchedule={handleScheduleClick}
                   onClose={handleContextMenuClose}
                   onCloseAnimationEnd={handleContextMenuHide}
@@ -1006,6 +1011,7 @@ export default memo(withGlobal<OwnProps>(
       shouldSaveAttachmentsCompression,
       shouldOpenMessageMediaEditor,
       aiMessageEditorPendingResult,
+      clashgramSendSilently: selectSharedSettings(global).clashgramSendSilently,
     };
   },
 )(AttachmentModal));
