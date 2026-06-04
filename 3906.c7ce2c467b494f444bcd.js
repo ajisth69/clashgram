@@ -1,2 +1,0 @@
-(self.webpackChunkclashgram_t=self.webpackChunkclashgram_t||[]).push([[3906],{19601(a){a.exports=function(a){return{name:"Clojure REPL",contains:[{className:"meta.prompt",begin:/^([\w.-]+|\s*#_)?=>/,starts:{end:/$/,subLanguage:"clojure"}}]}}}}]);
-//# sourceMappingURL=3906.c7ce2c467b494f444bcd.js.map

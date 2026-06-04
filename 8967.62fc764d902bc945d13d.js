@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkclashgram_t=self.webpackChunkclashgram_t||[]).push([[8967],{11348(a,e,n){n.d(e,{open:()=>h});var s=n(55962);async function h(a,e){await(0,s.invoke)("plugin:shell|open",{path:a,with:e})}}}]);
