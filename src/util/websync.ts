@@ -33,9 +33,18 @@ export const forceWebsync = (authed: boolean) => {
   if (IS_MOCKED_CLIENT || IS_TAURI) return undefined;
   const currentTs = getTs();
 
-  const { canRedirect, ts } = JSON.parse(localStorage.getItem(WEBSYNC_KEY) || '{}');
+  let canRedirect: boolean | undefined;
+  let ts: number | undefined;
+  try {
+    const parsed = JSON.parse(localStorage.getItem(WEBSYNC_KEY) || '{}');
+    canRedirect = parsed?.canRedirect;
+    ts = parsed?.ts;
+  } catch {
+    canRedirect = undefined;
+    ts = undefined;
+  }
 
-  if (canRedirect !== authed || ts + WEBSYNC_TIMEOUT <= currentTs) {
+  if (canRedirect !== authed || (ts !== undefined && ts + WEBSYNC_TIMEOUT <= currentTs)) {
     return Promise.all(WEBSYNC_URLS.map((url) => {
       return new Promise<void>((resolve, reject) => {
         const script = document.createElement('script');
@@ -85,9 +94,14 @@ export function startWebsync() {
   if (lastTimeout !== undefined) return;
   const currentTs = getTs();
 
-  const { ts } = JSON.parse(localStorage.getItem(WEBSYNC_KEY) || '{}');
+  let ts: number | undefined;
+  try {
+    ts = JSON.parse(localStorage.getItem(WEBSYNC_KEY) || '{}')?.ts;
+  } catch {
+    ts = undefined;
+  }
 
-  const timeout = WEBSYNC_TIMEOUT - (currentTs - ts);
+  const timeout = ts !== undefined ? WEBSYNC_TIMEOUT - (currentTs - ts) : WEBSYNC_TIMEOUT;
 
   lastTimeout = setTimeout(() => {
     const { auth } = getGlobal();

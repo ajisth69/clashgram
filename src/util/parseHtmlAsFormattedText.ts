@@ -123,8 +123,10 @@ function parseMarkdown(html: string) {
   return parsedHtml;
 }
 
+const RE_MARKDOWN_LINKS = new RegExp(`\\[([^\\]]+?)]\\((${RE_LINK_TEMPLATE}+?)\\)`, 'g');
+
 function parseMarkdownLinks(html: string) {
-  return html.replace(new RegExp(`\\[([^\\]]+?)]\\((${RE_LINK_TEMPLATE}+?)\\)`, 'g'), (_, text, link) => {
+  return html.replace(RE_MARKDOWN_LINKS, (_, text, link) => {
     const url = link.includes('://') ? link : link.includes('@') ? `mailto:${link}` : `https://${link}`;
     return `<a href="${escapeHtmlAttribute(url)}">${text}</a>`;
   });

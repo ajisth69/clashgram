@@ -55,7 +55,7 @@ const DocumentViewer = ({ media, blobUrl }: Props) => {
     }
 
     // 2. Open blob URL directly in a new tab (same origin — blob URLs work)
-    const opened = window.open(blobUrl, '_blank');
+    const opened = window.open(blobUrl, '_blank', 'noopener,noreferrer');
     if (!opened) {
       // Fallback: programmatic <a> click to trigger download
       const link = document.createElement('a');

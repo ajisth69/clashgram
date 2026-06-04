@@ -37,7 +37,7 @@ export function getUnicodeUrl(url: string) {
   } catch (error) {
     if (DEBUG) {
       // eslint-disable-next-line no-console
-      console.warn('SafeLink.getDecodedUrl error ', url, error);
+      console.warn('SafeLink.getDecodedUrl error');
     }
   }
 

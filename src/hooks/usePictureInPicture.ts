@@ -5,6 +5,7 @@ import { DEBUG } from '../config';
 import { IS_IOS, IS_PWA } from '../util/browser/windowEnvironment';
 import safePlay, { getIsVideoPlaying } from '../util/safePlay';
 import { createSignal } from '../util/signals';
+import useLastCallback from './useLastCallback';
 
 type ReturnType = [boolean, () => void, boolean] | [false];
 type CallbackType = () => void;
@@ -22,6 +23,9 @@ export default function usePictureInPicture(
   const [isSupported, setIsSupported] = useState(false);
   const [isActive, setIsActive] = useState(false);
 
+  const onEnterLast = useLastCallback(onEnter);
+  const onLeaveLast = useLastCallback(onLeave);
+
   useLayoutEffect(() => {
     // PIP is not supported in PWA on iOS, despite being detected
     if ((IS_IOS && IS_PWA) || !elRef.current) return undefined;
@@ -34,14 +38,14 @@ export default function usePictureInPicture(
     video.autoPictureInPicture = true;
     setIsSupported(true);
     const onEnterInternal = () => {
-      onEnter();
+      onEnterLast();
       setIsActive(true);
       setIsPictureInPicture(true);
     };
     const onLeaveInternal = () => {
       setIsPictureInPicture(false);
       setIsActive(false);
-      onLeave();
+      onLeaveLast();
     };
     video.addEventListener('enterpictureinpicture', onEnterInternal);
     video.addEventListener('leavepictureinpicture', onLeaveInternal);
@@ -49,7 +53,7 @@ export default function usePictureInPicture(
       video.removeEventListener('enterpictureinpicture', onEnterInternal);
       video.removeEventListener('leavepictureinpicture', onLeaveInternal);
     };
-  }, [elRef, onEnter, onLeave]);
+  }, [elRef, onEnterLast, onLeaveLast]);
 
   const exitPictureInPicture = useCallback(() => {
     if (!elRef.current) return;

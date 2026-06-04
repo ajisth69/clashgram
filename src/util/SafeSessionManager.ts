@@ -52,6 +52,24 @@ const AUTH_KEY_HEX_LENGTH = 512;
 const DEFAULT_STARTUP_ERROR_LIMIT = 2;
 const STARTUP_ERROR_COUNT_KEY = 'clashgram:safe-session:startup-error-count';
 
+const RE_TIMEOUT_UPPER = /\bTIMEOUT\b/i;
+const RE_TIMEOUT = /timeout/i;
+const RE_HTTP_STREAM_CLOSED = /HttpStream was closed/i;
+const RE_WEB_SOCKET_CLOSED = /WebSocket was closed/i;
+const RE_WEB_SOCKET_TIMEOUT = /WebSocket connection timeout/i;
+const RE_WS_CODE_1006 = /code\s*1006/i;
+const RE_ABNORMAL_CLOSURE = /abnormal closure/i;
+const RE_NETWORK_ERROR = /network\s*error/i;
+const RE_SECURE_SOCKET = /secure socket/i;
+const RE_SSL = /\bssl\b/i;
+const RE_CANNOT_SEND_DISCONNECTED = /Cannot send requests while disconnected/i;
+const RE_FAILED_TO_FETCH = /failed to fetch/i;
+const RE_LOAD_FAILED = /load failed/i;
+const RE_CONNECTION_REFUSED = /connection refused/i;
+const RE_DNS = /dns_/i;
+const RE_LEGACY_AUTH_DC_KEY = /^dc[1-5]_(auth_key|hash|server_salt)$/;
+const RE_AUTH_KEY_HEX = /^[\da-f]+$/i;
+
 export default class SafeSessionManager {
   private readonly localStorage?: StorageLike;
   private readonly sessionStorage?: StorageLike;
@@ -206,21 +224,21 @@ export default class SafeSessionManager {
     const text = this.getErrorText(error);
 
     return (
-      /\bTIMEOUT\b/i.test(text)
-      || /timeout/i.test(text)
-      || /HttpStream was closed/i.test(text)
-      || /WebSocket was closed/i.test(text)
-      || /WebSocket connection timeout/i.test(text)
-      || /code\s*1006/i.test(text)
-      || /abnormal closure/i.test(text)
-      || /network\s*error/i.test(text)
-      || /secure socket/i.test(text)
-      || /\bssl\b/i.test(text)
-      || /Cannot send requests while disconnected/i.test(text)
-      || /failed to fetch/i.test(text)
-      || /load failed/i.test(text)
-      || /connection refused/i.test(text)
-      || /dns_/i.test(text)
+      RE_TIMEOUT_UPPER.test(text)
+      || RE_TIMEOUT.test(text)
+      || RE_HTTP_STREAM_CLOSED.test(text)
+      || RE_WEB_SOCKET_CLOSED.test(text)
+      || RE_WEB_SOCKET_TIMEOUT.test(text)
+      || RE_WS_CODE_1006.test(text)
+      || RE_ABNORMAL_CLOSURE.test(text)
+      || RE_NETWORK_ERROR.test(text)
+      || RE_SECURE_SOCKET.test(text)
+      || RE_SSL.test(text)
+      || RE_CANNOT_SEND_DISCONNECTED.test(text)
+      || RE_FAILED_TO_FETCH.test(text)
+      || RE_LOAD_FAILED.test(text)
+      || RE_CONNECTION_REFUSED.test(text)
+      || RE_DNS.test(text)
     );
   }
 
@@ -367,7 +385,7 @@ export default class SafeSessionManager {
     return (
       typeof value === 'string'
       && value.length === AUTH_KEY_HEX_LENGTH
-      && /^[\da-f]+$/i.test(value)
+      && RE_AUTH_KEY_HEX.test(value)
     );
   }
 
@@ -407,7 +425,7 @@ export default class SafeSessionManager {
           && (
             key === SESSION_LEGACY_USER_KEY
             || key === 'dc'
-            || /^dc[1-5]_(auth_key|hash|server_salt)$/.test(key)
+            || RE_LEGACY_AUTH_DC_KEY.test(key)
           )
         )
       ) {

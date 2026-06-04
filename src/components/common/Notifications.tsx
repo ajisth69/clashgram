@@ -18,7 +18,7 @@ const Notifications = ({ notifications }: StateProps) => {
   }
 
   return (
-    <div id="Notifications">
+    <div id="Notifications" role="status" aria-live="polite" aria-atomic="false">
       {notifications.map((notification) => (
         <Notification key={notification.localId} notification={notification} />
       ))}

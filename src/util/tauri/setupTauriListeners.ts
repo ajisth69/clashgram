@@ -84,6 +84,6 @@ async function openLink(url: string | URL) {
     }
   } catch (e) {
     // eslint-disable-next-line no-console
-    console.error('Failed to open link:', url, e);
+    console.error('Failed to open link', e);
   }
 }

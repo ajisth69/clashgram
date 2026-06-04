@@ -54,12 +54,22 @@
 
     background-color: var(--button-background-color);
     background-size: cover;
-    outline: none !important;
+    outline: none;
 
     transition:
       background-color 0.2s,
       color 0.2s,
-      opacity 0.2s;
+      opacity 0.2s,
+      box-shadow 0.15s ease;
+
+    &:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    &:focus:not(:focus-visible) {
+      outline: none;
+    }
 
     white-space-collapse: preserve;
 

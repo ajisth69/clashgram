@@ -2864,7 +2864,7 @@ addActionHandler('openUrl', (global, actions, payload): ActionReturnType => {
   const { appConfig, config } = global;
   if (config?.autologinToken && appConfig.autologinDomains.includes(parsedUrl.hostname)) {
     parsedUrl.searchParams.set(AUTOLOGIN_TOKEN_KEY, config.autologinToken);
-    window.open(parsedUrl.href, '_blank', 'noopener');
+    window.open(parsedUrl.href, '_blank', 'noopener,noreferrer');
     return;
   }
 

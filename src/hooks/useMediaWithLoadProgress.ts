@@ -33,6 +33,8 @@ export default function useMediaWithLoadProgress(
   const id = useUniqueId();
   const [loadProgress, setLoadProgress] = useState(mediaData && !isStreaming ? 1 : 0);
   const startedAtRef = useRef<number>();
+  const delayTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>();
+  const streamingTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>();
 
   const handleProgress = useThrottledCallback((progress: number) => {
     if (startedAtRef.current && id && (!delay || (Date.now() - startedAtRef.current > delay))) {
@@ -58,15 +60,33 @@ export default function useMediaWithLoadProgress(
           if (!delay || spentTime >= delay) {
             forceUpdate();
           } else {
-            setTimeout(forceUpdate, delay - spentTime);
+            if (delayTimerRef.current) {
+              clearTimeout(delayTimerRef.current);
+            }
+            delayTimerRef.current = setTimeout(forceUpdate, delay - spentTime);
           }
         });
       } else if (isStreaming) {
-        setTimeout(() => {
+        if (streamingTimerRef.current) {
+          clearTimeout(streamingTimerRef.current);
+        }
+        streamingTimerRef.current = setTimeout(() => {
           setLoadProgress(STREAMING_PROGRESS);
+          streamingTimerRef.current = undefined;
         }, STREAMING_TIMEOUT);
       }
     }
+
+    return () => {
+      if (delayTimerRef.current) {
+        clearTimeout(delayTimerRef.current);
+        delayTimerRef.current = undefined;
+      }
+      if (streamingTimerRef.current) {
+        clearTimeout(streamingTimerRef.current);
+        streamingTimerRef.current = undefined;
+      }
+    };
   }, [
     noLoad, mediaHash, mediaData, mediaFormat, isStreaming, delay, handleProgress, isHtmlAllowed, id, isSynced,
   ]);

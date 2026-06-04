@@ -1379,7 +1379,7 @@ function handleUrlAuthResult<T extends GlobalState>(
   }
 
   const siteUrl = result.type === 'accepted' ? result.url : url;
-  window.open(siteUrl, '_blank', 'noopener');
+  window.open(siteUrl, '_blank', 'noopener,noreferrer');
   actions.closeUrlAuthModal({ tabId });
 }
 

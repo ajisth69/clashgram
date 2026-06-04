@@ -1,4 +1,4 @@
-import { LEGACY_PASSCODE_CACHE_NAME } from '../config';
+import { DEBUG, LEGACY_PASSCODE_CACHE_NAME } from '../config';
 import { PASSCODE_IDB_STORE } from './browser/idb';
 import * as cacheApi from './cacheApi';
 
@@ -70,8 +70,10 @@ export async function decryptSessionByCurrentHash() {
 
     return { sessionJson, globalJson };
   } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error('[api/passcode] Error decrypting session', err);
+    if (DEBUG) {
+      // eslint-disable-next-line no-console
+      console.error('[api/passcode] Error decrypting session');
+    }
     throw err;
   }
 }
@@ -100,8 +102,10 @@ export async function decryptSession(passcode: string) {
 
     return { sessionJson, globalJson };
   } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error('[api/passcode] Error decrypting session', err);
+    if (DEBUG) {
+      // eslint-disable-next-line no-console
+      console.error('[api/passcode] Error decrypting session');
+    }
     throw err;
   }
 }

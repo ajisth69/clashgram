@@ -77,13 +77,25 @@ function ClashgramPasscodeModal({
       } else if (pendingAction.type === 'setActiveChatFolder') {
         setActiveChatFolder(pendingAction.payload);
       } else if (pendingAction.type === 'clashgramUnlockChat') {
-        const lockedChats = JSON.parse(localStorage.getItem('clashgramLockedChatIds') || '[]');
+        let lockedChats: string[] = [];
+        try {
+          const parsed = JSON.parse(localStorage.getItem('clashgramLockedChatIds') || '[]');
+          if (Array.isArray(parsed)) lockedChats = parsed as string[];
+        } catch {
+          // Ignore malformed JSON
+        }
         const nextLocked = lockedChats.filter((id: string) => id !== String(targetId));
         localStorage.setItem('clashgramLockedChatIds', JSON.stringify(nextLocked));
         getUnlockedChatIds().delete(String(targetId));
         getActions().setSharedSettingOption({});
       } else if (pendingAction.type === 'clashgramUnlockFolder') {
-        const lockedFolders = JSON.parse(localStorage.getItem('clashgramLockedFolderIds') || '[]');
+        let lockedFolders: number[] = [];
+        try {
+          const parsed = JSON.parse(localStorage.getItem('clashgramLockedFolderIds') || '[]');
+          if (Array.isArray(parsed)) lockedFolders = parsed as number[];
+        } catch {
+          // Ignore malformed JSON
+        }
         const nextLocked = lockedFolders.filter((id: number) => id !== Number(targetId));
         localStorage.setItem('clashgramLockedFolderIds', JSON.stringify(nextLocked));
         getUnlockedFolderIds().delete(String(targetId));

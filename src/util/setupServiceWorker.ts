@@ -14,6 +14,8 @@ type WorkerAction = {
 const IGNORE_WORKER_PATH = '/k/';
 
 function handleWorkerMessage(e: MessageEvent) {
+  if (e.source !== navigator.serviceWorker?.controller) return;
+  if (e.origin && e.origin !== window.location.origin) return;
   const action: WorkerAction = e.data;
   if (DEBUG_MORE) {
     // eslint-disable-next-line no-console

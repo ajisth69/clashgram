@@ -21,6 +21,9 @@ export function useStreaming(videoRef: ElementRef<HTMLVideoElement>, url?: strin
     }
     const mediaSource = new MediaSourceClass();
 
+    let sourceBuffer: SourceBuffer | undefined;
+    let onUpdateEnded: (() => void) | undefined;
+
     function revealVideo() {
       requestMutation(() => {
         video.style.display = 'block';
@@ -35,10 +38,10 @@ export function useStreaming(videoRef: ElementRef<HTMLVideoElement>, url?: strin
     function onSourceOpen() {
       if (!url || !mimeType) return;
 
-      const sourceBuffer = mediaSource.addSourceBuffer(mimeType);
+      sourceBuffer = mediaSource.addSourceBuffer(mimeType);
       const loader = makeProgressiveLoader(url);
 
-      function onUpdateEnded() {
+      onUpdateEnded = () => {
         loader.next()
           .then(({
             value,
@@ -49,11 +52,10 @@ export function useStreaming(videoRef: ElementRef<HTMLVideoElement>, url?: strin
               endOfStream(mediaSource);
               return;
             }
-            appendBuffer(sourceBuffer, value);
+            appendBuffer(sourceBuffer!, value);
           });
-      }
+      };
 
-      // eslint-disable-next-line @eslint-react/web-api/no-leaked-event-listener
       sourceBuffer.addEventListener('updateend', onUpdateEnded);
 
       loader.next()
@@ -63,7 +65,7 @@ export function useStreaming(videoRef: ElementRef<HTMLVideoElement>, url?: strin
         }) => {
           if (done || mediaSource.readyState !== 'open') return;
           revealVideo();
-          appendBuffer(sourceBuffer, value);
+          appendBuffer(sourceBuffer!, value);
         });
     }
 
@@ -82,6 +84,9 @@ export function useStreaming(videoRef: ElementRef<HTMLVideoElement>, url?: strin
         const src = video.src;
         unloadVideo(video);
         mediaSource.removeEventListener('sourceopen', onSourceOpen);
+        if (sourceBuffer && onUpdateEnded) {
+          sourceBuffer.removeEventListener('updateend', onUpdateEnded);
+        }
         if (mediaSource.readyState === 'open') {
           endOfStream(mediaSource);
         }

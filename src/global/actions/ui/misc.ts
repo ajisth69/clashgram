@@ -744,9 +744,12 @@ addActionHandler('closeMapModal', (global, actions, payload): ActionReturnType =
 });
 
 addActionHandler('checkAppVersion', (global): ActionReturnType => {
-  fetch(`${APP_VERSION_URL}?${Date.now()}`)
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
+  fetch(`${APP_VERSION_URL}?${Date.now()}`, { signal: controller.signal })
     .then((response) => response.text())
     .then((version) => {
+      clearTimeout(timeoutId);
       version = version.trim();
 
       if (getIsAppUpdateNeeded(version, APP_VERSION)) {
@@ -759,6 +762,7 @@ addActionHandler('checkAppVersion', (global): ActionReturnType => {
       }
     })
     .catch((err) => {
+      clearTimeout(timeoutId);
       if (DEBUG) {
         // eslint-disable-next-line no-console
         console.error('[checkAppVersion failed] ', err);

@@ -1,6 +1,5 @@
 import { useEffect, useLayoutEffect } from '../lib/teact/teact';
-import { withGlobal, getGlobal, getActions } from '../global';
-import { callApi } from '../api/gramjs';
+import { getActions, getGlobal, withGlobal } from '../global';
 
 import type { GlobalState } from '../global/types';
 import type { ThemeKey } from '../types';
@@ -20,6 +19,7 @@ import { hasEncryptedSession } from '../util/passcode';
 import { getInitialLocationHash, parseInitialLocationHash } from '../util/routing';
 import { checkSessionLocked, hasStoredSession } from '../util/sessions';
 import { updateSizes } from '../util/windowSize';
+import { callApi } from '../api/gramjs';
 
 import useTauriDrag from '../hooks/tauri/useTauriDrag';
 import useAppLayout from '../hooks/useAppLayout';
@@ -30,12 +30,12 @@ import { getIsInBackground } from '../hooks/window/useBackgroundMode';
 import Auth from './auth/Auth';
 import ClashgramExportModal from './common/ClashgramExportModal';
 import ClashgramPasscodeModal from './common/ClashgramPasscodeModal';
+import ErrorBoundary from './common/ErrorBoundary';
 import Notifications from './common/Notifications';
 import UiLoader from './common/UiLoader';
 import AppInactive from './main/AppInactive';
 import LockScreen from './main/LockScreen.async';
 import Main from './main/Main.async';
-// import Test from './test/demo/MessageTextStreamingTest';
 import Transition from './ui/Transition';
 
 import styles from './App.module.scss';
@@ -236,7 +236,7 @@ const App = ({
         callApi('fetchNearestCountry'),
         new Promise((_, reject) => {
           pingTimeout = setTimeout(() => reject(new Error('timeout')), 1500);
-        })
+        }),
       ]);
 
       pingPromise.then(() => {
@@ -323,18 +323,20 @@ const App = ({
 
   return (
     <UiLoader page={page} isMobile={isMobile}>
-      <Transition
-        name="fade"
-        activeKey={activeKey}
-        shouldCleanup
-        className={buildClassName(
-          'full-height',
-          (activeKey === AppScreens.auth || prevActiveKey === AppScreens.auth) && 'is-auth',
-        )}
-        renderCount={TRANSITION_RENDER_COUNT}
-      >
-        {renderContent}
-      </Transition>
+      <ErrorBoundary>
+        <Transition
+          name="fade"
+          activeKey={activeKey}
+          shouldCleanup
+          className={buildClassName(
+            'full-height',
+            (activeKey === AppScreens.auth || prevActiveKey === AppScreens.auth) && 'is-auth',
+          )}
+          renderCount={TRANSITION_RENDER_COUNT}
+        >
+          {renderContent}
+        </Transition>
+      </ErrorBoundary>
       {activeKey === AppScreens.auth && isTestServer && <div className="test-server-badge">Test server</div>}
       <Notifications />
       <ClashgramPasscodeModal />

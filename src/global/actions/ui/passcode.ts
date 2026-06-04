@@ -79,11 +79,20 @@ addActionHandler('clearPasscode', (global): ActionReturnType => {
 addActionHandler('unlockScreen', (global, actions, payload): ActionReturnType => {
   const beforeTabStates = Object.values(global.byTabId);
   const { sessionJson, globalJson } = payload;
-  const session = JSON.parse(sessionJson);
-  storeSession(session);
+  let session: unknown;
+  try {
+    session = JSON.parse(sessionJson);
+  } catch {
+    session = undefined;
+  }
+  if (session) storeSession(session as any);
 
   const previousGlobal = global;
-  global = JSON.parse(globalJson);
+  try {
+    global = JSON.parse(globalJson);
+  } catch {
+    global = previousGlobal;
+  }
   global.byTabId = previousGlobal.byTabId;
   migrateCache(global, cloneDeep(INITIAL_GLOBAL_STATE));
 

@@ -159,7 +159,14 @@ async function readCache(initialState: GlobalState): Promise<GlobalState> {
   }
 
   const json = localStorage.getItem(GLOBAL_STATE_CACHE_KEY);
-  const cachedFromLocalStorage = json ? JSON.parse(json) as GlobalState : undefined;
+  let cachedFromLocalStorage: GlobalState | undefined;
+  if (json) {
+    try {
+      cachedFromLocalStorage = JSON.parse(json) as GlobalState;
+    } catch {
+      cachedFromLocalStorage = undefined;
+    }
+  }
   if (cachedFromLocalStorage) localStorage.removeItem(GLOBAL_STATE_CACHE_KEY);
 
   let cached = cachedFromLocalStorage || await loadCachedGlobal();

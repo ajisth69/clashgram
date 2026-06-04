@@ -71,8 +71,13 @@ addActionHandler('switchMultitabRole', async (global, actions, payload): Promise
   } else {
     if (global.passcode.hasPasscode && !global.passcode.isScreenLocked) {
       const { sessionJson } = await decryptSessionByCurrentHash();
-      const session = JSON.parse(sessionJson);
-      storeSession(session);
+      let session: unknown;
+      try {
+        session = JSON.parse(sessionJson);
+      } catch {
+        session = undefined;
+      }
+      if (session) storeSession(session as any);
     }
 
     if (hasStoredSession()) {
@@ -101,8 +106,13 @@ addActionHandler('switchMultitabRole', async (global, actions, payload): Promise
 addActionHandler('onSomeTabSwitchedMultitabRole', async (global): Promise<void> => {
   if (global.passcode.hasPasscode && !global.passcode.isScreenLocked) {
     const { sessionJson } = await decryptSessionByCurrentHash();
-    const session = JSON.parse(sessionJson);
-    storeSession(session);
+    let session: unknown;
+    try {
+      session = JSON.parse(sessionJson);
+    } catch {
+      session = undefined;
+    }
+    if (session) storeSession(session as any);
   }
 
   callApi('broadcastLocalDbUpdateFull');

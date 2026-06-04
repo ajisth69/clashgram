@@ -333,6 +333,7 @@ const Modal = (props: OwnProps) => {
         <dialog
           ref={nativeDialogRef}
           className={fullClassName}
+          role="dialog"
           aria-modal="true"
         >
           {renderContent()}
@@ -343,6 +344,7 @@ const Modal = (props: OwnProps) => {
           className={fullClassName}
           tabIndex={-1}
           role="dialog"
+          aria-modal="true"
         >
           {renderContent()}
         </div>

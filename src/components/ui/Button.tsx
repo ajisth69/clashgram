@@ -252,7 +252,7 @@ const Button = ({
         style={style}
         onTransitionEnd={onTransitionEnd}
         target="_blank"
-        rel="noreferrer"
+        rel="noopener noreferrer"
       >
         {content}
       </a>

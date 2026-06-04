@@ -1,4 +1,4 @@
-import { useEffect } from '../lib/teact/teact';
+import { useEffect, useRef } from '../lib/teact/teact';
 
 import { ApiMediaFormat } from '../api/types';
 
@@ -22,6 +22,7 @@ const useMedia = (
 
   const forceUpdate = useForceUpdate();
   const isSynced = useSelector(selectIsSynced);
+  const delayTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>();
 
   useEffect(() => {
     if (!noLoad && mediaHash && !mediaData) {
@@ -32,11 +33,21 @@ const useMedia = (
         if (!delay || spentTime >= delay) {
           forceUpdate();
         } else {
-          setTimeout(forceUpdate, delay - spentTime);
+          if (delayTimerRef.current) {
+            clearTimeout(delayTimerRef.current);
+          }
+          delayTimerRef.current = setTimeout(forceUpdate, delay - spentTime);
         }
       });
     }
-  }, [noLoad, mediaHash, mediaData, mediaFormat, cacheBuster, delay, isSynced]);
+
+    return () => {
+      if (delayTimerRef.current) {
+        clearTimeout(delayTimerRef.current);
+        delayTimerRef.current = undefined;
+      }
+    };
+  }, [noLoad, mediaHash, mediaData, mediaFormat, cacheBuster, delay, isSynced, forceUpdate]);
 
   return mediaData;
 };

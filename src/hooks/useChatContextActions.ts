@@ -154,7 +154,13 @@ const useChatContextActions = ({
     } satisfies MenuItemContextAction : undefined;
 
     const hasPasscode = Boolean(localStorage.getItem('clashgramPasscodeHash'));
-    const lockedChats = JSON.parse(localStorage.getItem('clashgramLockedChatIds') || '[]');
+    let lockedChats: string[] = [];
+    try {
+      const parsed = JSON.parse(localStorage.getItem('clashgramLockedChatIds') || '[]');
+      if (Array.isArray(parsed)) lockedChats = parsed as string[];
+    } catch {
+      // Ignore malformed JSON
+    }
     const isChatLocked = lockedChats.includes(chat.id);
     const actionLockUnlock = hasPasscode ? {
       title: isChatLocked ? 'Unlock Chat' : 'Lock Chat',

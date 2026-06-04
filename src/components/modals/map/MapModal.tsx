@@ -45,7 +45,7 @@ const OpenMapModal = ({ modal }: OwnProps) => {
 
   const openUrl = useLastCallback((url: string) => {
     closeMapModal();
-    window.open(url, '_blank', 'noopener');
+    window.open(url, '_blank', 'noopener,noreferrer');
   });
 
   const handleGoogleClick = useLastCallback(() => {

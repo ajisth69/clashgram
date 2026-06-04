@@ -181,7 +181,13 @@ const useFolderTabs = (params: Params) => {
 
           const hasPasscode = Boolean(localStorage.getItem('clashgramPasscodeHash'));
           if (hasPasscode) {
-            const lockedFolders = JSON.parse(localStorage.getItem('clashgramLockedFolderIds') || '[]');
+            let lockedFolders: number[] = [];
+            try {
+              const parsed = JSON.parse(localStorage.getItem('clashgramLockedFolderIds') || '[]');
+              if (Array.isArray(parsed)) lockedFolders = parsed as number[];
+            } catch {
+              // Ignore malformed JSON
+            }
             const isFolderLocked = lockedFolders.includes(id);
             contextActions.push({
               title: isFolderLocked ? 'Unlock Folder' : 'Lock Folder',

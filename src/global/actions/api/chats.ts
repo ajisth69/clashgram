@@ -229,7 +229,13 @@ addActionHandler('openChat', (global, actions, payload): ActionReturnType => {
       getUnlockedChatIds().delete(String(activeChatId));
     }
 
-    const lockedChats = JSON.parse(localStorage.getItem('clashgramLockedChatIds') || '[]');
+    let lockedChats: string[] = [];
+    try {
+      const parsed = JSON.parse(localStorage.getItem('clashgramLockedChatIds') || '[]');
+      if (Array.isArray(parsed)) lockedChats = parsed as string[];
+    } catch {
+      // Ignore malformed JSON
+    }
     const isLocked = lockedChats.includes(String(id));
     const isUnlocked = getUnlockedChatIds().has(String(id));
     if (isLocked && !isUnlocked) {
@@ -1734,7 +1740,7 @@ addActionHandler('openClashgramLink', async (global, actions, payload): Promise<
 
   const uri = new URL(url.toLowerCase().startsWith('http') ? url : `https://${url}`);
   if (TME_WEB_DOMAINS.has(uri.hostname) && uri.pathname === '/') {
-    window.open(uri.toString(), '_blank', 'noopener');
+    window.open(uri.toString(), '_blank', 'noopener,noreferrer');
     return;
   }
 
@@ -2418,7 +2424,13 @@ addActionHandler('setActiveChatFolder', (global, actions, payload): ActionReturn
       getUnlockedFolderIds().delete(String(currentFolder));
     }
 
-    const lockedFolders = JSON.parse(localStorage.getItem('clashgramLockedFolderIds') || '[]');
+    let lockedFolders: number[] = [];
+    try {
+      const parsed = JSON.parse(localStorage.getItem('clashgramLockedFolderIds') || '[]');
+      if (Array.isArray(parsed)) lockedFolders = parsed as number[];
+    } catch {
+      // Ignore malformed JSON
+    }
     const isLocked = lockedFolders.includes(Number(activeChatFolder));
     const isUnlocked = getUnlockedFolderIds().has(String(activeChatFolder));
     if (isLocked && !isUnlocked) {

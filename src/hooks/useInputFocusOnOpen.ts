@@ -1,5 +1,5 @@
 import type { ElementRef } from '../lib/teact/teact';
-import { useEffect } from '../lib/teact/teact';
+import { useEffect, useRef } from '../lib/teact/teact';
 
 import { requestMeasure } from '../lib/fasterdom/fasterdom';
 import { IS_TOUCH_ENV } from '../util/browser/windowEnvironment';
@@ -12,6 +12,8 @@ export default function useInputFocusOnOpen(
   isOpen?: boolean,
   onClose?: NoneToVoidFunction,
 ) {
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>();
+
   useEffect(() => {
     if (isOpen) {
       if (!IS_TOUCH_ENV && inputRef.current?.isConnected) {
@@ -25,8 +27,21 @@ export default function useInputFocusOnOpen(
       }
 
       if (onClose) {
-        setTimeout(onClose, MODAL_HIDE_DELAY_MS);
+        if (closeTimerRef.current) {
+          clearTimeout(closeTimerRef.current);
+        }
+        closeTimerRef.current = setTimeout(() => {
+          closeTimerRef.current = undefined;
+          onClose();
+        }, MODAL_HIDE_DELAY_MS);
       }
     }
+
+    return () => {
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = undefined;
+      }
+    };
   }, [inputRef, isOpen, onClose]);
 }

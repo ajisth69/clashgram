@@ -101,7 +101,7 @@ addActionHandler('openChatInNewTab', (global, actions, payload): ActionReturnTyp
 
   const hashUrl = createMessageHashUrl(chatId, 'thread', threadId);
 
-  window.open(hashUrl, '_blank');
+  window.open(hashUrl, '_blank', 'noopener,noreferrer');
 });
 
 addActionHandler('openPreviousChat', (global, actions, payload): ActionReturnType => {

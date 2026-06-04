@@ -40,18 +40,19 @@ const {
 
 const CSP = `
   default-src 'self';
-  connect-src 'self' wss://*.web.telegram.org blob: http: https: ${APP_ENV === 'development' ? 'wss: ipc:' : ''};
-  script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://t.me/_websync_ https://telegram.me/_websync_;
+  connect-src 'self' wss://*.web.telegram.org blob: https: ${APP_ENV === 'development' ? 'wss: ipc:' : ''};
+  script-src 'self' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://t.me/_websync_ https://telegram.me/_websync_;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   img-src 'self' data: blob: https://images.unsplash.com https://ss3.4sqi.net/img/categories_v2/;
   media-src 'self' blob: data:;
   font-src 'self' https://fonts.gstatic.com;
   object-src 'none';
-  frame-src http: https:
+  frame-src https:
     bitkeep: bnc: bybitapp: echooo: imtokenv2: mytonwallet-tc:
     nicegram-tc: safepal-tc: tonkeeper-pro-tc: tonkeeper-tc:;
   base-uri 'none';
-  form-action 'none';`
+  form-action 'none';
+  frame-ancestors 'none';`
   .replace(/\s+/g, ' ').trim();
 
 const CHANGELOG_PATH = path.resolve(__dirname, 'src/versionNotification.txt');
@@ -78,8 +79,8 @@ export default function createConfig(
 
     devServer: {
       port: 1234,
-      host: '0.0.0.0',
-      allowedHosts: 'all',
+      host: '127.0.0.1',
+      allowedHosts: 'auto',
       hot: false,
       client: {
         overlay: false,
@@ -272,7 +273,7 @@ export default function createConfig(
       }),
     ],
 
-    devtool: 'source-map',
+    devtool: mode === 'development' ? 'source-map' : false,
 
     optimization: {
       splitChunks: {
