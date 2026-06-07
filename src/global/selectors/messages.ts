@@ -560,18 +560,20 @@ export function selectAllowedMessageActionsSlow<T extends GlobalState>(
     }
 
     const hasPinMessageRight = getHasAdminRight(chat, 'pinMessages');
+    if (hasPinMessageRight) return true;
+
     const isPinMessageRightBanned = isUserRightBanned(chat, 'pinMessages', chatFullInfo);
 
     if (isSuperGroup) {
       const hasUsernameOrGeo = chat.hasUsername || chat.hasGeo;
-      return (hasPinMessageRight || !hasUsernameOrGeo) && !isPinMessageRightBanned;
+      return !hasUsernameOrGeo && !isPinMessageRightBanned;
     }
 
     if (isBasicGroup) {
-      return !chat.isForbidden && !chat.isNotJoined && hasPinMessageRight && !isPinMessageRightBanned;
+      return !chat.isForbidden && !chat.isNotJoined && !isPinMessageRightBanned;
     }
 
-    return hasPinMessageRight;
+    return false;
   })();
 
   // https://github.com/clashgramdesktop/tdesktop/blob/335095a332607c41a8d20b47e61f5bbd66366d4b/Clashgram/SourceFiles/data/data_peer.cpp#L653
