@@ -25,7 +25,6 @@ async function parseTgsBlob(blob: Blob): Promise<any | undefined> {
 function mergeLottieJSONs(jsons: any[]): any {
   const count = jsons.length;
   if (count === 0) return null;
-  if (count === 1) return jsons[0];
 
   const maxOp = Math.max(...jsons.map(j => j.op || 0));
   const fr = jsons[0].fr || 60;
@@ -391,19 +390,40 @@ export async function buildSpoofedStickerMedia(
 
     if (validAssets.length === 1) {
       const asset = validAssets[0];
-      mimeType = asset.mimeType;
-      if (mimeType.includes("webm") || mimeType.includes("mp4")) {
-        ext = "webm";
-        mimeType = "video/webm";
-      } else if (mimeType.includes("tgsticker") || mimeType === "application/x-tgsticker") {
-        ext = "tgs";
-        mimeType = "application/x-tgsticker";
-      }
-      reFile = asset.blob;
-      try {
-        reFile = new File([asset.blob], `sticker.${ext}`, { type: mimeType });
-      } catch (e) {
+      const isVideo = asset.mimeType.includes("webm") || asset.mimeType.includes("mp4");
+      const isTgs = asset.mimeType.includes("tgsticker") || asset.mimeType === "application/x-tgsticker";
+      
+      if (isTgs) {
+        const mergedTgs = await mergeTgsBlobsToSingleSticker([asset.blob]);
+        if (mergedTgs) {
+          reFile = mergedTgs;
+          mimeType = "application/x-tgsticker";
+          ext = "tgs";
+        } else {
+          reFile = asset.blob;
+          mimeType = "application/x-tgsticker";
+          ext = "tgs";
+        }
+      } else if (isVideo) {
         reFile = asset.blob;
+        mimeType = "video/webm";
+        ext = "webm";
+      } else {
+        const resizedBlob = await mergeEmojisToSingleSticker([asset.blob]);
+        if (resizedBlob) {
+          reFile = resizedBlob;
+          mimeType = "image/webp";
+          ext = "webp";
+        } else {
+          reFile = asset.blob;
+          mimeType = asset.mimeType;
+          ext = "webp";
+        }
+      }
+
+      try {
+        reFile = new File([reFile], `sticker.${ext}`, { type: mimeType });
+      } catch (e) {
         if (reFile) {
           try {
             Object.defineProperty(reFile, "name", {
@@ -430,7 +450,6 @@ export async function buildSpoofedStickerMedia(
         fileName: `spoof_emoji_${asset.docId}_1.${ext}`,
       }));
       
-      const isVideo = mimeType.includes("webm") || mimeType.includes("mp4") || ext === "webm";
       if (isVideo) {
         attributes.push(new GramJs.DocumentAttributeVideo({
           w: 512,
@@ -440,10 +459,6 @@ export async function buildSpoofedStickerMedia(
         }));
       } else if (ext === "tgs") {
         attributes.push(new GramJs.DocumentAttributeAnimated());
-        attributes.push(new GramJs.DocumentAttributeImageSize({
-          w: 512,
-          h: 512,
-        }));
       } else {
         attributes.push(new GramJs.DocumentAttributeImageSize({
           w: 512,
