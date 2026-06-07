@@ -556,7 +556,7 @@ export function selectAllowedMessageActionsSlow<T extends GlobalState>(
     if (isPrivate || chat.isCreator) return true;
 
     if (isChannel) {
-      return getHasAdminRight(chat, 'editMessages');
+      return getHasAdminRight(chat, 'editMessages') || getHasAdminRight(chat, 'pinMessages') || getHasAdminRight(chat, 'postMessages');
     }
 
     const hasPinMessageRight = getHasAdminRight(chat, 'pinMessages');
