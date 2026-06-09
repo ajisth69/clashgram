@@ -166,6 +166,39 @@ const SettingsClashgram = ({
     }
   }, [clashgramCustomFont]);
 
+  // Load all preview web fonts in background batches when appearance screen is active
+  useEffect(() => {
+    if (currentScreen === 'appearance') {
+      const gfonts = [
+        'Anton', 'Bebas Neue', 'Bricolage Grotesk', 'Cabinet Grotesk', 'Cabin', 'Cinzel',
+        'Cormorant Garamond', 'Crimson Text', 'DM Sans', 'Fjalla One', 'Fira Sans', 'Inter',
+        'Josefin Sans', 'Kanit', 'Lato', 'Lexend', 'Libre Baskerville', 'Lora', 'Merriweather',
+        'Montserrat', 'Nunito', 'Open Sans', 'Oswald', 'Outfit', 'Playfair Display', 'Poppins',
+        'Plus Jakarta Sans', 'Quicksand', 'Raleway', 'Roboto', 'Space Grotesk', 'Spectral',
+        'Syne', 'Unbounded', 'Work Sans',
+        'Bubblegum Sans', 'Bungee Outline', 'Creepster', 'Eater', 'Monoton', 'Nosifer',
+        'Rubik Glitch', 'Rubik Beastly', 'Press Start 2P', 'VT323', 'Shojumaru', 'Pirata One',
+        'Uncial Antiqua', 'Fredericka the Great', 'Cinzel Decorative', 'Pacifico', 'Sacramento',
+        'Special Elite', 'Righteous', 'Comfortaa', 'Megrim'
+      ];
+
+      const batchSize = 15;
+      for (let i = 0; i < gfonts.length; i += batchSize) {
+        const batch = gfonts.slice(i, i + batchSize);
+        const linkId = `gfonts-preview-batch-${i}`;
+        if (!document.getElementById(linkId)) {
+          const link = document.createElement('link');
+          link.id = linkId;
+          link.rel = 'stylesheet';
+          link.href = 'https://fonts.googleapis.com/css2?'
+            + batch.map((f) => `family=${encodeURIComponent(f)}`).join('&')
+            + '&display=swap';
+          document.head.appendChild(link);
+        }
+      }
+    }
+  }, [currentScreen]);
+
   // Custom Font lookup
   const [googleFontInput, setGoogleFontInput] = useState('');
   const [fontsList, setFontsList] = useState([
@@ -225,28 +258,28 @@ const SettingsClashgram = ({
     { label: 'Ubuntu', value: 'Ubuntu' },
     { label: 'Unbounded', value: 'Unbounded' },
     { label: 'Work Sans', value: 'Work Sans' },
-    // Crazy Stylish Fonts from Google Fonts (similar to Unigram)
-    { label: 'Bubblegum Sans (Crazy Bubble)', value: 'Bubblegum Sans' },
-    { label: 'Bungee Outline (Crazy Outline)', value: 'Bungee Outline' },
-    { label: 'Creepster (Crazy Spooky)', value: 'Creepster' },
-    { label: 'Eater (Crazy Distorted)', value: 'Eater' },
-    { label: 'Monoton (Crazy Retro Neon)', value: 'Monoton' },
-    { label: 'Nosifer (Crazy Dripping)', value: 'Nosifer' },
-    { label: 'Rubik Glitch (Crazy Glitch)', value: 'Rubik Glitch' },
-    { label: 'Rubik Beastly (Crazy Furry)', value: 'Rubik Beastly' },
-    { label: 'Press Start 2P (Crazy 8-bit)', value: 'Press Start 2P' },
-    { label: 'VT323 (Crazy Pixel)', value: 'VT323' },
-    { label: 'Shojumaru (Crazy Samurai)', value: 'Shojumaru' },
-    { label: 'Pirata One (Crazy Gothic Blackletter)', value: 'Pirata One' },
-    { label: 'Uncial Antiqua (Crazy Middle-Ages)', value: 'Uncial Antiqua' },
-    { label: 'Fredericka the Great (Crazy Chalk Sketch)', value: 'Fredericka the Great' },
-    { label: 'Cinzel Decorative (Crazy Fancy Serif)', value: 'Cinzel Decorative' },
-    { label: 'Pacifico (Crazy Brush Script)', value: 'Pacifico' },
-    { label: 'Sacramento (Crazy Script Handwriting)', value: 'Sacramento' },
-    { label: 'Special Elite (Crazy Grungy Typewriter)', value: 'Special Elite' },
-    { label: 'Righteous (Crazy Art Deco Futura)', value: 'Righteous' },
-    { label: 'Comfortaa (Crazy Ultra Round)', value: 'Comfortaa' },
-    { label: 'Megrim (Crazy Wireframe Future)', value: 'Megrim' },
+    // Google Fonts with clean labels
+    { label: 'Bubblegum Sans', value: 'Bubblegum Sans' },
+    { label: 'Bungee Outline', value: 'Bungee Outline' },
+    { label: 'Creepster', value: 'Creepster' },
+    { label: 'Eater', value: 'Eater' },
+    { label: 'Monoton', value: 'Monoton' },
+    { label: 'Nosifer', value: 'Nosifer' },
+    { label: 'Rubik Glitch', value: 'Rubik Glitch' },
+    { label: 'Rubik Beastly', value: 'Rubik Beastly' },
+    { label: 'Press Start 2P', value: 'Press Start 2P' },
+    { label: 'VT323', value: 'VT323' },
+    { label: 'Shojumaru', value: 'Shojumaru' },
+    { label: 'Pirata One', value: 'Pirata One' },
+    { label: 'Uncial Antiqua', value: 'Uncial Antiqua' },
+    { label: 'Fredericka the Great', value: 'Fredericka the Great' },
+    { label: 'Cinzel Decorative', value: 'Cinzel Decorative' },
+    { label: 'Pacifico', value: 'Pacifico' },
+    { label: 'Sacramento', value: 'Sacramento' },
+    { label: 'Special Elite', value: 'Special Elite' },
+    { label: 'Righteous', value: 'Righteous' },
+    { label: 'Comfortaa', value: 'Comfortaa' },
+    { label: 'Megrim', value: 'Megrim' },
   ]);
 
   const [customAnimText, setCustomAnimText] = useState(clashgramCustomAnimation || '');
