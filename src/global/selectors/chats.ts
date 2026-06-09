@@ -301,6 +301,11 @@ export function selectCanTranslateChat<T extends GlobalState>(
 
   const { doNotTranslate } = global.settings.byKey;
 
+  const isBot = Boolean(selectBot(global, chatId));
+  if (isBot && isLanguageDetectable) {
+    return true;
+  }
+
   return Boolean(isLanguageDetectable && detectedLanguage && !doNotTranslate.includes(detectedLanguage));
 }
 

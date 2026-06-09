@@ -64,6 +64,13 @@ type StateProps = {
   unreadChatIds: string[];
   clashgramCustomAnimation?: string;
   clashgramSendSilently?: boolean;
+  clashgramNoQuoteForwarding?: boolean;
+  clashgramRetainKickedChats?: boolean;
+  clashgramConfirmMedia?: boolean;
+  clashgramConfirmFile?: boolean;
+  clashgramConfirmGifEmoji?: boolean;
+  clashgramConfirmMsg?: boolean;
+  clashgramHideBlockedInGroups?: boolean;
 };
 
 const IMPORT_CONTAINER_STYLE = 'display: flex; flex-direction: column; '
@@ -112,6 +119,13 @@ const SettingsClashgram = ({
   unreadChatIds,
   clashgramCustomAnimation,
   clashgramSendSilently,
+  clashgramNoQuoteForwarding,
+  clashgramRetainKickedChats,
+  clashgramConfirmMedia,
+  clashgramConfirmFile,
+  clashgramConfirmGifEmoji,
+  clashgramConfirmMsg,
+  clashgramHideBlockedInGroups,
   onReset,
 }: OwnProps & StateProps) => {
   const { setSharedSettingOption, showNotification } = getActions();
@@ -435,6 +449,7 @@ const SettingsClashgram = ({
               checked={Boolean(clashgramSendSilently)}
               onCheck={() => setSharedSettingOption({ clashgramSendSilently: !clashgramSendSilently })}
             />
+
 
             <div style="margin-top: 1.5rem;">
               <h4 className="settings-item-subheader">System Security</h4>
@@ -781,6 +796,63 @@ const SettingsClashgram = ({
               checked={Boolean(clashgramBypassRestrictions)}
               onCheck={() => setSharedSettingOption({ clashgramBypassRestrictions: !clashgramBypassRestrictions })}
             />
+
+            <Checkbox
+              label="No-Quote Forwarding"
+              subLabel="Always re-send messages as copy-paste to strip forward headers."
+              checked={Boolean(clashgramNoQuoteForwarding)}
+              onCheck={() => setSharedSettingOption({ clashgramNoQuoteForwarding: !clashgramNoQuoteForwarding })}
+            />
+
+            <Checkbox
+              label="Retain Kicked/Banned Chats"
+              subLabel="Prevent removing channels or groups when you leave or get kicked."
+              checked={Boolean(clashgramRetainKickedChats)}
+              onCheck={() => setSharedSettingOption({ clashgramRetainKickedChats: !clashgramRetainKickedChats })}
+            />
+
+            <div style="margin-top: 1.5rem; margin-bottom: 0.5rem;">
+              <h4 className="settings-item-subheader">Message Filtering</h4>
+            </div>
+
+            <Checkbox
+              label="Hide Blocked Users' Messages in Groups"
+              subLabel="Do not show any messages sent by users you have blocked when viewing group chats."
+              checked={Boolean(clashgramHideBlockedInGroups)}
+              onCheck={() => setSharedSettingOption({ clashgramHideBlockedInGroups: !clashgramHideBlockedInGroups })}
+            />
+
+            <div style="margin-top: 1.5rem; margin-bottom: 0.5rem;">
+              <h4 className="settings-item-subheader">Send Confirmation Options</h4>
+            </div>
+
+            <Checkbox
+              label="Confirm Media Sending"
+              subLabel="Prompt for confirmation before sending photos, videos, or voice notes."
+              checked={Boolean(clashgramConfirmMedia)}
+              onCheck={() => setSharedSettingOption({ clashgramConfirmMedia: !clashgramConfirmMedia })}
+            />
+
+            <Checkbox
+              label="Confirm File Sending"
+              subLabel="Prompt for confirmation before sending uncompressed files or documents."
+              checked={Boolean(clashgramConfirmFile)}
+              onCheck={() => setSharedSettingOption({ clashgramConfirmFile: !clashgramConfirmFile })}
+            />
+
+            <Checkbox
+              label="Confirm GIF & Emoji Sending"
+              subLabel="Prompt for confirmation before sending stickers or GIFs."
+              checked={Boolean(clashgramConfirmGifEmoji)}
+              onCheck={() => setSharedSettingOption({ clashgramConfirmGifEmoji: !clashgramConfirmGifEmoji })}
+            />
+
+            <Checkbox
+              label="Confirm Message Sending"
+              subLabel="Prompt for confirmation before sending text messages."
+              checked={Boolean(clashgramConfirmMsg)}
+              onCheck={() => setSharedSettingOption({ clashgramConfirmMsg: !clashgramConfirmMsg })}
+            />
           </div>
         </div>
       )}
@@ -810,6 +882,13 @@ export default memo(withGlobal(
       clashgramVoiceChangerEnabled,
       clashgramCustomAnimation,
       clashgramSendSilently,
+      clashgramNoQuoteForwarding,
+      clashgramRetainKickedChats,
+      clashgramConfirmMedia,
+      clashgramConfirmFile,
+      clashgramConfirmGifEmoji,
+      clashgramConfirmMsg,
+      clashgramHideBlockedInGroups,
     } = selectSharedSettings(global);
 
     const chatsById = global.chats.byId;
@@ -839,6 +918,13 @@ export default memo(withGlobal(
       unreadChatIds,
       clashgramCustomAnimation,
       clashgramSendSilently,
+      clashgramNoQuoteForwarding,
+      clashgramRetainKickedChats,
+      clashgramConfirmMedia,
+      clashgramConfirmFile,
+      clashgramConfirmGifEmoji,
+      clashgramConfirmMsg,
+      clashgramHideBlockedInGroups,
     };
   },
 )(SettingsClashgram));

@@ -7,7 +7,7 @@ import { getTranslationCacheKey, parseTranslationCacheKey } from '../../../../ut
 import { throttle } from '../../../../util/schedulers';
 
 const MESSAGE_LIMIT_PER_REQUEST = 20;
-const THROTTLE_DELAY = 500;
+const THROTTLE_DELAY = 150;
 const PENDING_TRANSLATIONS = new Map<string, Map<string, number[]>>();
 const PENDING_MARK_ACTIONS = new Map<string, { chatId: string, messageIds: number[], toLanguageCode: string, tone?: TranslationTone }>();
 
@@ -30,7 +30,7 @@ export default function useMessageTranslation(
   const messageTranslation = cacheKey && messageId
     ? chatTranslations?.byLangCode[cacheKey]?.[messageId] : undefined;
 
-  const { isPending, text } = messageTranslation || {};
+  const { isPending, text, translatedButtons } = messageTranslation || {};
 
   useEffect(() => {
     if (!chatId || !messageId || !cacheKey || !requestedLanguageCode) return;
@@ -44,12 +44,14 @@ export default function useMessageTranslation(
     return {
       isPending: false,
       translatedText: undefined,
+      translatedButtons: undefined,
     };
   }
 
   return {
     isPending,
     translatedText: text,
+    translatedButtons,
   };
 }
 

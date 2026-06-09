@@ -65,6 +65,7 @@ import useFlag from '../../../hooks/useFlag';
 import { useIsIntersecting } from '../../../hooks/useIntersectionObserver';
 import useLastCallback from '../../../hooks/useLastCallback';
 import useShowTransitionDeprecated from '../../../hooks/useShowTransitionDeprecated';
+import { getHiddenChatIds, toggleHiddenChat } from '../../../hooks/useHiddenMessages';
 import useChatListEntry from './hooks/useChatListEntry';
 
 import Avatar from '../../common/Avatar';
@@ -74,6 +75,7 @@ import Icon from '../../common/icons/Icon';
 import StarIcon from '../../common/icons/StarIcon';
 import LastMessageMeta from '../../common/LastMessageMeta';
 import ListItem from '../../ui/ListItem';
+import ConfirmDialog from '../../ui/ConfirmDialog';
 import ChatFolderModal from '../ChatFolderModal.async';
 import MuteChatModal from '../MuteChatModal.async';
 import ChatBadge from './ChatBadge';
@@ -130,6 +132,7 @@ type StateProps = {
   orderedFolderIds?: number[];
   chatFoldersById?: Record<number, ApiChatFolder>;
   areTagsEnabled?: boolean;
+  isHidden?: boolean;
 };
 
 const Chat: FC<OwnProps & StateProps> = ({
@@ -174,6 +177,7 @@ const Chat: FC<OwnProps & StateProps> = ({
   areTagsEnabled,
   withTags,
   isFoldersSidebarShown,
+  isHidden,
   onDragEnter,
   onDragLeave,
   onReorderAnimationEnd,
@@ -192,6 +196,7 @@ const Chat: FC<OwnProps & StateProps> = ({
     updateChatMutedState,
     openQuickPreview,
     scrollMessageListToBottom,
+    showDialog,
   } = getActions();
 
   const { isMobile } = useAppLayout();
@@ -201,6 +206,7 @@ const Chat: FC<OwnProps & StateProps> = ({
   const [shouldRenderDeleteModal, markRenderDeleteModal, unmarkRenderDeleteModal] = useFlag();
   const [shouldRenderMuteModal, markRenderMuteModal, unmarkRenderMuteModal] = useFlag();
   const [shouldRenderChatFolderModal, markRenderChatFolderModal, unmarkRenderChatFolderModal] = useFlag();
+  const [isConfirmUnhideOpen, openConfirmUnhide, closeConfirmUnhide] = useFlag();
 
   const { isForum, isForumAsMessages, isMonoforum } = chat || {};
 
@@ -252,6 +258,13 @@ const Chat: FC<OwnProps & StateProps> = ({
   const getIsForumPanelClosed = useSelectorSignal(selectIsForumPanelClosed);
 
   const handleClick = useLastCallback((e: React.MouseEvent) => {
+    if (isHidden) {
+      e.preventDefault();
+      e.stopPropagation();
+      openConfirmUnhide();
+      return;
+    }
+
     if (e.altKey && !isSavedDialog && !isForum && !isPreview) {
       e.preventDefault();
       openQuickPreview({ id: chatId });
@@ -405,6 +418,7 @@ const Chat: FC<OwnProps & StateProps> = ({
     isSelectedForum && 'selected-forum',
     isPreview && 'standalone',
     areTagsEnabled && withTags && 'chat-item-with-tags',
+    isHidden && 'clashgram-hidden-spoiler',
     className,
   );
 
@@ -531,6 +545,20 @@ const Chat: FC<OwnProps & StateProps> = ({
           chatId={chatId}
         />
       )}
+      {isConfirmUnhideOpen && (
+        <ConfirmDialog
+          isOpen={isConfirmUnhideOpen}
+          onClose={closeConfirmUnhide}
+          title="Unhide Chat"
+          confirmLabel="Unhide"
+          confirmHandler={() => {
+            toggleHiddenChat(chatId);
+            closeConfirmUnhide();
+          }}
+        >
+          <p>This chat is hidden. Do you want to unhide it?</p>
+        </ConfirmDialog>
+      )}
     </ListItem>
   );
 };
@@ -580,6 +608,7 @@ export default memo(withGlobal<OwnProps>(
     const storyData = lastMessage?.content.storyData;
     const lastMessageStory = storyData && selectPeerStory(global, storyData.peerId, storyData.id);
     const isAccountFrozen = selectIsCurrentUserFrozen(global);
+    const isHidden = getHiddenChatIds().includes(chatId);
 
     const monoforumChannel = selectMonoforumChannel(global, chatId);
 
@@ -613,6 +642,7 @@ export default memo(withGlobal<OwnProps>(
       orderedFolderIds: global.chatFolders.orderedIds,
       chatFoldersById: global.chatFolders.byId,
       areTagsEnabled: areTagsEnabled && isPremium,
+      isHidden,
     };
   },
 )(Chat));

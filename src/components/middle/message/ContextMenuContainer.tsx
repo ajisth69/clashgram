@@ -32,6 +32,7 @@ import {
   areReactionsEmpty,
   getCanPostInChat,
   getIsDownloading,
+  isMessageTranslatable,
   getMessageVideo,
   getUserFullName,
   hasMessageTtl,
@@ -50,7 +51,6 @@ import {
   selectCanGift,
   selectCanPlayAnimatedEmojis,
   selectCanScheduleUntilOnline,
-  selectCanTranslateMessage,
   selectChat,
   selectChatFullInfo,
   selectCurrentMessageList,
@@ -84,6 +84,7 @@ import { getSelectionAsFormattedText } from './helpers/getSelectionAsFormattedTe
 import { isSelectionRangeInsideMessage } from './helpers/isSelectionRangeInsideMessage';
 
 import useFlag from '../../../hooks/useFlag';
+import useHiddenMessages from '../../../hooks/useHiddenMessages';
 import useLang from '../../../hooks/useLang';
 import useLastCallback from '../../../hooks/useLastCallback';
 import useOldLang from '../../../hooks/useOldLang';
@@ -315,6 +316,15 @@ const ContextMenuContainer: FC<OwnProps & StateProps> = ({
 
   // `undefined` indicates that emoji are present and loading
   const hasCustomEmoji = customEmojiSetsInfo === undefined || Boolean(customEmojiSetsInfo.length);
+
+  const { isHidden: isMessageHidden, toggle: toggleHideMessage } = useHiddenMessages(
+    message.chatId, message.id,
+  );
+
+  const handleToggleHideMessage = useLastCallback(() => {
+    toggleHideMessage();
+    closeMenu();
+  });
 
   useEffect(() => {
     if (canShowSeenBy && isOpen) {
@@ -817,6 +827,8 @@ const ContextMenuContainer: FC<OwnProps & StateProps> = ({
         userFullName={userFullName}
         canGift={canGift}
         noForwardsNotice={noForwardsNotice}
+        isMessageHidden={isMessageHidden}
+        onToggleHideMessage={handleToggleHideMessage}
       />
       <PinMessageModal
         isOpen={isPinModalOpen}
@@ -953,7 +965,11 @@ export default memo(withGlobal<OwnProps>(
       ? selectMessageTranslations(global, message.chatId, translationCacheKey)[message.id]
       : undefined;
     const hasTranslation = Boolean(messageTranslation?.text);
-    const canTranslate = !hasTranslation && selectCanTranslateMessage(global, message, detectedLanguage);
+    const canTranslate = !hasTranslation
+      && !chatTranslationLanguage
+      && isMessageTranslatable(message, true)
+      && global.settings.byKey.canTranslate
+      && (!detectedLanguage || !global.settings.byKey.doNotTranslate.includes(detectedLanguage));
     const isChatTranslated = chatTranslationLanguage;
 
     const isInSavedMessages = selectIsChatWithSelf(global, message.chatId);

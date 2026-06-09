@@ -94,6 +94,7 @@ import {
   selectIsChatWithSelf,
   selectIsCurrentUserFrozen,
   selectIsCurrentUserPremium,
+  selectIsUserBlocked,
   selectIsDocumentGroupSelected,
   selectIsInSelectMode,
   selectIsMessageFocused,
@@ -152,6 +153,7 @@ import useEffectWithPrevDeps from '../../../hooks/useEffectWithPrevDeps';
 import useEnsureMessage from '../../../hooks/useEnsureMessage';
 import useEnsureStory from '../../../hooks/useEnsureStory';
 import useFlag from '../../../hooks/useFlag';
+import useHiddenMessages, { useIsMessageHidden } from '../../../hooks/useHiddenMessages';
 import { useOnIntersect } from '../../../hooks/useIntersectionObserver';
 import useLang from '../../../hooks/useLang';
 import useLastCallback from '../../../hooks/useLastCallback';
@@ -343,6 +345,7 @@ type StateProps = {
   isReplyMediaNsfw?: boolean;
   summary?: TextSummary;
   canSendStickers?: boolean;
+  isBlockedHidden?: boolean;
 };
 
 type MetaPosition =
@@ -467,6 +470,7 @@ const Message = ({
   isMediaNsfw,
   isReplyMediaNsfw,
   paidMessageStars,
+  isBlockedHidden,
   isChatWithUser,
   isAccountFrozen,
   minFutureTime,
@@ -517,6 +521,12 @@ const Message = ({
   const [isShowingSummary, showSummary, hideSummary] = useFlag();
   const [declineReason, setDeclineReason] = useState('');
   const { isMobile, isTouchScreen } = useAppLayout();
+
+  const { isHidden: isMessageHidden } = useHiddenMessages(String(chatId), messageId);
+  const isReplyHidden = useIsMessageHidden(
+    replyMessage ? String(replyMessage.chatId) : undefined,
+    replyMessage?.id,
+  );
 
   useOnIntersect(bottomMarkerRef, observeIntersectionForBottom);
 
@@ -819,6 +829,8 @@ const Message = ({
     isJustAdded && 'is-just-added',
     (hasActiveReactions || shouldPlayEffect) && 'has-active-effect',
     isStoryMention && 'is-story-mention',
+    isMessageHidden && 'is-message-hidden',
+    isBlockedHidden && 'is-blocked-hidden',
   );
 
   const text = textMessage && getMessageContent(textMessage).text;
@@ -858,7 +870,7 @@ const Message = ({
   const translationLanguageForHook = parsedManualTranslation?.languageCode || requestedChatTranslationLanguage;
   const translationToneForHook = parsedManualTranslation?.tone || requestedTranslationTone;
 
-  const { isPending: isTranslationPending, translatedText } = useMessageTranslation(
+  const { isPending: isTranslationPending, translatedText, translatedButtons } = useMessageTranslation(
     chatTranslations, chatId, shouldTranslate ? messageId : undefined, translationLanguageForHook,
     translationToneForHook,
   );
@@ -1254,6 +1266,7 @@ const Message = ({
             )}
             {hasMessageReply && (
               <EmbeddedMessage
+                className={isReplyHidden ? 'is-reply-hidden' : undefined}
                 message={replyMessage}
                 replyInfo={messageReplyInfo}
                 noUserColors={noUserColors}
@@ -2033,7 +2046,11 @@ const Message = ({
           {withQuickReactionButton && quickReactionPosition === 'in-content' && renderQuickReactionButton()}
         </div>
         {message.inlineButtons && (
-          <InlineButtons inlineButtons={message.inlineButtons} onClick={handleInlineButtonClick} />
+          <InlineButtons
+            inlineButtons={message.inlineButtons}
+            translatedButtons={translatedButtons}
+            onClick={handleInlineButtonClick}
+          />
         )}
         {additionalInlineButtons && (
           <InlineButtons
@@ -2113,7 +2130,7 @@ export default memo(withGlobal<OwnProps>(
 
     const webPage = selectFullWebPageFromMessage(global, message);
 
-    const { shouldWarnAboutFiles } = selectSharedSettings(global);
+    const { shouldWarnAboutFiles, clashgramHideBlockedInGroups } = selectSharedSettings(global);
     const isChatWithUser = isUserId(chatId);
 
     const chat = selectChat(global, chatId);
@@ -2123,6 +2140,9 @@ export default memo(withGlobal<OwnProps>(
     const isAnonymousForwards = isAnonymousForwardsChat(chatId);
     const isChannel = chat && isChatChannel(chat);
     const isGroup = chat && isChatGroup(chat);
+    const isBlockedHidden = Boolean(
+      clashgramHideBlockedInGroups && isGroup && message.senderId && selectIsUserBlocked(global, message.senderId)
+    );
     const chatFullInfo = !isChatWithUser ? selectChatFullInfo(global, chatId) : undefined;
     const { adminMembersById, members, boostsApplied } = chatFullInfo || {};
     const webPageStoryData = webPage?.story;
@@ -2351,6 +2371,7 @@ export default memo(withGlobal<OwnProps>(
       webPage,
       summary,
       canSendStickers: allowedAttachmentOptions.canSendStickers,
+      isBlockedHidden,
     };
   },
 )(Message));

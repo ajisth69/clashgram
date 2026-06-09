@@ -450,4 +450,44 @@
       color: #fff;
     }
   }
+
+  &.clashgram-hidden-spoiler {
+    .avatar-wrapper, .info {
+      position: relative;
+      
+      &::after {
+        content: "";
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        z-index: 99;
+        pointer-events: none;
+        border-radius: 4px;
+        
+        background: rgba(0, 0, 0, 0.6) url("../../../assets/spoilers/turbulence_1x.png");
+        background-size: 256px 256px;
+        animation: clashgram-spoiler-anim 20s linear infinite;
+        
+        @media (-webkit-min-device-pixel-ratio: 2) {
+          background-image: url("../../../assets/spoilers/turbulence_2x.png");
+        }
+      }
+    }
+    
+    .avatar-wrapper::after {
+      border-radius: 50%;
+    }
+  }
 }
+
+@keyframes clashgram-spoiler-anim {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 256px 256px;
+  }
+}
+

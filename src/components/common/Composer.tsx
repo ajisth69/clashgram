@@ -323,6 +323,10 @@ type StateProps = {
   replyToMessage?: ApiMessage;
   shouldOpenMessageMediaEditor?: TabState['shouldOpenMessageMediaEditor'];
   clashgramVoiceChangerEnabled?: boolean;
+  clashgramConfirmMedia?: boolean;
+  clashgramConfirmFile?: boolean;
+  clashgramConfirmGifEmoji?: boolean;
+  clashgramConfirmMsg?: boolean;
 };
 
 enum MainButtonState {
@@ -454,6 +458,10 @@ const Composer = ({
   onBlur,
   onForward,
   clashgramVoiceChangerEnabled,
+  clashgramConfirmMedia,
+  clashgramConfirmFile,
+  clashgramConfirmGifEmoji,
+  clashgramConfirmMsg,
 }: OwnProps & StateProps) => {
   const {
     sendMessage,
@@ -500,6 +508,11 @@ const Composer = ({
 
   const [getHtml, setHtml] = useSignal('');
   const [isMounted, setIsMounted] = useState(false);
+  const [confirmDialogData, setConfirmDialogData] = useState<{
+    onConfirm: () => void;
+    text: string;
+    type: 'media' | 'file' | 'gif_emoji' | 'message';
+  } | undefined>(undefined);
   const getSelectionRange = useGetSelectionRange(editableInputCssSelector);
   const lastMessageSendTimeSecondsRef = useRef<number>();
   const prevDropAreaState = usePreviousDeprecated(dropAreaState);
@@ -1191,45 +1204,65 @@ const Composer = ({
     scheduleRepeatPeriod?: number;
     isInvertedMedia?: true;
   }) => {
-    if (!currentMessageList && !storyId) {
-      return;
-    }
-    isSilent = isSilent || isSilentPosting;
+    const doSend = () => {
+      if (!currentMessageList && !storyId) {
+        return;
+      }
+      isSilent = isSilent || isSilentPosting;
 
-    const { text, entities } = parseHtmlAsFormattedText(getHtml());
+      const { text, entities } = parseHtmlAsFormattedText(getHtml());
 
-    isInvertedMedia = text && sendCompressed && sendGrouped ? isInvertedMedia : undefined;
+      isInvertedMedia = text && sendCompressed && sendGrouped ? isInvertedMedia : undefined;
 
-    if (editingMessage) {
-      editMessage({
-        messageList: currentMessageList,
-        text,
-        entities,
-        attachments: prepareAttachmentsToSend(attachmentsToSend, sendCompressed),
+      if (editingMessage) {
+        editMessage({
+          messageList: currentMessageList,
+          text,
+          entities,
+          attachments: prepareAttachmentsToSend(attachmentsToSend, sendCompressed),
+        });
+      } else {
+        sendMessage({
+          messageList: currentMessageList,
+          text,
+          entities,
+          scheduledAt,
+          scheduleRepeatPeriod,
+          isSilent,
+          shouldUpdateStickerSetOrder,
+          attachments: prepareAttachmentsToSend(attachmentsToSend, sendCompressed),
+          shouldGroupMessages: sendGrouped,
+          isInvertedMedia,
+        });
+      }
+
+      lastMessageSendTimeSecondsRef.current = getServerTime();
+
+      clearDraft({ chatId, threadId, isLocalOnly: true });
+
+      // Wait until message animation starts
+      requestMeasure(() => {
+        resetComposer();
+      });
+    };
+
+    const isMedia = sendCompressed || attachmentsToSend.some((a) => a.voice || a.audio || (a.mimeType && (a.mimeType.startsWith('image/') || a.mimeType.startsWith('video/'))));
+
+    if (isMedia && clashgramConfirmMedia) {
+      setConfirmDialogData({
+        type: 'media',
+        text: 'Are you sure you want to send this media?',
+        onConfirm: doSend,
+      });
+    } else if (!isMedia && clashgramConfirmFile) {
+      setConfirmDialogData({
+        type: 'file',
+        text: 'Are you sure you want to send this file?',
+        onConfirm: doSend,
       });
     } else {
-      sendMessage({
-        messageList: currentMessageList,
-        text,
-        entities,
-        scheduledAt,
-        scheduleRepeatPeriod,
-        isSilent,
-        shouldUpdateStickerSetOrder,
-        attachments: prepareAttachmentsToSend(attachmentsToSend, sendCompressed),
-        shouldGroupMessages: sendGrouped,
-        isInvertedMedia,
-      });
+      doSend();
     }
-
-    lastMessageSendTimeSecondsRef.current = getServerTime();
-
-    clearDraft({ chatId, threadId, isLocalOnly: true });
-
-    // Wait until message animation starts
-    requestMeasure(() => {
-      resetComposer();
-    });
   });
 
   const handleSendAttachmentsFromModal = useLastCallback((
@@ -1316,34 +1349,46 @@ const Composer = ({
 
         if (areEffectsSupported) saveEffectInDraft({ chatId, threadId, effectId: undefined });
 
-        sendMessage({
-          messageList: currentMessageList,
-          text,
-          entities,
-          scheduledAt,
-          scheduleRepeatPeriod,
-          isSilent,
-          shouldUpdateStickerSetOrder,
-          isInvertedMedia,
-          effectId,
-          webPageMediaSize: attachmentSettings.webPageMediaSize,
-          webPageUrl: hasWebPagePreview ? webPagePreview.url : undefined,
-        });
+        const performSend = () => {
+          sendMessage({
+            messageList: currentMessageList,
+            text,
+            entities,
+            scheduledAt,
+            scheduleRepeatPeriod,
+            isSilent,
+            shouldUpdateStickerSetOrder,
+            isInvertedMedia,
+            effectId,
+            webPageMediaSize: attachmentSettings.webPageMediaSize,
+            webPageUrl: hasWebPagePreview ? webPagePreview.url : undefined,
+          });
+
+          lastMessageSendTimeSecondsRef.current = getServerTime();
+          clearDraft({
+            chatId, threadId, isLocalOnly: true, shouldKeepReply: isForwarding,
+          });
+
+          if (IS_IOS && messageInput && messageInput === document.activeElement) {
+            applyIosAutoCapitalizationFix(messageInput);
+          }
+
+          // Wait until message animation starts
+          requestMeasure(() => {
+            resetComposer();
+          });
+        };
+
+        if (clashgramConfirmMsg) {
+          setConfirmDialogData({
+            type: 'message',
+            text: 'Are you sure you want to send this message?',
+            onConfirm: performSend,
+          });
+        } else {
+          performSend();
+        }
       }
-
-      lastMessageSendTimeSecondsRef.current = getServerTime();
-      clearDraft({
-        chatId, threadId, isLocalOnly: true, shouldKeepReply: isForwarding,
-      });
-
-      if (IS_IOS && messageInput && messageInput === document.activeElement) {
-        applyIosAutoCapitalizationFix(messageInput);
-      }
-
-      // Wait until message animation starts
-      requestMeasure(() => {
-        resetComposer();
-      });
     },
   );
 
@@ -1570,29 +1615,41 @@ const Composer = ({
 
     isSilent = isSilent || isSilentPosting;
 
-    if (isInScheduledList || isScheduleRequested) {
-      forceShowSymbolMenu();
-      requestCalendar((scheduledAt, scheduleRepeatPeriod) => {
-        cancelForceShowSymbolMenu();
-        handleActionWithPaymentConfirmation(
-          handleMessageSchedule,
-          { gif, isSilent },
-          scheduledAt,
-          scheduleRepeatPeriod,
-          currentMessageList!,
-        );
+    const doSend = () => {
+      if (isInScheduledList || isScheduleRequested) {
+        forceShowSymbolMenu();
+        requestCalendar((scheduledAt, scheduleRepeatPeriod) => {
+          cancelForceShowSymbolMenu();
+          handleActionWithPaymentConfirmation(
+            handleMessageSchedule,
+            { gif, isSilent },
+            scheduledAt,
+            scheduleRepeatPeriod,
+            currentMessageList!,
+          );
+          requestMeasure(() => {
+            resetComposer(true);
+          });
+        });
+      } else {
+        handleActionWithPaymentConfirmation(sendMessage, { messageList: currentMessageList, gif, isSilent });
         requestMeasure(() => {
           resetComposer(true);
         });
+      }
+
+      clearDraft({ chatId, threadId, isLocalOnly: true });
+    };
+
+    if (clashgramConfirmGifEmoji) {
+      setConfirmDialogData({
+        type: 'gif_emoji',
+        text: 'Are you sure you want to send this GIF?',
+        onConfirm: doSend,
       });
     } else {
-      handleActionWithPaymentConfirmation(sendMessage, { messageList: currentMessageList, gif, isSilent });
-      requestMeasure(() => {
-        resetComposer(true);
-      });
+      doSend();
     }
-
-    clearDraft({ chatId, threadId, isLocalOnly: true });
   });
 
   const handleGifAddCaption = useLastCallback((gif: ApiVideo) => {
@@ -1618,36 +1675,48 @@ const Composer = ({
       isPreloadedGlobally: true,
     };
 
-    if (isInScheduledList || isScheduleRequested) {
-      forceShowSymbolMenu();
-      requestCalendar((scheduledAt, scheduleRepeatPeriod) => {
-        cancelForceShowSymbolMenu();
+    const doSend = () => {
+      if (isInScheduledList || isScheduleRequested) {
+        forceShowSymbolMenu();
+        requestCalendar((scheduledAt, scheduleRepeatPeriod) => {
+          cancelForceShowSymbolMenu();
+          handleActionWithPaymentConfirmation(
+            handleMessageSchedule,
+            { sticker, isSilent },
+            scheduledAt,
+            scheduleRepeatPeriod,
+            currentMessageList!,
+          );
+          requestMeasure(() => {
+            resetComposer(shouldPreserveInput);
+          });
+        });
+      } else {
         handleActionWithPaymentConfirmation(
-          handleMessageSchedule,
-          { sticker, isSilent },
-          scheduledAt,
-          scheduleRepeatPeriod,
-          currentMessageList!,
+          sendMessage,
+          {
+            messageList: currentMessageList,
+            sticker,
+            isSilent,
+            shouldUpdateStickerSetOrder: shouldUpdateStickerSetOrder && canUpdateStickerSetsOrder,
+          },
         );
+        clearDraft({ chatId, threadId, isLocalOnly: true });
+
         requestMeasure(() => {
           resetComposer(shouldPreserveInput);
         });
+      }
+    };
+
+    if (clashgramConfirmGifEmoji) {
+      setConfirmDialogData({
+        type: 'gif_emoji',
+        text: 'Are you sure you want to send this sticker?',
+        onConfirm: doSend,
       });
     } else {
-      handleActionWithPaymentConfirmation(
-        sendMessage,
-        {
-          messageList: currentMessageList,
-          sticker,
-          isSilent,
-          shouldUpdateStickerSetOrder: shouldUpdateStickerSetOrder && canUpdateStickerSetsOrder,
-        },
-      );
-      clearDraft({ chatId, threadId, isLocalOnly: true });
-
-      requestMeasure(() => {
-        resetComposer(shouldPreserveInput);
-      });
+      doSend();
     }
   });
 
@@ -2799,6 +2868,39 @@ const Composer = ({
           </div>
         )}
       </Modal>
+      <Modal
+        isOpen={Boolean(confirmDialogData)}
+        onClose={() => setConfirmDialogData(undefined)}
+        title="Confirm Send"
+        className="confirm-send-modal"
+      >
+        <div style="padding: 0.5rem 0 1rem 0; text-align: center;">
+          <p style="font-size: 1rem; color: var(--color-text); margin-bottom: 1.5rem;">
+            {confirmDialogData?.text}
+          </p>
+          <div className="dialog-buttons" style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+            <Button
+              color="secondary"
+              onClick={() => setConfirmDialogData(undefined)}
+              style="border-radius: 0.5rem;"
+            >
+              Cancel
+            </Button>
+            <Button
+              color="primary"
+              onClick={() => {
+                if (confirmDialogData?.onConfirm) {
+                  confirmDialogData.onConfirm();
+                }
+                setConfirmDialogData(undefined);
+              }}
+              style="border-radius: 0.5rem;"
+            >
+              Send
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
@@ -2821,7 +2923,15 @@ export default memo(withGlobal<OwnProps>(
     const {
       shouldSuggestStickers, shouldSuggestCustomEmoji, shouldUpdateStickerSetOrder, shouldPaidMessageAutoApprove,
     } = global.settings.byKey;
-    const { language, shouldCollectDebugLogs, clashgramVoiceChangerEnabled } = selectSharedSettings(global);
+    const {
+      language,
+      shouldCollectDebugLogs,
+      clashgramVoiceChangerEnabled,
+      clashgramConfirmMedia,
+      clashgramConfirmFile,
+      clashgramConfirmGifEmoji,
+      clashgramConfirmMsg,
+    } = selectSharedSettings(global);
     const {
       forwardMessages: { messageIds: forwardMessageIds },
       shouldOpenMessageMediaEditor,
@@ -2992,6 +3102,10 @@ export default memo(withGlobal<OwnProps>(
       shouldOpenMessageMediaEditor,
       replyToMessage,
       clashgramVoiceChangerEnabled,
+      clashgramConfirmMedia,
+      clashgramConfirmFile,
+      clashgramConfirmGifEmoji,
+      clashgramConfirmMsg,
     };
   },
 )(Composer));

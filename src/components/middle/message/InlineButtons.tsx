@@ -6,6 +6,7 @@ import type { ApiKeyboardButton } from '../../../api/types';
 import { RE_TME_LINK, TME_LINK_PREFIX } from '../../../config';
 import buildClassName from '../../../util/buildClassName';
 import renderKeyboardButtonText from '../composer/helpers/renderKeyboardButtonText';
+import renderText from '../../common/helpers/renderText';
 
 import useLang from '../../../hooks/useLang';
 
@@ -19,11 +20,12 @@ type OwnProps = {
   className?: string;
   inlineButtons: ApiKeyboardButton[][];
   onClick: (payload: ApiKeyboardButton) => void;
+  translatedButtons?: Record<string, string>;
 };
 
 const ICON_SIZE = 16;
 
-const InlineButtons = ({ className, inlineButtons, onClick }: OwnProps) => {
+const InlineButtons = ({ className, inlineButtons, onClick, translatedButtons }: OwnProps) => {
   const lang = useLang();
 
   const renderIcon = (button: ApiKeyboardButton) => {
@@ -79,10 +81,17 @@ const InlineButtons = ({ className, inlineButtons, onClick }: OwnProps) => {
   const buttonTexts = useMemo(() => {
     const texts: TeactNode[][] = [];
     inlineButtons.forEach((row) => {
-      texts.push(row.map((button) => renderKeyboardButtonText(lang, button)));
+      texts.push(row.map((button) => {
+        const origText = 'text' in button ? button.text : undefined;
+        const translatedText = origText ? translatedButtons?.[origText] : undefined;
+        if (translatedText) {
+          return renderText(translatedText);
+        }
+        return renderKeyboardButtonText(lang, button);
+      }));
     });
     return texts;
-  }, [lang, inlineButtons]);
+  }, [lang, inlineButtons, translatedButtons]);
 
   return (
     <div className={buildClassName(styles.root, className)}>

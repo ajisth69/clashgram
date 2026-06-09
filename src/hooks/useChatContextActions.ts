@@ -14,6 +14,8 @@ import { isUserId } from '../util/entities/ids';
 import { buildCollectionByCallback, compact } from '../util/iteratees';
 import useSelector, { useShallowSelector } from './data/useSelector';
 import useLang from './useLang';
+import { selectSharedSettings } from '../global/selectors/sharedState';
+import { getHiddenChatIds, toggleHiddenChat } from './useHiddenMessages';
 
 const useChatContextActions = ({
   chat,
@@ -59,6 +61,7 @@ const useChatContextActions = ({
   } = getActions();
 
   const lang = useLang();
+  const sharedSettings = useSelector(selectSharedSettings);
 
   const { isSelf } = user || {};
   const isServiceNotifications = user?.id === SERVICE_NOTIFICATIONS_USER_ID;
@@ -202,9 +205,19 @@ const useChatContextActions = ({
         handler: handleMute,
       };
 
+    const isChatHidden = getHiddenChatIds().includes(chat.id);
+    const actionHideUnhide = {
+      title: isChatHidden ? 'Unhide Chat' : 'Hide Chat',
+      icon: isChatHidden ? 'eye-outline' : 'eye-crossed-outline',
+      handler: () => {
+        toggleHiddenChat(chat.id);
+        getActions().setSharedSettingOption({});
+      },
+    } satisfies MenuItemContextAction;
+
     if (isInSearch) {
       return compact([
-        actionOpenInNewTab, actionQuickPreview, actionPin, actionAddToFolder, actionMute,
+        actionOpenInNewTab, actionQuickPreview, actionPin, actionAddToFolder, actionMute, actionHideUnhide,
       ]) as MenuItemContextAction[];
     }
 
@@ -243,6 +256,7 @@ const useChatContextActions = ({
       actionPin,
       !isSelf && actionMute,
       !isSelf && !isServiceNotifications && !isInFolder && actionArchive,
+      actionHideUnhide,
       actionLockUnlock,
       actionReport,
       actionDelete,
@@ -250,7 +264,7 @@ const useChatContextActions = ({
   }, [
     chat, isPreview, lang, isSavedDialog, isPinned, deleteTitle, handleDelete, canChangeFolder,
     handleChatFolderChange, isMuted, handleUnmute, handleMute, isInSearch, chatReadState, topicsReadStates,
-    handleReport, user, folderId, isSelf, isServiceNotifications, currentUserId,
+    handleReport, user, folderId, isSelf, isServiceNotifications, currentUserId, sharedSettings,
   ]);
 
   return preparedActions;

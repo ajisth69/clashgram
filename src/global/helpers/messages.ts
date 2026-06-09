@@ -316,7 +316,12 @@ export function isMessageTranslatable(message: ApiMessage, allowOutgoing?: boole
   const isServiceNotification = isServiceNotificationMessage(message);
   const isAction = isActionMessage(message);
 
-  return Boolean(text?.text.length && !text.emojiOnlyCount && !game && (allowOutgoing || !message.isOutgoing)
+  const hasTranslatableText = Boolean(text?.text.length && !text.emojiOnlyCount);
+  const hasTranslatableButtons = Boolean(
+    message.inlineButtons?.some((row) => row.some((button) => 'text' in button && button.text)),
+  );
+
+  return Boolean((hasTranslatableText || hasTranslatableButtons) && !game && (allowOutgoing || !message.isOutgoing)
     && !isLocal && !isServiceNotification && !isAction && !message.isScheduled);
 }
 

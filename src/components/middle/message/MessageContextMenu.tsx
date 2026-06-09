@@ -145,6 +145,8 @@ type OwnProps = {
   canGift?: boolean;
   noForwardsNotice?: string;
   transcribedText?: string;
+  isMessageHidden?: boolean;
+  onToggleHideMessage?: NoneToVoidFunction;
 };
 
 const SCROLLBAR_WIDTH = 10;
@@ -245,6 +247,8 @@ const MessageContextMenu: FC<OwnProps> = ({
   canGift,
   noForwardsNotice,
   transcribedText,
+  isMessageHidden,
+  onToggleHideMessage,
 }) => {
   const {
     showNotification, openStickerSet, openCustomEmojiSets, loadStickers, openGiftModal,
@@ -531,6 +535,14 @@ const MessageContextMenu: FC<OwnProps> = ({
         {canForward && <MenuItem icon="forward" onClick={onForward}>{oldLang('Forward')}</MenuItem>}
         {canSelect && <MenuItem icon="select" onClick={onSelect}>{oldLang('Common.Select')}</MenuItem>}
         {canReport && <MenuItem icon="flag" onClick={onReport}>{oldLang('lng_context_report_msg')}</MenuItem>}
+        {onToggleHideMessage && (
+          <MenuItem
+            icon={isMessageHidden ? 'eye' : 'eye-crossed'}
+            onClick={onToggleHideMessage}
+          >
+            {isMessageHidden ? 'Unhide Message' : 'Hide Message'}
+          </MenuItem>
+        )}
         {canDelete && <MenuItem destructive icon="delete" onClick={onDelete}>{oldLang('Delete')}</MenuItem>}
         {hasCustomEmoji && (
           <>

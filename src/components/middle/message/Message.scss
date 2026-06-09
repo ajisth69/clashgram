@@ -859,3 +859,53 @@
   display: block;
 }
 
+// Hidden (spoiler) message styles
+.Message.is-message-hidden {
+  .message-content {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .message-content > .content-inner {
+    filter: blur(6px);
+    user-select: none;
+    pointer-events: none;
+    transition: filter 0.3s ease;
+  }
+
+  .message-content::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: inherit;
+    pointer-events: none;
+
+    .theme-dark & {
+      background: rgba(255, 255, 255, 0.02);
+    }
+  }
+
+  // Keep meta and reactions visible
+  .message-content > .content-inner > .MessageMeta,
+  .message-content > .content-inner > .Reactions {
+    filter: none;
+    pointer-events: auto;
+  }
+}
+
+// Hidden reply preview styles
+.EmbeddedMessage.is-reply-hidden {
+  .message-text {
+    filter: blur(5px);
+    user-select: none;
+    transition: filter 0.3s ease;
+  }
+}
+
+// Hide blocked group messages securely
+.Message.is-blocked-hidden {
+  display: none !important;
+}
+

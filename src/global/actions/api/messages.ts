@@ -4,6 +4,7 @@ import type {
   ApiChatType,
   ApiDraft,
   ApiError,
+  ApiFormattedText,
   ApiInputMessageReplyInfo,
   ApiInputStoryReplyInfo,
   ApiInputSuggestedPostInfo,
@@ -56,7 +57,7 @@ import {
   uniqueByField,
 } from '../../../util/iteratees';
 import { getMessageKey, isLocalMessageId } from '../../../util/keys/messageKey';
-import { parseTranslationCacheKey } from '../../../util/keys/translationKey';
+import { getTranslationCacheKey, parseTranslationCacheKey } from '../../../util/keys/translationKey';
 import { getTranslationFn, type RegularLangFnParameters } from '../../../util/localization';
 import { formatStarsAsText } from '../../../util/localization/format';
 import { oldTranslate } from '../../../util/oldLangProvider';
@@ -163,6 +164,7 @@ import {
   selectSendAs,
   selectSender,
   selectTabState,
+  selectMessageTranslations,
   selectTranslationLanguage,
   selectUser,
   selectUserFullInfo,
@@ -215,7 +217,7 @@ addActionHandler('loadViewportMessages', (global, actions, payload): ActionRetur
   const chat = selectChat(global, chatId);
   const isRestricted = selectIsChatRestricted(global, chatId);
   // TODO Revise if `isRestricted` check is needed
-  if (!chat || isRestricted) {
+  if (!chat || isRestricted || chat.isForbidden || chat.isNotJoined) {
     onError?.();
     return;
   }
@@ -1930,9 +1932,9 @@ async function executeForwardMessages(
   const lastMessageId = selectChatLastMessageId(global, toChat.id);
   const localMessages: SendMessageParams[] = [];
 
-  const { clashgramBypassRestrictions } = selectSharedSettings(global);
+  const { clashgramBypassRestrictions, clashgramNoQuoteForwarding } = selectSharedSettings(global);
   const isProtected = fromChat.isProtected || messages.some((m) => m.isProtected);
-  if (clashgramBypassRestrictions && isProtected) {
+  if ((clashgramBypassRestrictions || clashgramNoQuoteForwarding) && isProtected) {
     (async () => {
       for (const message of messages) {
         if (isServiceNotificationMessage(message)) {
@@ -2034,7 +2036,7 @@ async function executeForwardMessages(
         scheduleRepeatPeriod,
         sendAs,
         withMyScore,
-        noAuthors: true,
+        noAuthors: noAuthors || clashgramNoQuoteForwarding,
         noCaptions,
         isCurrentUserPremium,
         wasDrafted: Boolean(draft),
@@ -3262,24 +3264,106 @@ addActionHandler('markMessagesTranslationPending', (global, actions, payload): A
   return global;
 });
 
-addActionHandler('translateMessages', (global, actions, payload): ActionReturnType => {
+addActionHandler('translateMessages', async (global, actions, payload): Promise<void> => {
   const {
     chatId, messageIds, toLanguageCode = selectLanguageCode(global), tone,
   } = payload;
 
   const chat = selectChat(global, chatId);
-  if (!chat) return undefined;
+  if (!chat) return;
 
   actions.markMessagesTranslationPending({ chatId, messageIds, toLanguageCode, tone });
 
-  callApi('translateText', {
-    chat,
-    messageIds,
-    toLanguageCode,
-    tone,
+  const messages = messageIds.map((id) => selectChatMessage(global, chatId, id)).filter(Boolean);
+
+  const translatableMessageIds = messageIds.filter((id) => {
+    const message = selectChatMessage(global, chatId, id);
+    return message && Boolean(message.content.text?.text.length && !message.content.text.emojiOnlyCount);
   });
 
-  return global;
+  const mainTranslationPromise = translatableMessageIds.length > 0 ? callApi('translateText', {
+    chat,
+    messageIds: translatableMessageIds,
+    toLanguageCode,
+    tone,
+  }).catch((e) => {
+    console.error('[Translation] Failed to translate main messages', e);
+  }) : Promise.resolve(undefined);
+
+  const buttonTranslationPromises = messages.map(async (message) => {
+    if (message.inlineButtons && message.inlineButtons.length > 0) {
+      const buttonTextsToTranslate: ApiFormattedText[] = [];
+      message.inlineButtons.forEach((row) => {
+        row.forEach((button) => {
+          if ('text' in button && button.text) {
+            buttonTextsToTranslate.push({ text: button.text });
+          }
+        });
+      });
+
+      if (buttonTextsToTranslate.length > 0) {
+        try {
+          console.log('[Translation] Translating inline buttons:', buttonTextsToTranslate, 'to:', toLanguageCode);
+          const translatedTextResult = await callApi('translateText', {
+            text: buttonTextsToTranslate,
+            toLanguageCode,
+            tone,
+          });
+          console.log('[Translation] Translating inline buttons result:', translatedTextResult);
+
+          if (translatedTextResult) {
+            const translatedButtonsMap: Record<string, string> = {};
+            buttonTextsToTranslate.forEach((btn, index) => {
+              const origText = btn.text;
+              const transText = translatedTextResult[index]?.text;
+              if (origText && transText) {
+                translatedButtonsMap[origText] = transText;
+              }
+            });
+            return { messageId: message.id, translatedButtonsMap };
+          }
+        } catch (e) {
+          console.error('[Translation] Failed to translate inline buttons', e);
+        }
+      }
+    }
+    return null;
+  });
+
+  const [_, ...buttonResults] = await Promise.all([
+    mainTranslationPromise,
+    ...buttonTranslationPromises,
+  ]);
+
+  // Apply button translation updates synchronously to prevent race conditions
+  let finalGlobal = getGlobal();
+  let hasButtonUpdates = false;
+
+  buttonResults.forEach((res) => {
+    if (res) {
+      finalGlobal = updateMessageTranslation(finalGlobal, chatId, res.messageId, toLanguageCode, {
+        translatedButtons: res.translatedButtonsMap,
+      }, tone);
+      hasButtonUpdates = true;
+    }
+  });
+
+  // If some message text was not translatable, we should mark its translation as complete (isPending: false)
+  messageIds.forEach((id) => {
+    if (!translatableMessageIds.includes(id)) {
+      const currentTranslation = selectMessageTranslations(finalGlobal, chatId, getTranslationCacheKey(toLanguageCode, tone))?.[id];
+      if (currentTranslation?.isPending) {
+        finalGlobal = updateMessageTranslation(finalGlobal, chatId, id, toLanguageCode, {
+          isPending: false,
+        }, tone);
+        hasButtonUpdates = true;
+      }
+    }
+  });
+
+  if (hasButtonUpdates) {
+    setGlobal(finalGlobal);
+  }
 });
 
 addActionHandler('summarizeMessage', async (global, actions, payload): Promise<void> => {

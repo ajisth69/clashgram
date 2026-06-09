@@ -42,6 +42,7 @@ import {
   selectTabState,
 } from '../../selectors';
 import { selectThreadLocalStateParam, selectThreadReadState } from '../../selectors/threads';
+import { selectSharedSettings } from '../../selectors/sharedState';
 
 const TYPING_STATUS_CLEAR_DELAY = 6000; // 6 seconds
 const INVALIDATE_FULL_CHAT_FIELDS = new Set<keyof ApiChat>([
@@ -145,13 +146,18 @@ addActionHandler('apiUpdate', (global, actions, update): ActionReturnType => {
     }
 
     case 'updateChatLeave': {
-      global = leaveChat(global, update.id);
-      const chat = selectChat(global, update.id);
-      if (chat && isChatChannel(chat)) {
-        const chatMessages = selectChatMessages(global, update.id);
-        if (chatMessages) {
-          const localMessageIds = Object.keys(chatMessages).map(Number).filter(isLocalMessageId);
-          global = deleteChatMessages(global, chat.id, localMessageIds);
+      const { clashgramRetainKickedChats } = selectSharedSettings(global);
+      if (clashgramRetainKickedChats) {
+        global = updateChat(global, update.id, { isNotJoined: true, isForbidden: true });
+      } else {
+        global = leaveChat(global, update.id);
+        const chat = selectChat(global, update.id);
+        if (chat && isChatChannel(chat)) {
+          const chatMessages = selectChatMessages(global, update.id);
+          if (chatMessages) {
+            const localMessageIds = Object.keys(chatMessages).map(Number).filter(isLocalMessageId);
+            global = deleteChatMessages(global, chat.id, localMessageIds);
+          }
         }
       }
 

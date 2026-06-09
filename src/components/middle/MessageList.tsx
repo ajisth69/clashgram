@@ -48,7 +48,9 @@ import {
   selectTranslationLanguage,
   selectUser,
   selectUserFullInfo,
+  selectIsUserBlocked,
 } from '../../global/selectors';
+import { selectSharedSettings } from '../../global/selectors/sharedState';
 import { selectIsChatRestricted } from '../../global/selectors/chats';
 import { selectActiveRestrictionReasons, selectCurrentMessageList } from '../../global/selectors/messages';
 import {
@@ -153,6 +155,7 @@ type StateProps = {
   isActive?: boolean;
   canManageBotForumTopics?: boolean;
   shouldScrollToBottom?: boolean;
+  clashgramHideBlockedInGroups?: boolean;
 };
 
 enum Content {
@@ -248,6 +251,7 @@ const MessageList = ({
   onIntersectPinnedMessage,
   onScrollDownToggle,
   onNotchToggle,
+  clashgramHideBlockedInGroups,
 }: OwnProps & StateProps) => {
   const {
     loadViewportMessages, setScrollOffset, loadSponsoredMessages, loadMessageReactions, copyMessagesByIds,
@@ -413,7 +417,8 @@ const MessageList = ({
   }, [withUsers,
     messageIds, messagesById, type,
     isServiceNotificationsChat, isForum,
-    threadId, isChatWithSelf, channelJoinInfo]);
+    threadId, isChatWithSelf, channelJoinInfo,
+    clashgramHideBlockedInGroups, isGroupChat]);
 
   const currentLastMessageOriginalId = useMemo(() => {
     const currentLastMessageId = messageIds?.[messageIds.length - 1];
@@ -1079,6 +1084,7 @@ export default memo(withGlobal<OwnProps>(
       shouldAutoTranslate,
       canManageBotForumTopics: chat.isBotForum && user?.canManageBotForumTopics,
       shouldScrollToBottom,
+      clashgramHideBlockedInGroups: selectSharedSettings(global).clashgramHideBlockedInGroups,
     };
   },
 )(MessageList));

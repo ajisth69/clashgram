@@ -51,4 +51,11 @@ export interface SharedSettings {
   clashgramVoiceChangerEnabled?: boolean;
   clashgramCustomAnimation?: string;
   clashgramSendSilently?: boolean;
+  clashgramNoQuoteForwarding?: boolean;
+  clashgramRetainKickedChats?: boolean;
+  clashgramConfirmMedia?: boolean;
+  clashgramConfirmFile?: boolean;
+  clashgramConfirmGifEmoji?: boolean;
+  clashgramConfirmMsg?: boolean;
+  clashgramHideBlockedInGroups?: boolean;
 }

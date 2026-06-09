@@ -686,6 +686,7 @@ export type TranslatedMessage = {
   isPending?: boolean;
   text?: ApiFormattedText;
   summary?: TextSummary;
+  translatedButtons?: Record<string, string>;
 };
 
 export const TRANSLATION_TONES = ['neutral', 'formal', 'casual'] as const;
@@ -824,6 +825,7 @@ export type ForwardMessagesParams = {
   withMyScore?: boolean;
   noAuthors?: boolean;
   noCaptions?: boolean;
+  noQuotes?: boolean;
   isCurrentUserPremium?: boolean;
   wasDrafted?: boolean;
   lastMessageId?: number;
