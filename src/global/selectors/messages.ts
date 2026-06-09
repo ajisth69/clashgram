@@ -630,8 +630,8 @@ export function selectAllowedMessageActionsSlow<T extends GlobalState>(
   const canReport = !isPrivate && !isOwn;
 
   const canDeleteForAll = canDelete && !chat.isForbidden && (
-    (isPrivate && !isChatWithSelf && !isBotChat && !content.dice)
-    || (isBasicGroup && (
+    (isPrivate && !isChatWithSelf && !content.dice)
+    || ((isBasicGroup || isSuperGroup || isChannel) && (
       isOwn || getHasAdminRight(chat, 'deleteMessages') || chat.isCreator
     ))
   );

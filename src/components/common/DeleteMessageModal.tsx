@@ -181,7 +181,7 @@ const DeleteMessageModal: FC<OwnProps & StateProps> = ({
   }, [peerListToDeleteAll, peerListToReportSpam, peerListToBan]);
 
   const shouldShowOption = shouldShowAdditionalOptions
-    && !canDeleteForAll && !isSchedule && isSuperGroup;
+    && !isSchedule && isSuperGroup;
 
   const peerNames = useMemo(() => {
     if (!peerList || isSchedule) return {};
@@ -454,7 +454,7 @@ const DeleteMessageModal: FC<OwnProps & StateProps> = ({
             ) : setIsAdditionalOptionsVisible(false)}
           </>
         )}
-        {(canDeleteForAll || chatBot || !shouldShowOption) && (
+        {!shouldShowOption && (
           <>
             <p>
               {messageIds && messageIds.length > 1
@@ -468,7 +468,7 @@ const DeleteMessageModal: FC<OwnProps & StateProps> = ({
             )}
           </>
         )}
-        {canDeleteForAll && (
+        {canDeleteForAll && !shouldShowOption && (
           <Checkbox
             className="dialog-checkbox"
             label={contactName ? renderText(oldLang('DeleteMessagesOptionAlso', contactName))
@@ -513,8 +513,8 @@ export default memo(withGlobal<OwnProps>(
     const canBanUsers = chat && getHasAdminRight(chat, 'banUsers') && !chat.isMonoforum; // TODO: Ban in channel in case of monoforum
     const isCreator = chat?.isCreator;
     const isChatWithBot = chatId ? selectIsChatWithBot(global, chatId) : undefined;
-    const willDeleteForCurrentUserOnly = (chat && isChatBasicGroup(chat) && !canDeleteForAll) || isChatWithBot;
-    const willDeleteForAll = chat && (isChatSuperGroup(chat) || isChannel);
+    const willDeleteForCurrentUserOnly = ((chat && isChatBasicGroup(chat)) || isChatWithBot) && !canDeleteForAll;
+    const willDeleteForAll = chat && (isChatSuperGroup(chat) || isChannel) && !canDeleteForAll;
 
     return {
       chat,

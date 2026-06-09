@@ -1116,9 +1116,16 @@ addActionHandler('deleteMessages', (global, actions, payload): ActionReturnType 
     return message && !isMessageLocal(message);
   });
 
+  const isSuperGroupOrChannel = isChatChannel(chat) || isChatSuperGroup(chat);
+
   // Only local messages
   if (!messageIdsToDelete.length && messageIds.length) {
-    deleteMessages(global, isChatChannel(chat) || isChatSuperGroup(chat) ? chatId : undefined, messageIds, actions);
+    deleteMessages(global, isSuperGroupOrChannel ? chatId : undefined, messageIds, actions);
+    return;
+  }
+
+  if (!shouldDeleteForAll && isSuperGroupOrChannel) {
+    deleteMessages(global, chatId, messageIds, actions);
     return;
   }
 
