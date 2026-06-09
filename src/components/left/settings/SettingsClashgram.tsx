@@ -149,6 +149,23 @@ const SettingsClashgram = ({
     }
   }, [isActive]);
 
+  // Load custom web font if needed
+  useEffect(() => {
+    if (clashgramCustomFont && clashgramCustomFont !== 'default') {
+      const systemFonts = ['arial', 'helvetica', 'georgia', 'impact', 'segoe ui', 'trebuchet ms', 'courier new', 'consolas', 'lucida console', 'comic sans ms', 'avenir next', 'cabinet', 'clash display', 'clash grotesk', 'chillax', 'general sans', 'satoshi', 'telma'];
+      if (!systemFonts.includes(clashgramCustomFont.toLowerCase())) {
+        const linkId = `gfont-${clashgramCustomFont.replace(/\s+/g, '-')}`;
+        if (!document.getElementById(linkId)) {
+          const link = document.createElement('link');
+          link.id = linkId;
+          link.rel = 'stylesheet';
+          link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(clashgramCustomFont)}:wght@400;500;700&display=swap`;
+          document.head.appendChild(link);
+        }
+      }
+    }
+  }, [clashgramCustomFont]);
+
   // Custom Font lookup
   const [googleFontInput, setGoogleFontInput] = useState('');
   const [fontsList, setFontsList] = useState([
@@ -208,6 +225,28 @@ const SettingsClashgram = ({
     { label: 'Ubuntu', value: 'Ubuntu' },
     { label: 'Unbounded', value: 'Unbounded' },
     { label: 'Work Sans', value: 'Work Sans' },
+    // Crazy Stylish Fonts from Google Fonts (similar to Unigram)
+    { label: 'Bubblegum Sans (Crazy Bubble)', value: 'Bubblegum Sans' },
+    { label: 'Bungee Outline (Crazy Outline)', value: 'Bungee Outline' },
+    { label: 'Creepster (Crazy Spooky)', value: 'Creepster' },
+    { label: 'Eater (Crazy Distorted)', value: 'Eater' },
+    { label: 'Monoton (Crazy Retro Neon)', value: 'Monoton' },
+    { label: 'Nosifer (Crazy Dripping)', value: 'Nosifer' },
+    { label: 'Rubik Glitch (Crazy Glitch)', value: 'Rubik Glitch' },
+    { label: 'Rubik Beastly (Crazy Furry)', value: 'Rubik Beastly' },
+    { label: 'Press Start 2P (Crazy 8-bit)', value: 'Press Start 2P' },
+    { label: 'VT323 (Crazy Pixel)', value: 'VT323' },
+    { label: 'Shojumaru (Crazy Samurai)', value: 'Shojumaru' },
+    { label: 'Pirata One (Crazy Gothic Blackletter)', value: 'Pirata One' },
+    { label: 'Uncial Antiqua (Crazy Middle-Ages)', value: 'Uncial Antiqua' },
+    { label: 'Fredericka the Great (Crazy Chalk Sketch)', value: 'Fredericka the Great' },
+    { label: 'Cinzel Decorative (Crazy Fancy Serif)', value: 'Cinzel Decorative' },
+    { label: 'Pacifico (Crazy Brush Script)', value: 'Pacifico' },
+    { label: 'Sacramento (Crazy Script Handwriting)', value: 'Sacramento' },
+    { label: 'Special Elite (Crazy Grungy Typewriter)', value: 'Special Elite' },
+    { label: 'Righteous (Crazy Art Deco Futura)', value: 'Righteous' },
+    { label: 'Comfortaa (Crazy Ultra Round)', value: 'Comfortaa' },
+    { label: 'Megrim (Crazy Wireframe Future)', value: 'Megrim' },
   ]);
 
   const [customAnimText, setCustomAnimText] = useState(clashgramCustomAnimation || '');
@@ -222,6 +261,19 @@ const SettingsClashgram = ({
       '--clashgram-custom-font',
       fontValue === 'default' ? 'inherit' : `"${fontValue}", sans-serif`,
     );
+    if (fontValue && fontValue !== 'default') {
+      const systemFonts = ['arial', 'helvetica', 'georgia', 'impact', 'segoe ui', 'trebuchet ms', 'courier new', 'consolas', 'lucida console', 'comic sans ms', 'avenir next', 'cabinet', 'clash display', 'clash grotesk', 'chillax', 'general sans', 'satoshi', 'telma'];
+      if (!systemFonts.includes(fontValue.toLowerCase())) {
+        const linkId = `gfont-${fontValue.replace(/\s+/g, '-')}`;
+        if (!document.getElementById(linkId)) {
+          const link = document.createElement('link');
+          link.id = linkId;
+          link.rel = 'stylesheet';
+          link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontValue)}:wght@400;500;700&display=swap`;
+          document.head.appendChild(link);
+        }
+      }
+    }
   });
 
   const handleImportGoogleFont = () => {

@@ -308,6 +308,17 @@ const App = ({
   useLayoutEffect(() => {
     if (clashgramCustomFont && clashgramCustomFont !== 'default') {
       document.body.style.setProperty('--font-family', `"${clashgramCustomFont}", -apple-system, BlinkMacSystemFont, "Segoe UI", "Segoe UI Symbol", Roboto, Helvetica, Arial, sans-serif`);
+      const systemFonts = ['arial', 'helvetica', 'georgia', 'impact', 'segoe ui', 'trebuchet ms', 'courier new', 'consolas', 'lucida console', 'comic sans ms', 'avenir next', 'cabinet', 'clash display', 'clash grotesk', 'chillax', 'general sans', 'satoshi', 'telma'];
+      if (!systemFonts.includes(clashgramCustomFont.toLowerCase())) {
+        const linkId = `gfont-${clashgramCustomFont.replace(/\s+/g, '-')}`;
+        if (!document.getElementById(linkId)) {
+          const link = document.createElement('link');
+          link.id = linkId;
+          link.rel = 'stylesheet';
+          link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(clashgramCustomFont)}:wght@400;500;700&display=swap`;
+          document.head.appendChild(link);
+        }
+      }
     } else {
       document.body.style.removeProperty('--font-family');
     }
