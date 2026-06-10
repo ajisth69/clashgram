@@ -33,6 +33,7 @@
   display: flex;
 
   width: calc(100% + 2rem);
+  height: 100%;
   margin: 0 -1rem;
   margin-top: -1rem;
 }
@@ -50,11 +51,17 @@
   flex: none;
 
   width: 100%;
-  margin-bottom: 7.5rem;
+  height: 100%;
+  overflow-y: auto;
+  padding-bottom: 8.5rem;
 }
 
 .limits, .stories, .noForward {
   background: var(--color-background);
+}
+
+.limits {
+  overflow-y: hidden !important;
 }
 
 .limits-content {
