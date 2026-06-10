@@ -8,6 +8,7 @@ import {
 import { getActions, getGlobal, withGlobal } from '../../global';
 
 import type { ApiChat, ApiChatMember } from '../../api/types';
+import { MAIN_THREAD_ID } from '../../api/types';
 import type { IRadioOption } from '../ui/CheckboxGroup';
 
 import {
@@ -21,9 +22,10 @@ import { getPeerTitle } from '../../global/helpers/peers';
 import {
   getSendersFromSelectedMessages,
   selectBot,
-  selectCanDeleteSelectedMessages,
+  selectCanDeleteMessages,
   selectChat,
   selectChatFullInfo,
+  selectCurrentMessageList,
   selectIsChatWithBot,
   selectSenderFromMessage,
   selectTabState,
@@ -128,9 +130,10 @@ const DeleteMessageModal: FC<OwnProps & StateProps> = ({
     }
     const global = getGlobal();
     const senderArray = getSendersFromSelectedMessages(global, chat.id, messageIds);
+    const isPrivate = isUserId(chat.id);
     return senderArray ? unique(senderArray)
       .filter((peer) => (
-        peer?.id !== chat?.id
+        (isPrivate || peer?.id !== chat?.id)
         && peer?.id !== linkedChatId
         && peer?.id !== chat?.linkedMonoforumId
       )) : MEMO_EMPTY_ARRAY;
@@ -146,21 +149,30 @@ const DeleteMessageModal: FC<OwnProps & StateProps> = ({
     });
   });
 
+  const canDeleteOthersMessages = useMemo(() => {
+    if (!chat) return false;
+    if (isUserId(chat.id)) return true;
+    return chat.isCreator || getHasAdminRight(chat, 'deleteMessages');
+  }, [chat]);
+
   const peerListToDeleteAll = useMemo(() => {
     return peerList.filter((peer) => (
       peer.id !== linkedChatId
       && peer.id !== chat?.linkedMonoforumId
-      && peer.id !== currentUserId
+      && (peer.id === currentUserId || canDeleteOthersMessages)
     ));
-  }, [peerList, currentUserId, linkedChatId, chat?.linkedMonoforumId]);
+  }, [peerList, linkedChatId, chat?.linkedMonoforumId, currentUserId, canDeleteOthersMessages]);
 
   const peerListToReportSpam = useMemo(() => {
+    if (!chat || isUserId(chat.id)) {
+      return MEMO_EMPTY_ARRAY;
+    }
     return peerList.filter((peer) => (
       peer.id !== currentUserId
       && peer.id !== linkedChatId
       && peer.id !== chat?.linkedMonoforumId
     ));
-  }, [peerList, currentUserId, linkedChatId, chat?.linkedMonoforumId]);
+  }, [peerList, currentUserId, linkedChatId, chat?.linkedMonoforumId, chat]);
 
   const peerListToBan = useMemo(() => {
     const isCurrentUserInList = peerList.some((peer) => peer.id === currentUserId);
@@ -181,12 +193,15 @@ const DeleteMessageModal: FC<OwnProps & StateProps> = ({
   }, [peerListToDeleteAll, peerListToReportSpam, peerListToBan]);
 
   const shouldShowOption = shouldShowAdditionalOptions
-    && !isSchedule && isSuperGroup;
+    && !isSchedule;
 
   const peerNames = useMemo(() => {
     if (!peerList || isSchedule) return {};
-    return buildCollectionByCallback(peerList, (peer) => [peer.id, getPeerTitle(lang, peer)]);
-  }, [isSchedule, lang, peerList]);
+    return buildCollectionByCallback(peerList, (peer) => {
+      const title = peer.id === currentUserId ? oldLang('FromYou') : getPeerTitle(lang, peer);
+      return [peer.id, title];
+    });
+  }, [isSchedule, lang, oldLang, peerList, currentUserId]);
 
   const ACTION_SPAM_OPTION: IRadioOption[] = useMemo(() => {
     return [
@@ -211,12 +226,11 @@ const DeleteMessageModal: FC<OwnProps & StateProps> = ({
           : oldLang('DeleteAllFrom', Object.values(peerNames)[0]),
         nestedOptions: messageIds && peerList.length >= 2 ? [
           ...buildNestedOptionListWithAvatars().filter((opt) => opt.value !== linkedChatId
-            && opt.value !== chat?.linkedMonoforumId
-            && opt.value !== currentUserId),
+            && opt.value !== chat?.linkedMonoforumId),
         ] : undefined,
       },
     ];
-  }, [messageIds, peerList, oldLang, peerNames, linkedChatId, chat?.linkedMonoforumId, currentUserId]);
+  }, [messageIds, peerList, oldLang, peerNames, linkedChatId, chat?.linkedMonoforumId]);
 
   const ACTION_BAN_OPTION: IRadioOption[] = useMemo(() => {
     return [
@@ -375,12 +389,14 @@ const DeleteMessageModal: FC<OwnProps & StateProps> = ({
   function renderAdditionalActionOptions() {
     return (
       <div className={styles.options}>
-        <CheckboxGroup
-          options={ACTION_SPAM_OPTION}
-          onChange={setPeerIdsToReportSpam}
-          selected={peerIdsToReportSpam}
-          nestedCheckbox={messageIds && peerList.length >= 2}
-        />
+        {peerListToReportSpam?.length > 0 && (
+          <CheckboxGroup
+            options={ACTION_SPAM_OPTION}
+            onChange={setPeerIdsToReportSpam}
+            selected={peerIdsToReportSpam}
+            nestedCheckbox={messageIds && peerList.length >= 2}
+          />
+        )}
         {peerListToDeleteAll?.length > 0 && (
           <CheckboxGroup
             options={ACTION_DELETE_OPTION}
@@ -468,7 +484,7 @@ const DeleteMessageModal: FC<OwnProps & StateProps> = ({
             )}
           </>
         )}
-        {canDeleteForAll && !shouldShowOption && (
+        {canDeleteForAll && (
           <Checkbox
             className="dialog-checkbox"
             label={contactName ? renderText(oldLang('DeleteMessagesOptionAlso', contactName))
@@ -497,7 +513,10 @@ export default memo(withGlobal<OwnProps>(
     } = selectTabState(global);
     const messageIds = deleteMessageModal?.messageIds;
     const chatId = deleteMessageModal?.chatId;
-    const { canDeleteForAll } = selectCanDeleteSelectedMessages(global, messageIds);
+    const { threadId = MAIN_THREAD_ID } = selectCurrentMessageList(global) || {};
+    const { canDeleteForAll } = (chatId && messageIds)
+      ? selectCanDeleteMessages(global, chatId, threadId, messageIds)
+      : {};
     const chat = chatId ? selectChat(global, chatId) : undefined;
     const chatFullInfo = chat && selectChatFullInfo(global, chat.id);
     const linkedChatId = chatFullInfo?.linkedChatId;

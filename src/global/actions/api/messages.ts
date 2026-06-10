@@ -1158,12 +1158,29 @@ addActionHandler('resetLocalPaidMessages', (global, actions, payload): ActionRet
 
 addActionHandler('deleteParticipantHistory', (global, actions, payload): ActionReturnType => {
   const {
-    chatId, peerId,
+    chatId, peerId, tabId = getCurrentTabId(),
   } = payload;
   const chat = selectChat(global, chatId)!;
   const peer = selectPeer(global, peerId)!;
 
-  void callApi('deleteParticipantHistory', { chat, peer });
+  const isSuperGroupOrChannel = isChatChannel(chat) || isChatSuperGroup(chat);
+  if (isSuperGroupOrChannel) {
+    void callApi('deleteParticipantHistory', { chat, peer });
+  } else {
+    const byId = global.messages.byChatId[chatId]?.byId;
+    if (byId) {
+      const messageIds = Object.values(byId)
+        .filter((message) => message.senderId === peerId)
+        .map((message) => message.id);
+      if (messageIds.length) {
+        actions.deleteMessages({
+          messageIds,
+          shouldDeleteForAll: true,
+          tabId,
+        });
+      }
+    }
+  }
 });
 
 addActionHandler('deleteScheduledMessages', (global, actions, payload): ActionReturnType => {
