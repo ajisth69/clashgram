@@ -3310,6 +3310,11 @@ addActionHandler('translateMessages', async (global, actions, payload): Promise<
     messageIds: translatableMessageIds,
     toLanguageCode,
     tone,
+    translationProvider: global.settings.byKey.translationProvider,
+    texts: translatableMessageIds.map((id) => {
+      const message = selectChatMessage(global, chatId, id);
+      return message?.content.text?.text || '';
+    }),
   }).catch((e) => {
     console.error('[Translation] Failed to translate main messages', e);
   }) : Promise.resolve(undefined);
@@ -3332,6 +3337,7 @@ addActionHandler('translateMessages', async (global, actions, payload): Promise<
             text: buttonTextsToTranslate,
             toLanguageCode,
             tone,
+            translationProvider: global.settings.byKey.translationProvider,
           });
           console.log('[Translation] Translating inline buttons result:', translatedTextResult);
 

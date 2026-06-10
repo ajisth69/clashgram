@@ -274,6 +274,11 @@ export function selectCanShareFolder<T extends GlobalState>(global: T, folderId:
 export function selectShouldDetectChatLanguage<T extends GlobalState>(
   global: T, chatId: string,
 ) {
+  const { translationProvider = 'google' } = global.settings.byKey;
+  if (translationProvider === 'cocoon' && !selectIsCurrentUserPremium(global)) {
+    return false;
+  }
+
   const chat = selectChat(global, chatId);
   if (!chat) return false;
 
@@ -281,15 +286,19 @@ export function selectShouldDetectChatLanguage<T extends GlobalState>(
 
   const { canTranslateChats } = global.settings.byKey;
 
-  const isPremium = selectIsCurrentUserPremium(global);
   const isSavedMessages = selectIsChatWithSelf(global, chatId);
 
-  return IS_TRANSLATION_SUPPORTED && canTranslateChats && isPremium && !isSavedMessages;
+  return IS_TRANSLATION_SUPPORTED && canTranslateChats && !isSavedMessages;
 }
 
 export function selectCanTranslateChat<T extends GlobalState>(
   global: T, chatId: string, ...[tabId = getCurrentTabId()]: TabArgs<T>
 ) {
+  const { translationProvider = 'google' } = global.settings.byKey;
+  if (translationProvider === 'cocoon' && !selectIsCurrentUserPremium(global)) {
+    return false;
+  }
+
   const chat = selectChat(global, chatId);
   if (!chat) return false;
 

@@ -104,7 +104,7 @@ const SettingsMain: FC<OwnProps & StateProps> = ({
 
           onClick={() => openSettingsScreen({ screen: SettingsScreens.Clashgram })}
         >
-          Clashgram Settings
+          {lang('ClashgramSettings')}
         </ListItem>
         <ListItem
           icon="animations"
@@ -250,7 +250,7 @@ const SettingsMain: FC<OwnProps & StateProps> = ({
 
           onClick={() => openSettingsScreen({ screen: SettingsScreens.Credits })}
         >
-          Credits
+          {lang('ClashgramCredits')}
         </ListItem>
       </div>
     </div>

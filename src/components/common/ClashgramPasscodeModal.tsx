@@ -2,6 +2,7 @@ import { memo, useState, useEffect, useRef } from '../../lib/teact/teact';
 import { getActions, withGlobal } from '../../global';
 import type { GlobalState } from '../../global/types';
 import { selectTabState } from '../../global/selectors';
+import useLang from '../../hooks/useLang';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import buildClassName from '../../util/buildClassName';
@@ -36,6 +37,7 @@ function ClashgramPasscodeModal({
   pendingAction,
 }: OwnProps & StateProps) {
   const { closeClashgramPasscodeModal, openChat, setActiveChatFolder, signOut } = getActions();
+  const lang = useLang();
   const [passcode, setPasscode] = useState('');
   const [error, setError] = useState(false);
   const [shake, setShake] = useState(false);
@@ -247,9 +249,9 @@ function ClashgramPasscodeModal({
                 <line x1="12" y1="17" x2="12.01" y2="17" />
               </svg>
             </div>
-            <h2 className={styles.title}>Reset & Logout?</h2>
+            <h2 className={styles.title}>{lang('ClashgramPasscodeResetLogoutTitle')}</h2>
             <p className={styles.description}>
-              If you forgot your passcodes, you must log out of your account to clear them. This will delete all local locks.
+              {lang('ClashgramPasscodeResetLogoutDesc')}
             </p>
             <div className={styles.buttonGroup}>
               <Button type="button" color="translucent" onClick={handleBackToPasscode}>
@@ -281,17 +283,17 @@ function ClashgramPasscodeModal({
               </div>
               <h2 className={styles.title}>
                 {isRecoverySuccess
-                  ? 'Reset Primary Passcode'
+                  ? lang('ClashgramPasscodeResetPrimary')
                   : isRecoveryMode
-                  ? 'Bypass Lock'
-                  : `Unlock ${type === 'folder' ? 'Folder' : 'Chat'}`}
+                  ? lang('ClashgramPasscodeBypassLock')
+                  : type === 'folder' ? lang('ClashgramPasscodeUnlockFolder') : lang('ClashgramPasscodeUnlockChat')}
               </h2>
               <p className={styles.description}>
                 {isRecoverySuccess
-                  ? 'Recovery verified! Choose a new primary passcode of at least 4 characters to unlock.'
+                  ? lang('ClashgramPasscodeRecoveryVerifiedSuccess')
                   : isRecoveryMode
-                  ? 'Enter recovery passcode to bypass primary lock.'
-                  : `This ${type === 'folder' ? 'folder' : 'chat'} is protected by local passcode.`}
+                  ? lang('ClashgramPasscodeRecoveryBypassDesc')
+                  : type === 'folder' ? lang('ClashgramPasscodeFolderProtectedDesc') : lang('ClashgramPasscodeChatProtectedDesc')}
               </p>
             </div>
 
@@ -334,16 +336,16 @@ function ClashgramPasscodeModal({
             {error && (
               <p className={styles.errorText}>
                 {isRecoverySuccess
-                  ? 'Passcode must be at least 4 characters'
+                  ? lang('ClashgramPasscodeErrMinLength')
                   : isRecoveryMode
-                  ? 'Incorrect recovery passcode'
-                  : 'Incorrect passcode, try again'}
+                  ? lang('ClashgramPasscodeErrIncorrectRecovery')
+                  : lang('ClashgramPasscodeErrIncorrectPrimary')}
               </p>
             )}
 
             {!isRecoverySuccess && (
               <button type="button" className={styles.forgotBtn} onClick={handleForgotClick}>
-                {isRecoveryMode ? 'Forgot recovery passcode too?' : 'Forgot passcode?'}
+                {isRecoveryMode ? lang('ClashgramPasscodeForgotRecovery') : lang('ClashgramPasscodeForgot')}
               </button>
             )}
 
@@ -353,14 +355,14 @@ function ClashgramPasscodeModal({
                 color="translucent"
                 onClick={handleClose}
               >
-                Cancel
+                {lang('ClashgramPasscodeButtonCancel')}
               </Button>
               <Button
                 type="submit"
                 color="primary"
                 disabled={!passcode}
               >
-                {isRecoverySuccess ? 'Save & Unlock' : 'Unlock'}
+                {isRecoverySuccess ? lang('ClashgramPasscodeButtonSaveUnlock') : lang('ClashgramPasscodeButtonUnlock')}
               </Button>
             </div>
           </>

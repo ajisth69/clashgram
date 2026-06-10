@@ -46,8 +46,6 @@ type MultipleModeProps = {
   itemInputType: 'checkbox';
   selectedValue?: never;
   selectedValues: string[];
-  lockedSelectedValues?: string[];
-  lockedUnselectedValues?: string[];
   onSelectedValuesChange?: (values: string[]) => void;
 };
 
@@ -65,6 +63,8 @@ type OwnProps = {
   isViewOnly?: boolean;
   withDefaultPadding?: boolean;
   forceRenderAllItems?: boolean;
+  lockedSelectedValues?: string[];
+  lockedUnselectedValues?: string[];
   onFilterChange?: (value: string) => void;
   onDisabledClick?: (value: string, isSelected: boolean) => void;
   onLoadMore?: () => void;
@@ -96,8 +96,8 @@ const ItemPicker = ({
   const inputRef = useRef<HTMLInputElement>();
 
   const allowMultiple = optionalProps.allowMultiple;
-  const lockedSelectedValues = allowMultiple ? optionalProps.lockedSelectedValues : undefined;
-  const lockedUnselectedValues = allowMultiple ? optionalProps.lockedUnselectedValues : undefined;
+  const lockedSelectedValues = optionalProps.lockedSelectedValues;
+  const lockedUnselectedValues = optionalProps.lockedUnselectedValues;
 
   useEffect(() => {
     if (!isSearchable) return undefined;

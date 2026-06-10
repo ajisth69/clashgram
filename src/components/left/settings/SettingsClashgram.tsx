@@ -17,6 +17,7 @@ import {
 import { LOCAL_TGS_URLS } from '../../common/helpers/animatedAssets';
 
 import useHistoryBack from '../../../hooks/useHistoryBack';
+import useLang from '../../../hooks/useLang';
 import useLastCallback from '../../../hooks/useLastCallback';
 
 import AnimatedIconWithPreview from '../../common/AnimatedIconWithPreview';
@@ -26,10 +27,6 @@ import ListItem from '../../ui/ListItem';
 import RadioGroup from '../../ui/RadioGroup';
 
 import './SettingsClashgram.scss';
-
-const NATIVE_GLASS_DESCRIPTION = 'Apply premium translucency and depth effects to sidebars, headers, and menus.';
-const GHOST_ONLINE_DESCRIPTION = 'Prevent sending your online status so you are always seen as offline. '
-  + 'You can still see others last seen time!';
 
 type OwnProps = {
   isActive?: boolean;
@@ -130,6 +127,7 @@ const SettingsClashgram = ({
 }: OwnProps & StateProps) => {
   const { setSharedSettingOption, showNotification } = getActions();
   const colorFrameRef = useRef<number>();
+  const lang = useLang();
 
   const [currentScreen, setCurrentScreen] = useState<
     'categories' | 'clashgram' | 'general' | 'appearance' | 'chats'
@@ -315,7 +313,7 @@ const SettingsClashgram = ({
     const linkId = `gfont-${fontName.replace(/\s+/g, '-')}`;
 
     if (document.getElementById(linkId)) {
-      showNotification({ message: 'Font already imported' });
+      showNotification({ message: lang('ClashgramFontAlreadyImported') });
       return;
     }
 
@@ -330,7 +328,7 @@ const SettingsClashgram = ({
     setFontsList((prev) => [...prev, newFont]);
     handleFontSelect(fontName);
     setGoogleFontInput('');
-    showNotification({ message: `Successfully imported "${fontName}" Google Font` });
+    showNotification({ message: lang('ClashgramFontImportSuccess', { fontName }) });
   };
 
   const handleNativeGlassToggle = useLastCallback((isChecked: boolean) => {
@@ -372,9 +370,9 @@ const SettingsClashgram = ({
     try {
       JSON.parse(customAnimText);
       setSharedSettingOption({ clashgramCustomAnimation: customAnimText });
-      showNotification({ message: 'Custom animation applied successfully' });
+      showNotification({ message: lang('ClashgramCustomAnimApplied') });
     } catch (e) {
-      showNotification({ message: 'Invalid JSON configuration format' });
+      showNotification({ message: lang('ClashgramInvalidJson') });
     }
   };
 
@@ -415,9 +413,9 @@ const SettingsClashgram = ({
               nonInteractive
               noLoop={false}
             />
-            <h2 style="font-weight: 600; font-size: 1.25rem; margin-top: 0.5rem;">Clashgram Settings</h2>
+            <h2 style="font-weight: 600; font-size: 1.25rem; margin-top: 0.5rem;">{lang('ClashgramSettings')}</h2>
             <p className="settings-item-description pt-1" dir="auto">
-              State-of-the-art privacy, speed, and design systems.
+              {lang('ClashgramSettingsSub')}
             </p>
           </div>
 
@@ -434,7 +432,7 @@ const SettingsClashgram = ({
                   className="subtitle"
                   style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;"
                 >
-                  Stealth modes, local premium, passcode locks
+                  {lang('ClashgramStealthSub')}
                 </span>
               </div>
             </ListItem>
@@ -445,13 +443,13 @@ const SettingsClashgram = ({
                   className="title"
                   style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;"
                 >
-                  General
+                  {lang('General')}
                 </span>
                 <span
                   className="subtitle"
                   style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;"
                 >
-                  Whisper transcription models, voice changer
+                  {lang('ClashgramGeneralSub')}
                 </span>
               </div>
             </ListItem>
@@ -461,13 +459,13 @@ const SettingsClashgram = ({
                   className="title"
                   style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;"
                 >
-                  Appearance
+                  {lang('Theme')}
                 </span>
                 <span
                   className="subtitle"
                   style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;"
                 >
-                  Native glass themes, 52 premium fonts, backgrounds
+                  {lang('ClashgramAppearanceSub')}
                 </span>
               </div>
             </ListItem>
@@ -477,13 +475,13 @@ const SettingsClashgram = ({
                   className="title"
                   style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;"
                 >
-                  Chats
+                  {lang('Chats')}
                 </span>
                 <span
                   className="subtitle"
                   style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;"
                 >
-                  Anti-delete, anti-edit, retention, bypass bans
+                  {lang('ClashgramChatsSub')}
                 </span>
               </div>
             </ListItem>
@@ -494,50 +492,50 @@ const SettingsClashgram = ({
       {currentScreen === 'clashgram' && (
         <div className="fade-in">
           <ListItem icon="arrow-left" narrow onClick={() => setCurrentScreen('categories')}>
-            <strong>Back to Categories</strong>
+            <strong>{lang('ClashgramBackToCategories')}</strong>
           </ListItem>
 
           <div className="settings-item">
-            <h4 className="settings-item-header">Stealth Options</h4>
+            <h4 className="settings-item-header">{lang('ClashgramStealthOptions')}</h4>
 
             <Checkbox
-              label="Hide Read Receipts"
-              subLabel="Read messages without triggering double ticks."
+              label={lang('ClashgramHideReadReceipts')}
+              subLabel={lang('ClashgramHideReadReceiptsSub')}
               checked={Boolean(clashgramGhostModeRead)}
               onCheck={() => setSharedSettingOption({ clashgramGhostModeRead: !clashgramGhostModeRead })}
             />
 
             <Checkbox
-              label="Hide Story Views"
-              subLabel="Anonymously watch stories without listing your profile."
+              label={lang('ClashgramHideStoryViews')}
+              subLabel={lang('ClashgramHideStoryViewsSub')}
               checked={Boolean(clashgramGhostModeStories)}
               onCheck={() => setSharedSettingOption({ clashgramGhostModeStories: !clashgramGhostModeStories })}
             />
 
             <Checkbox
-              label="Hide Typing Status"
-              subLabel="Type freely without disclosing your writing state."
+              label={lang('ClashgramHideTypingStatus')}
+              subLabel={lang('ClashgramHideTypingStatusSub')}
               checked={Boolean(clashgramGhostModeTyping)}
               onCheck={() => setSharedSettingOption({ clashgramGhostModeTyping: !clashgramGhostModeTyping })}
             />
 
             <Checkbox
-              label="Hide Online Status"
-              subLabel={GHOST_ONLINE_DESCRIPTION}
+              label={lang('ClashgramHideOnlineStatus')}
+              subLabel={lang('ClashgramHideOnlineStatusSub')}
               checked={Boolean(clashgramGhostModeOnline)}
               onCheck={() => setSharedSettingOption({ clashgramGhostModeOnline: !clashgramGhostModeOnline })}
             />
 
             <Checkbox
-              label="Always Send Silently"
-              subLabel="Send all messages without notification sound by default."
+              label={lang('ClashgramAlwaysSendSilently')}
+              subLabel={lang('ClashgramAlwaysSendSilentlySub')}
               checked={Boolean(clashgramSendSilently)}
               onCheck={() => setSharedSettingOption({ clashgramSendSilently: !clashgramSendSilently })}
             />
 
 
             <div style="margin-top: 1.5rem;">
-              <h4 className="settings-item-subheader">System Security</h4>
+              <h4 className="settings-item-subheader">{lang('ClashgramSystemSecurity')}</h4>
               <ListItem
                 icon="lock"
                 narrow
@@ -548,13 +546,13 @@ const SettingsClashgram = ({
                     className="title"
                     style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;"
                   >
-                    Configure Passcode Settings
+                    {lang('ClashgramConfigurePasscodeSettings')}
                   </span>
                   <span
                     className="subtitle"
                     style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;"
                   >
-                    Set primary & recovery passcodes, manage auto-locks
+                    {lang('ClashgramConfigurePasscodeSettingsSub')}
                   </span>
                 </div>
               </ListItem>
@@ -562,8 +560,8 @@ const SettingsClashgram = ({
 
             <div style="margin-top: 1rem;">
               <Checkbox
-                label="Local Telegram Premium"
-                subLabel="Enable premium double badge limits, stealth features, and custom emojis locally."
+                label={lang('ClashgramLocalPremium')}
+                subLabel={lang('ClashgramLocalPremiumSub')}
                 checked={Boolean(clashgramLocalPremium)}
                 onCheck={() => setSharedSettingOption({ clashgramLocalPremium: !clashgramLocalPremium })}
               />
@@ -575,33 +573,33 @@ const SettingsClashgram = ({
       {currentScreen === 'general' && (
         <div className="fade-in">
           <ListItem icon="arrow-left" narrow onClick={() => setCurrentScreen('categories')}>
-            <strong>Back to Categories</strong>
+            <strong>{lang('ClashgramBackToCategories')}</strong>
           </ListItem>
 
           <div className="settings-item">
-            <h4 className="settings-item-header">Speech and Media Models</h4>
+            <h4 className="settings-item-header">{lang('ClashgramSpeechMediaModels')}</h4>
 
-            <h4 className="settings-item-subheader">Whisper Audio Model</h4>
+            <h4 className="settings-item-subheader">{lang('ClashgramWhisperModelHeader')}</h4>
             <RadioGroup
               name="clashgramWhisperModel"
               options={[
-                { label: 'Tiny (Fastest, low memory)', value: 'tiny' },
-                { label: 'Base (Balanced, recommended)', value: 'base' },
-                { label: 'Small (Best accuracy, slow)', value: 'small' },
+                { label: lang('ClashgramWhisperTiny'), value: 'tiny' },
+                { label: lang('ClashgramWhisperBase'), value: 'base' },
+                { label: lang('ClashgramWhisperSmall'), value: 'small' },
               ]}
               selected={clashgramWhisperModel ?? 'base'}
               onChange={(value) => setSharedSettingOption({ clashgramWhisperModel: value as any })}
             />
             <p className="settings-item-description" style="margin-top: 0.25rem; margin-bottom: 1rem;">
-              Larger models improve recognition accuracy but require larger download streams.
+              {lang('ClashgramWhisperModelSub')}
             </p>
 
-            <h4 className="settings-item-subheader">Transcription Mode</h4>
+            <h4 className="settings-item-subheader">{lang('ClashgramTranscriptionModeHeader')}</h4>
             <RadioGroup
               name="clashgramWhisperTask"
               options={[
-                { label: 'Transcribe (Original Language)', value: 'transcribe' },
-                { label: 'Translate (To English)', value: 'translate' },
+                { label: lang('ClashgramWhisperTranscribe'), value: 'transcribe' },
+                { label: lang('ClashgramWhisperTranslate'), value: 'translate' },
               ]}
               selected={clashgramWhisperTask ?? 'transcribe'}
               onChange={(value) => setSharedSettingOption({ clashgramWhisperTask: value as any })}
@@ -609,8 +607,8 @@ const SettingsClashgram = ({
 
             <div style="margin-top: 1rem;">
               <Checkbox
-                label="Enable Voice Changer"
-                subLabel="Apply chipmunk, robot, or voice pitch shifts when sending voice messages."
+                label={lang('ClashgramEnableVoiceChanger')}
+                subLabel={lang('ClashgramEnableVoiceChangerSub')}
                 checked={Boolean(clashgramVoiceChangerEnabled)}
                 onCheck={() => setSharedSettingOption({
                   clashgramVoiceChangerEnabled: !clashgramVoiceChangerEnabled,
@@ -624,15 +622,15 @@ const SettingsClashgram = ({
       {currentScreen === 'appearance' && (
         <div className="fade-in">
           <ListItem icon="arrow-left" narrow onClick={() => setCurrentScreen('categories')}>
-            <strong>Back to Categories</strong>
+            <strong>{lang('ClashgramBackToCategories')}</strong>
           </ListItem>
 
           <div className="settings-item">
-            <h4 className="settings-item-header">Aesthetics and Layout</h4>
+            <h4 className="settings-item-header">{lang('ClashgramAestheticsLayout')}</h4>
 
             <Checkbox
-              label="Native Glass Theme"
-              subLabel={NATIVE_GLASS_DESCRIPTION}
+              label={lang('ClashgramNativeGlass')}
+              subLabel={lang('ClashgramNativeGlassSub')}
               checked={Boolean(clashgramNativeGlass)}
               onCheck={handleNativeGlassToggle}
             />
@@ -641,7 +639,7 @@ const SettingsClashgram = ({
               className={`clashgram-glass-color-control${!clashgramNativeGlass ? ' disabled' : ''}`}
             >
               <div className="clashgram-glass-color-row">
-                <span className="clashgram-glass-color-label">Glass Color Hue</span>
+                <span className="clashgram-glass-color-label">{lang('ClashgramGlassColorHue')}</span>
                 <span className="clashgram-glass-color-value">
                   {Math.round(renderingGlassColorValue * 3.6)}
                   °
@@ -661,7 +659,7 @@ const SettingsClashgram = ({
               </div>
 
               <div className="clashgram-glass-color-row" style="margin-top: 1.25rem;">
-                <span className="clashgram-glass-color-label">Transparency and Depth</span>
+                <span className="clashgram-glass-color-label">{lang('ClashgramTransparencyDepth')}</span>
                 <span className="clashgram-glass-color-value">
                   {renderingGlassOpacityValue}
                   %
@@ -683,24 +681,24 @@ const SettingsClashgram = ({
           </div>
 
           <div className="settings-item">
-            <h4 className="settings-item-header">Custom Interface Fonts</h4>
+            <h4 className="settings-item-header">{lang('ClashgramCustomFonts')}</h4>
 
             <div className="font-import-container" style={IMPORT_CONTAINER_STYLE}>
               <input
                 type="text"
-                placeholder="Search fonts (e.g. Poppins, Satoshi, Inter)"
+                placeholder={lang('ClashgramSearchFontsPlaceholder')}
                 value={googleFontInput}
                 onChange={(e) => setGoogleFontInput(e.currentTarget.value)}
                 className="font-search-input"
                 style={SEARCH_INPUT_STYLE}
               />
               <Button onClick={handleImportGoogleFont} color="primary" style="width: 100%;">
-                Import Custom Font
+                {lang('ClashgramImportFontButton')}
               </Button>
             </div>
 
             <div className="font-active-preview" style={ACTIVE_PREVIEW_STYLE}>
-              Active Font:
+              {lang('ClashgramActiveFontLabel')}
               {' '}
               <strong
                 style={
@@ -709,13 +707,14 @@ const SettingsClashgram = ({
                     : 'color: var(--color-text);'
                 }
               >
-                {clashgramCustomFont && clashgramCustomFont !== 'default' ? clashgramCustomFont : 'System Default'}
+                {clashgramCustomFont && clashgramCustomFont !== 'default' ? clashgramCustomFont : lang('SystemDefault')}
               </strong>
             </div>
 
             <div className="font-list-scroll custom-scroll" style={FONT_LIST_SCROLL_STYLE}>
               {filteredFontsList.map((font) => {
                 const isSelected = (clashgramCustomFont || 'default') === font.value;
+                const fontLabel = font.value === 'default' ? lang('SystemDefault') : font.label;
                 return (
                   <ListItem
                     key={font.value}
@@ -724,7 +723,7 @@ const SettingsClashgram = ({
                     onClick={() => handleFontSelect(font.value)}
                   >
                     <span style={font.value !== 'default' ? `font-family: "${font.value}", sans-serif;` : ''}>
-                      {font.label}
+                      {fontLabel}
                     </span>
                   </ListItem>
                 );
@@ -733,18 +732,18 @@ const SettingsClashgram = ({
           </div>
 
           <div className="settings-item">
-            <h4 className="settings-item-header">Chat Background Animation</h4>
+            <h4 className="settings-item-header">{lang('ClashgramBgAnimation')}</h4>
 
             <RadioGroup
               name="clashgramBackgroundAnimation"
               options={[
-                { label: 'None (Static)', value: 'none' },
-                { label: 'Dreamy Aurora Wave (Northern Lights)', value: 'starfall' },
-                { label: 'Zen Garden Rain (Rippling raindrops)', value: 'neon-rain' },
-                { label: 'Bioluminescent Ocean (Glowing planktons)', value: 'fluid-gradients' },
-                { label: 'Celestial Stardust (Magic golden dust)', value: 'cosmic-dust' },
-                { label: 'Aura Glass Blossoms (Hypnotic circles)', value: 'bubbles' },
-                { label: 'Custom Particle Injector (Custom JSON)', value: 'custom' },
+                { label: lang('ClashgramBgAnimNone'), value: 'none' },
+                { label: lang('ClashgramBgAnimAurora'), value: 'starfall' },
+                { label: lang('ClashgramBgAnimRain'), value: 'neon-rain' },
+                { label: lang('ClashgramBgAnimOcean'), value: 'fluid-gradients' },
+                { label: lang('ClashgramBgAnimStardust'), value: 'cosmic-dust' },
+                { label: lang('ClashgramBgAnimBlossoms'), value: 'bubbles' },
+                { label: lang('ClashgramBgAnimCustom'), value: 'custom' },
               ]}
               selected={clashgramBackgroundAnimation ?? 'none'}
               onChange={(value) => setSharedSettingOption({ clashgramBackgroundAnimation: value as any })}
@@ -752,9 +751,9 @@ const SettingsClashgram = ({
 
             {clashgramBackgroundAnimation === 'custom' && (
               <div className="custom-animation-injector-panel fade-in" style="margin-top: 1rem;">
-                <h4 className="settings-item-subheader">Custom Theme Schema</h4>
+                <h4 className="settings-item-subheader">{lang('ClashgramCustomThemeSchema')}</h4>
                 <p className="settings-item-description">
-                  Configure particles, glow, physics, and background:
+                  {lang('ClashgramCustomThemeSchemaDesc')}
                 </p>
                 <div style="position: relative;">
                   <button
@@ -779,12 +778,12 @@ const SettingsClashgram = ({
                         },
                       }, null, 2);
                       navigator.clipboard.writeText(jsonText).then(() => {
-                        showNotification({ message: 'JSON template copied to clipboard' });
+                        showNotification({ message: lang('ClashgramJsonCopied') });
                       });
                     }}
                     style="position: absolute; top: 0.375rem; right: 0.375rem; padding: 0.25rem 0.5rem; border: 1px solid rgba(var(--color-text-rgb), 0.15); border-radius: 0.25rem; background: rgba(var(--color-text-rgb), 0.08); color: var(--color-text-secondary); font-size: 0.6875rem; cursor: pointer; z-index: 1; transition: background 0.2s, color 0.2s;"
                   >
-                    Copy JSON
+                    {lang('ClashgramCopyJsonButton')}
                   </button>
                   <pre className="monospace-code-block" style={PRE_CODE_STYLE}>
                     {`{
@@ -804,13 +803,13 @@ const SettingsClashgram = ({
                   </pre>
                 </div>
                 <p className="settings-item-description" style="margin-top: 0.25rem; margin-bottom: 0.5rem; font-size: 0.7rem; opacity: 0.6;">
-                  Background types: animated-gradient, radial-gradient, static-gradient, solid
+                  {lang('ClashgramCustomAnimTip')}
                 </p>
                 <textarea
                   className="custom-animation-textarea"
                   value={customAnimText}
                   onChange={(e) => setCustomAnimText(e.currentTarget.value)}
-                  placeholder="Paste particle JSON configuration here..."
+                  placeholder={lang('ClashgramCustomAnimPlaceholder')}
                   style="width: 100%; height: 140px; margin-top: 0.5rem; padding: 0.5rem; border: 1px solid rgba(var(--color-text-rgb), 0.12); border-radius: 0.375rem; font-family: var(--font-family-monospace); font-size: 0.75rem; background: var(--color-background); color: var(--color-text); resize: vertical;"
                 />
                 <Button
@@ -819,7 +818,7 @@ const SettingsClashgram = ({
                   size="smaller"
                   style="margin-top: 0.75rem; width: 100%;"
                 >
-                  Apply Custom Theme
+                  {lang('ClashgramApplyCustomTheme')}
                 </Button>
               </div>
             )}
@@ -830,45 +829,45 @@ const SettingsClashgram = ({
       {currentScreen === 'chats' && (
         <div className="fade-in">
           <ListItem icon="arrow-left" narrow onClick={() => setCurrentScreen('categories')}>
-            <strong>Back to Categories</strong>
+            <strong>{lang('ClashgramBackToCategories')}</strong>
           </ListItem>
 
           <div className="settings-item">
-            <h4 className="settings-item-header">Chat Control and Retention</h4>
+            <h4 className="settings-item-header">{lang('ClashgramChatControlRetention')}</h4>
 
             <ListItem
               narrow
               onClick={handleMarkAllChatsRead}
               style={unreadChatIds.length === 0 ? 'opacity: 0.5; pointer-events: none;' : undefined}
             >
-              Mark all chats as read
+              {lang('ClashgramMarkAllRead')}
               {' '}
               {unreadChatIds.length > 0 ? `(${unreadChatIds.length})` : ''}
             </ListItem>
 
             <Checkbox
-              label="Anti-Delete Messages"
-              subLabel="Keep chat messages that other users delete."
+              label={lang('ClashgramAntiDelete')}
+              subLabel={lang('ClashgramAntiDeleteSub')}
               checked={Boolean(clashgramAntiDelete)}
               onCheck={() => setSharedSettingOption({ clashgramAntiDelete: !clashgramAntiDelete })}
             />
 
             <Checkbox
-              label="Anti-Edit Messages"
-              subLabel="Show original text beneath edited messages."
+              label={lang('ClashgramAntiEdit')}
+              subLabel={lang('ClashgramAntiEditSub')}
               checked={Boolean(clashgramAntiEdit)}
               onCheck={() => setSharedSettingOption({ clashgramAntiEdit: !clashgramAntiEdit })}
             />
 
             <div style="margin-top: 1rem; margin-bottom: 1rem;">
-              <h4 className="settings-item-subheader">Retention Period</h4>
+              <h4 className="settings-item-subheader">{lang('ClashgramRetentionPeriod')}</h4>
               <RadioGroup
                 name="clashgramRetentionDays"
                 options={[
-                  { label: 'Until tab refresh', value: '0' },
-                  { label: '1 day', value: '1' },
-                  { label: '3 days', value: '3' },
-                  { label: '7 days', value: '7' },
+                  { label: lang('ClashgramRetentionRefresh'), value: '0' },
+                  { label: lang('ClashgramRetention1Day'), value: '1' },
+                  { label: lang('ClashgramRetention3Days'), value: '3' },
+                  { label: lang('ClashgramRetention7Days'), value: '7' },
                 ]}
                 selected={String(clashgramRetentionDays ?? 7)}
                 onChange={(value) => setSharedSettingOption({ clashgramRetentionDays: Number(value) })}
@@ -876,65 +875,65 @@ const SettingsClashgram = ({
             </div>
 
             <Checkbox
-              label="Bypass Restrictions"
-              subLabel="Allow saving, copying, and forwarding content from restricted groups."
+              label={lang('ClashgramBypassRestrictions')}
+              subLabel={lang('ClashgramBypassRestrictionsSub')}
               checked={Boolean(clashgramBypassRestrictions)}
               onCheck={() => setSharedSettingOption({ clashgramBypassRestrictions: !clashgramBypassRestrictions })}
             />
 
             <Checkbox
-              label="No-Quote Forwarding"
-              subLabel="Always re-send messages as copy-paste to strip forward headers."
+              label={lang('ClashgramNoQuoteForwarding')}
+              subLabel={lang('ClashgramNoQuoteForwardingSub')}
               checked={Boolean(clashgramNoQuoteForwarding)}
               onCheck={() => setSharedSettingOption({ clashgramNoQuoteForwarding: !clashgramNoQuoteForwarding })}
             />
 
             <Checkbox
-              label="Retain Kicked/Banned Chats"
-              subLabel="Prevent removing channels or groups when you leave or get kicked."
+              label={lang('ClashgramRetainKickedChats')}
+              subLabel={lang('ClashgramRetainKickedChatsSub')}
               checked={Boolean(clashgramRetainKickedChats)}
               onCheck={() => setSharedSettingOption({ clashgramRetainKickedChats: !clashgramRetainKickedChats })}
             />
 
             <div style="margin-top: 1.5rem; margin-bottom: 0.5rem;">
-              <h4 className="settings-item-subheader">Message Filtering</h4>
+              <h4 className="settings-item-subheader">{lang('ClashgramMessageFiltering')}</h4>
             </div>
 
             <Checkbox
-              label="Hide Blocked Users' Messages in Groups"
-              subLabel="Do not show any messages sent by users you have blocked when viewing group chats."
+              label={lang('ClashgramHideBlockedInGroups')}
+              subLabel={lang('ClashgramHideBlockedInGroupsSub')}
               checked={Boolean(clashgramHideBlockedInGroups)}
               onCheck={() => setSharedSettingOption({ clashgramHideBlockedInGroups: !clashgramHideBlockedInGroups })}
             />
 
             <div style="margin-top: 1.5rem; margin-bottom: 0.5rem;">
-              <h4 className="settings-item-subheader">Send Confirmation Options</h4>
+              <h4 className="settings-item-subheader">{lang('ClashgramSendConfirmation')}</h4>
             </div>
 
             <Checkbox
-              label="Confirm Media Sending"
-              subLabel="Prompt for confirmation before sending photos, videos, or voice notes."
+              label={lang('ClashgramConfirmMedia')}
+              subLabel={lang('ClashgramConfirmMediaSub')}
               checked={Boolean(clashgramConfirmMedia)}
               onCheck={() => setSharedSettingOption({ clashgramConfirmMedia: !clashgramConfirmMedia })}
             />
 
             <Checkbox
-              label="Confirm File Sending"
-              subLabel="Prompt for confirmation before sending uncompressed files or documents."
+              label={lang('ClashgramConfirmFile')}
+              subLabel={lang('ClashgramConfirmFileSub')}
               checked={Boolean(clashgramConfirmFile)}
               onCheck={() => setSharedSettingOption({ clashgramConfirmFile: !clashgramConfirmFile })}
             />
 
             <Checkbox
-              label="Confirm GIF & Emoji Sending"
-              subLabel="Prompt for confirmation before sending stickers or GIFs."
+              label={lang('ClashgramConfirmGifEmoji')}
+              subLabel={lang('ClashgramConfirmGifEmojiSub')}
               checked={Boolean(clashgramConfirmGifEmoji)}
               onCheck={() => setSharedSettingOption({ clashgramConfirmGifEmoji: !clashgramConfirmGifEmoji })}
             />
 
             <Checkbox
-              label="Confirm Message Sending"
-              subLabel="Prompt for confirmation before sending text messages."
+              label={lang('ClashgramConfirmMsg')}
+              subLabel={lang('ClashgramConfirmMsgSub')}
               checked={Boolean(clashgramConfirmMsg)}
               onCheck={() => setSharedSettingOption({ clashgramConfirmMsg: !clashgramConfirmMsg })}
             />

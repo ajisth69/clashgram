@@ -11,7 +11,7 @@ import { selectSharedSettings } from '../global/selectors/sharedState';
 import { callApi } from '../api/gramjs';
 import * as cacheApi from './cacheApi';
 import { createCallbackManager } from './callbacks';
-import { loadAndChangeLanguage } from './localization';
+import { loadAndChangeLanguage, loadCustomStrings } from './localization';
 import { formatInteger } from './textFormat';
 
 export interface LangFn {
@@ -170,6 +170,12 @@ export async function oldSetLanguage(langCode: LangCode, callback?: NoneToVoidFu
       return;
     }
   }
+
+  const customStrings = await loadCustomStrings(langCode);
+  newLangPack = {
+    ...newLangPack,
+    ...customStrings,
+  };
 
   cache.clear();
 

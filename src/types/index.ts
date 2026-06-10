@@ -172,6 +172,7 @@ export interface AccountSettings {
   doNotTranslate: string[];
   translationTone?: TranslationTone;
   shouldPaidMessageAutoApprove: boolean;
+  translationProvider?: 'google' | 'cocoon';
 }
 
 export type IAnchorPosition = {

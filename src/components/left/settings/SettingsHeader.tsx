@@ -102,11 +102,11 @@ const SettingsHeader: FC<OwnProps> = ({
       case SettingsScreens.Experimental:
         return <h3>{oldLang('lng_settings_experimental')}</h3>;
       case SettingsScreens.Clashgram:
-        return <h3>Clashgram Settings</h3>;
+        return <h3>{lang('ClashgramSettings')}</h3>;
       case SettingsScreens.Credits:
-        return <h3>Credits</h3>;
+        return <h3>{lang('ClashgramCredits')}</h3>;
       case SettingsScreens.ClashgramPasscode:
-        return <h3>Clashgram Passcode Lock</h3>;
+        return <h3>{lang('ClashgramPasscodeLock')}</h3>;
 
       case SettingsScreens.GeneralChatBackground:
         return <h3>{oldLang('ChatBackground')}</h3>;

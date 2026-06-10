@@ -135,9 +135,11 @@ type TranslateTextParams = ({
 } | {
   chat: ApiChat;
   messageIds: number[];
+  texts?: string[];
 }) & {
   toLanguageCode: string;
   tone?: TranslationTone;
+  translationProvider?: 'google' | 'cocoon';
 };
 
 type SearchResults = {
@@ -2689,11 +2691,106 @@ export async function transcribeAudio({
   return result.transcriptionId.toString();
 }
 
+async function translateClientSide(
+  texts: string[],
+  toLanguageCode: string,
+  provider: 'google',
+  tone?: TranslationTone
+): Promise<string[]> {
+  const promises = texts.map(async (text) => {
+    if (!text || !text.trim()) return '';
+    try {
+      if (provider === 'google') {
+        let query = text;
+        const hasTone = tone && tone !== 'neutral';
+        if (hasTone) {
+          const toneInstruction = tone === 'formal'
+            ? 'Please translate the following text in a formal tone'
+            : 'Please translate the following text in a casual tone';
+          query = `${toneInstruction} ||| ${text}`;
+        }
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${toLanguageCode}&dt=t&q=${encodeURIComponent(query)}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`Google translate error: ${res.status}`);
+        const data = await res.json();
+        if (data && data[0]) {
+          const translatedFull = data[0].map((item: any) => item[0] || '').join('');
+          if (hasTone) {
+            const separatorIndex = translatedFull.indexOf('|||');
+            if (separatorIndex !== -1) {
+              return translatedFull.substring(separatorIndex + 3).trim();
+            }
+            const altSeparator = translatedFull.match(/\|[\s]*\|[\s]*\|/);
+            if (altSeparator && altSeparator.index !== undefined) {
+              return translatedFull.substring(altSeparator.index + altSeparator[0].length).trim();
+            }
+          }
+          return translatedFull;
+        }
+        return '';
+      }
+    } catch (e) {
+      console.error(`[Translation] client-side translation failed with ${provider}:`, e);
+      return '';
+    }
+    return '';
+  });
+  return Promise.all(promises);
+}
+
 export async function translateText(params: TranslateTextParams) {
   let result;
   const isMessageTranslation = 'chat' in params;
-  const { toLanguageCode, tone } = params;
+  const { toLanguageCode, tone, translationProvider = 'google' } = params;
   const apiTone = tone === 'neutral' ? undefined : tone;
+
+  if (translationProvider !== 'cocoon') {
+    let textsToTranslate: string[] = [];
+    if (isMessageTranslation) {
+      textsToTranslate = params.texts || [];
+    } else {
+      textsToTranslate = params.text.map((t) => t.text);
+    }
+
+    try {
+      const translatedResults = await translateClientSide(
+        textsToTranslate,
+        toLanguageCode,
+        translationProvider as 'google',
+        tone
+      );
+
+      const formattedText: ApiFormattedText[] = translatedResults.map((text) => ({
+        text,
+        entities: [],
+      }));
+
+      if (isMessageTranslation) {
+        sendApiUpdate({
+          '@type': 'updateMessageTranslations',
+          chatId: params.chat.id,
+          messageIds: params.messageIds,
+          translations: formattedText,
+          toLanguageCode: params.toLanguageCode,
+          tone,
+        });
+      }
+
+      return formattedText;
+    } catch (e) {
+      console.error('[Translation] client-side translation failed:', e);
+      if (isMessageTranslation) {
+        sendApiUpdate({
+          '@type': 'failedMessageTranslations',
+          chatId: params.chat.id,
+          messageIds: params.messageIds,
+          toLanguageCode: params.toLanguageCode,
+          tone,
+        });
+      }
+      return undefined;
+    }
+  }
 
   if (isMessageTranslation) {
     const { chat, messageIds } = params;

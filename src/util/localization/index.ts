@@ -32,6 +32,7 @@ import { getBasicListFormat } from '../browser/intlListFormat';
 import { notifyLangpackUpdate } from '../browser/multitab';
 import { createCallbackManager } from '../callbacks';
 import readFallbackStrings from '../data/readFallbackStrings';
+import readStrings from '../data/readStrings';
 import { initialEstablishmentPromise, isCurrentTabMaster } from '../establishMultitabRole';
 import { omit, unique } from '../iteratees';
 import { replaceInStringsWithTeact } from '../replaceWithTeact';
@@ -48,6 +49,46 @@ const FORMATTERS_FALLBACK_LANG = FALLBACK_LANG_CODE;
 
 const STRING_CACHE_LIMIT = 400;
 const TRANSLATION_CACHE = new LimitedMap<string, string>(STRING_CACHE_LIMIT);
+
+const CUSTOM_STRINGS_CACHE = new Map<string, Record<string, string>>();
+const PLURAL_RULE_SELECT_CACHE = new Map<string, Intl.LDMLPluralRule>();
+
+export async function loadCustomStrings(langCode: string): Promise<Record<string, string>> {
+  const cleanLangCode = langCode.replace('-raw', '');
+  const cached = CUSTOM_STRINGS_CACHE.get(cleanLangCode);
+  if (cached) return cached;
+
+  try {
+    const file = await import(`../../assets/localization/${cleanLangCode}.strings`);
+    const parsed = readStrings(file.default);
+    CUSTOM_STRINGS_CACHE.set(cleanLangCode, parsed);
+    return parsed;
+  } catch (e) {
+    return {};
+  }
+}
+
+function parseStringsToLangPack(rawStrings: Record<string, string>): Record<string, any> {
+  const strings: Record<string, any> = {};
+
+  for (const key in rawStrings) {
+    if (Object.prototype.hasOwnProperty.call(rawStrings, key)) {
+      const value = rawStrings[key];
+      const [clearKey, pluralSuffix] = key.split('_');
+
+      if (!pluralSuffix) {
+        strings[clearKey] = value;
+        continue;
+      }
+
+      const knownValue = (strings[clearKey] || {}) as any;
+      knownValue[pluralSuffix] = value;
+      strings[clearKey] = knownValue;
+    }
+  }
+
+  return strings;
+}
 
 let language: ApiLanguage | undefined;
 let formatters: LangFormatters | undefined;
@@ -157,6 +198,7 @@ function updateLanguage(newLang: ApiLanguage) {
 }
 
 function createFormatters() {
+  PLURAL_RULE_SELECT_CACHE.clear();
   if (!language) return;
   const intlLocale = getIntlLocale();
   const listFormatFallback = getBasicListFormat();
@@ -209,7 +251,15 @@ export async function initLocalization(langCode: string, canLoadFromServer?: boo
 
   const cachedData = await loadCachedLangData(langCode);
   if (cachedData) {
-    langPack = cachedData.langPack;
+    const customStrings = await loadCustomStrings(langCode);
+    const rawCustomStrings = parseStringsToLangPack(customStrings);
+    langPack = {
+      ...cachedData.langPack,
+      strings: {
+        ...cachedData.langPack.strings,
+        ...rawCustomStrings,
+      },
+    };
     language = cachedData.language;
     createFormatters();
 
@@ -231,7 +281,15 @@ export async function refreshFromCache(langCode: string) {
 
   const cachedData = await loadCachedLangData(langCode);
   if (cachedData) {
-    updateLangPack(cachedData.langPack);
+    const customStrings = await loadCustomStrings(langCode);
+    const rawCustomStrings = parseStringsToLangPack(customStrings);
+    updateLangPack({
+      ...cachedData.langPack,
+      strings: {
+        ...cachedData.langPack.strings,
+        ...rawCustomStrings,
+      },
+    });
     updateLanguage(cachedData.language);
   }
 }
@@ -273,7 +331,15 @@ export async function changeLanguage(newLanguage: ApiLanguage) {
 
   const cachedData = await loadCachedLangData(newLanguage.langCode);
   if (cachedData) {
-    updateLangPack(cachedData.langPack);
+    const customStrings = await loadCustomStrings(newLanguage.langCode);
+    const rawCustomStrings = parseStringsToLangPack(customStrings);
+    updateLangPack({
+      ...cachedData.langPack,
+      strings: {
+        ...cachedData.langPack.strings,
+        ...rawCustomStrings,
+      },
+    });
     updateLanguage(cachedData.language);
 
     fetchDifference();
@@ -290,10 +356,15 @@ export async function changeLanguage(newLanguage: ApiLanguage) {
       return;
     }
 
+    const customStrings = await loadCustomStrings(newLanguage.langCode);
+    const rawCustomStrings = parseStringsToLangPack(customStrings);
     updateLangPack({
       langCode: newLanguage.langCode,
       version: remoteLangPack.version,
-      strings: remoteLangPack.strings,
+      strings: {
+        ...remoteLangPack.strings,
+        ...rawCustomStrings,
+      },
     });
     updateLanguage(newLanguage);
 
@@ -364,6 +435,39 @@ function getIntlLocale(languageInfo = language) {
   return languageInfo?.pluralCode || FORMATTERS_FALLBACK_LANG;
 }
 
+function buildFastCacheKey(
+  langKey: string,
+  variables?: Record<string, any>,
+  options?: LangFnOptions | LangFnOptionsWithPlural,
+): string {
+  if (!variables && !options) {
+    return langKey;
+  }
+  let key = langKey;
+  if (variables) {
+    for (const k in variables) {
+      if (Object.prototype.hasOwnProperty.call(variables, k)) {
+        const val = variables[k];
+        if (val === undefined) continue;
+        key += `\x00${k}:`;
+        if (val !== null && typeof val === 'object') {
+          if ('key' in val) {
+            key += `r:${buildFastCacheKey(val.key, val.variables, val.options)}`;
+          } else {
+            key += 'o';
+          }
+        } else {
+          key += val;
+        }
+      }
+    }
+  }
+  if (options && 'pluralValue' in options && options.pluralValue !== undefined) {
+    key += `\x00p:${options.pluralValue}`;
+  }
+  return key;
+}
+
 function getString(langKey: LangKey, count: number) {
   const shouldForceFallback = FORCE_FALLBACK_LANG && language?.langCode === FALLBACK_LANG_CODE;
   let langPackStringValue = !shouldForceFallback ? langPack?.strings[langKey] : undefined;
@@ -377,7 +481,17 @@ function getString(langKey: LangKey, count: number) {
 
   if (!langPackStringValue || isDeletedLangString(langPackStringValue)) return undefined;
 
-  const pluralSuffix = formatters?.pluralRules.select(count) || 'other';
+  let pluralSuffix: Intl.LDMLPluralRule = 'other';
+  if (formatters) {
+    const locale = formatters.pluralRules.resolvedOptions().locale;
+    const cacheKey = `${locale}-${count}`;
+    let cached = PLURAL_RULE_SELECT_CACHE.get(cacheKey);
+    if (!cached) {
+      cached = formatters.pluralRules.select(count);
+      PLURAL_RULE_SELECT_CACHE.set(cacheKey, cached);
+    }
+    pluralSuffix = cached;
+  }
 
   const string = isPluralLangString(langPackStringValue)
     ? (langPackStringValue[pluralSuffix] || langPackStringValue.other)
@@ -392,7 +506,7 @@ function processTranslation(
   options?: LangFnOptions | LangFnOptionsWithPlural,
 ): string {
   const isCacheable = !options?.withNodes;
-  const cacheKey = isCacheable ? `${langKey}-${JSON.stringify(variables)}-${JSON.stringify(options)}` : undefined;
+  const cacheKey = isCacheable ? buildFastCacheKey(langKey, variables, options) : undefined;
   if (cacheKey) {
     if (TRANSLATION_CACHE.has(cacheKey)) {
       return TRANSLATION_CACHE.get(cacheKey)!;
@@ -404,16 +518,21 @@ function processTranslation(
 
   if (!string) return langKey;
 
-  const variableEntries = variables ? Object.entries(variables) : [];
-  const finalString = variableEntries.reduce((result, [key, value]) => {
-    if (value === undefined) return result;
-    if (typeof value === 'object') { // Allow recursive variables in basic `lang.with`
-      value = processTranslation(value.key, value.variables, value.options);
-    }
+  let finalString = string;
+  if (variables) {
+    for (const key in variables) {
+      if (Object.prototype.hasOwnProperty.call(variables, key)) {
+        let value = variables[key];
+        if (value === undefined) continue;
+        if (value !== null && typeof value === 'object' && 'key' in value) { // Allow recursive variables in basic `lang.with`
+          value = processTranslation(value.key, value.variables, value.options);
+        }
 
-    const valueAsString = Number.isFinite(value) ? formatters!.number.format(value as number) : String(value);
-    return result.replaceAll(`{${key}}`, valueAsString);
-  }, string);
+        const valueAsString = Number.isFinite(value) ? formatters!.number.format(value as number) : String(value);
+        finalString = finalString.replaceAll(`{${key}}`, valueAsString);
+      }
+    }
+  }
 
   if (cacheKey) {
     TRANSLATION_CACHE.set(cacheKey, finalString);
@@ -431,14 +550,14 @@ function processTranslationAdvanced(
   const string = getString(langKey, pluralValue);
   if (!string) return langKey;
 
-  const variableEntries = variables ? Object.entries(variables) : [];
-
   let tempResult: TeactNode = string;
   if (options?.specialReplacement) {
-    const specialReplacements = Object.entries(options.specialReplacement);
-    tempResult = specialReplacements.reduce((acc, [key, value]) => {
-      return replaceInStringsWithTeact(acc, key, value);
-    }, tempResult as TeactNode);
+    const specialReplacements = options.specialReplacement;
+    for (const key in specialReplacements) {
+      if (Object.prototype.hasOwnProperty.call(specialReplacements, key)) {
+        tempResult = replaceInStringsWithTeact(tempResult, key, specialReplacements[key]);
+      }
+    }
   }
 
   const withRenderText = options?.withNodes;
@@ -456,23 +575,36 @@ function processTranslationAdvanced(
 
       return renderText(curr, filters, {
         markdownPostProcessor: (part: string) => {
-          return variableEntries.reduce((result, [key, value]): TeactNode => {
-            if (value === undefined) return result;
-
-            const preparedValue = Number.isFinite(value) ? formatters!.number.format(value as number) : value;
-            return replaceInStringsWithTeact(result, `{${key}}`, renderText(preparedValue));
-          }, part as TeactNode);
+          let result: TeactNode = part;
+          if (variables) {
+            for (const key in variables) {
+              if (Object.prototype.hasOwnProperty.call(variables, key)) {
+                const value = variables[key];
+                if (value === undefined) continue;
+                const preparedValue = Number.isFinite(value) ? formatters!.number.format(value as number) : value as TeactNode;
+                result = replaceInStringsWithTeact(result, `{${key}}`, renderText(preparedValue));
+              }
+            }
+          }
+          return result;
         },
       });
     });
   }
 
-  return variableEntries.reduce((result, [key, value]): TeactNode => {
-    if (value === undefined) return result;
+  let finalResult = tempResult;
+  if (variables) {
+    for (const key in variables) {
+      if (Object.prototype.hasOwnProperty.call(variables, key)) {
+        const value = variables[key];
+        if (value === undefined) continue;
+        const preparedValue = Number.isFinite(value) ? formatters!.number.format(value as number) : value as TeactNode;
+        finalResult = replaceInStringsWithTeact(finalResult, `{${key}}`, renderText(preparedValue));
+      }
+    }
+  }
 
-    const preparedValue = Number.isFinite(value) ? formatters!.number.format(value as number) : value;
-    return replaceInStringsWithTeact(result, `{${key}}`, renderText(preparedValue));
-  }, tempResult);
+  return finalResult;
 }
 
 export const localizationReadyPromise = localizationReady.promise;

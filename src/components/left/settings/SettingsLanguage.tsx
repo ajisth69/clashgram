@@ -5,7 +5,7 @@ import {
 import { getActions, withGlobal } from '../../../global';
 
 import type { SharedSettings } from '../../../global/types';
-import type { AccountSettings, LangCode } from '../../../types';
+import type { AccountSettings, LangCode, TranslationTone } from '../../../types';
 import { SettingsScreens } from '../../../types';
 
 import { selectIsCurrentUserPremium } from '../../../global/selectors';
@@ -32,7 +32,7 @@ type OwnProps = {
 type StateProps = {
   isCurrentUserPremium: boolean;
   targetTranslationLanguage: string;
-} & Pick<AccountSettings, 'canTranslate' | 'canTranslateChats' | 'doNotTranslate'>
+} & Pick<AccountSettings, 'canTranslate' | 'canTranslateChats' | 'doNotTranslate' | 'translationProvider' | 'translationTone'>
 & Pick<SharedSettings, 'language' | 'languages'>;
 
 const SettingsLanguage: FC<OwnProps & StateProps> = ({
@@ -44,6 +44,8 @@ const SettingsLanguage: FC<OwnProps & StateProps> = ({
   canTranslateChats,
   doNotTranslate,
   targetTranslationLanguage,
+  translationProvider,
+  translationTone = 'neutral',
   onReset,
 }) => {
   const {
@@ -58,7 +60,8 @@ const SettingsLanguage: FC<OwnProps & StateProps> = ({
   const [selectedLanguage, setSelectedLanguage] = useState<string>(language);
   const [isLoading, markIsLoading, unmarkIsLoading] = useFlag();
 
-  const canTranslateChatsEnabled = isCurrentUserPremium && canTranslateChats;
+  const isTranslateChatsLocked = translationProvider === 'cocoon' && !isCurrentUserPremium;
+  const canTranslateChatsEnabled = canTranslateChats && !isTranslateChatsLocked;
 
   const lang = useOldLang();
 
@@ -140,6 +143,37 @@ const SettingsLanguage: FC<OwnProps & StateProps> = ({
     openSettingsScreen({ screen: SettingsScreens.DoNotTranslate });
   });
 
+  const engineOptions = useMemo(() => {
+    return [
+      { value: 'google', label: 'Google Translate', subLabel: 'Default' },
+      { value: 'cocoon', label: 'Telegram (Cocoon)', subLabel: !isCurrentUserPremium ? 'Premium Only' : 'Native translation' },
+    ] satisfies ItemPickerOption[];
+  }, [isCurrentUserPremium]);
+
+  const toneOptions = useMemo(() => {
+    return [
+      { value: 'neutral', label: lang('TranslationToneNeutral') },
+      { value: 'formal', label: lang('TranslationToneFormal') },
+      { value: 'casual', label: lang('TranslationToneCasual') },
+    ] satisfies ItemPickerOption[];
+  }, [lang]);
+
+  const handleTranslationProviderChange = useLastCallback((newValue: string) => {
+    setSettingOption({ translationProvider: newValue as any });
+  });
+
+  const handleTranslationToneChange = useLastCallback((newValue: string) => {
+    setSettingOption({ translationTone: newValue as TranslationTone });
+  });
+
+  const handleDisabledEngineClick = useLastCallback((value: string) => {
+    if (value === 'cocoon') {
+      openPremiumModal({
+        initialSection: 'translations',
+      });
+    }
+  });
+
   useHistoryBack({
     isActive,
     onBack: onReset,
@@ -157,10 +191,10 @@ const SettingsLanguage: FC<OwnProps & StateProps> = ({
           <Checkbox
             label={lang('ShowTranslateChatButton')}
             checked={canTranslateChatsEnabled}
-            disabled={!isCurrentUserPremium}
-            rightIcon={!isCurrentUserPremium ? 'lock' : undefined}
-            onClickLabel={handleShouldTranslateChatsClick}
-            onCheck={handleShouldTranslateChatsChange}
+            disabled={isTranslateChatsLocked}
+            rightIcon={isTranslateChatsLocked ? 'lock' : undefined}
+            onClickLabel={isTranslateChatsLocked ? handleShouldTranslateChatsClick : undefined}
+            onCheck={isTranslateChatsLocked ? undefined : handleShouldTranslateChatsChange}
           />
           <ListItem
             narrow
@@ -181,6 +215,36 @@ const SettingsLanguage: FC<OwnProps & StateProps> = ({
           <p className="settings-item-description mb-0 mt-1">
             {lang('lng_translate_settings_about')}
           </p>
+        </div>
+      )}
+      {IS_TRANSLATION_SUPPORTED && (
+        <div className="settings-item settings-item-picker">
+          <h4 className="settings-item-header">
+            Translation Engine
+          </h4>
+          <ItemPicker
+            items={engineOptions}
+            selectedValue={translationProvider}
+            onSelectedValueChange={handleTranslationProviderChange}
+            itemInputType="radio"
+            className="settings-picker"
+            lockedUnselectedValues={!isCurrentUserPremium ? ['cocoon'] : undefined}
+            onDisabledClick={handleDisabledEngineClick}
+          />
+        </div>
+      )}
+      {IS_TRANSLATION_SUPPORTED && (canTranslate || canTranslateChatsEnabled) && (
+        <div className="settings-item settings-item-picker">
+          <h4 className="settings-item-header">
+            Default Translation Tone
+          </h4>
+          <ItemPicker
+            items={toneOptions}
+            selectedValue={translationTone}
+            onSelectedValueChange={handleTranslationToneChange}
+            itemInputType="radio"
+            className="settings-picker"
+          />
         </div>
       )}
       <div className="settings-item settings-item-picker">
@@ -207,7 +271,7 @@ const SettingsLanguage: FC<OwnProps & StateProps> = ({
 export default memo(withGlobal<OwnProps>(
   (global): Complete<StateProps> => {
     const {
-      canTranslate, canTranslateChats, doNotTranslate,
+      canTranslate, canTranslateChats, doNotTranslate, translationProvider = 'google', translationTone = 'neutral',
     } = global.settings.byKey;
     const { language, languages } = selectSharedSettings(global);
 
@@ -222,6 +286,8 @@ export default memo(withGlobal<OwnProps>(
       canTranslateChats,
       doNotTranslate,
       targetTranslationLanguage,
+      translationProvider,
+      translationTone,
     };
   },
 )(SettingsLanguage));

@@ -7,6 +7,7 @@ import { selectMessageDownloadableMedia } from '../../global/selectors/media';
 import { getMediaHash, getMediaFilename } from '../../global/helpers/messageMedia';
 import { callApi } from '../../api/gramjs';
 import { zipSync } from 'fflate';
+import useLang from '../../hooks/useLang';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import Checkbox from '../ui/Checkbox';
@@ -482,7 +483,7 @@ const INDEX_HTML_TEMPLATE = `<!DOCTYPE html>
           <input type="text" id="search-input" placeholder="Search messages...">
         </div>
         <div class="filter-tabs">
-          <button class="filter-tab active" data-filter="all">All</button>
+          <button class="filter-tab active" data-filter="all">{lang('ClashgramExportRangeAll')}</button>
           <button class="filter-tab" data-filter="text">Text</button>
           <button class="filter-tab" data-filter="media">Media</button>
         </div>
@@ -546,6 +547,7 @@ function ClashgramExportModal({
   chat,
 }: OwnProps & StateProps) {
   const { closeClashgramExportModal } = getActions();
+  const lang = useLang();
 
   const [format, setFormat] = useState<'html' | 'json'>('html');
   const [exportPhotos, setExportPhotos] = useState(true);
@@ -595,11 +597,11 @@ function ClashgramExportModal({
     // Pre-export validations
     if (exportRange === 'date') {
       if (!startDate || !endDate) {
-        setValidationError('Please select both start and end dates.');
+        setValidationError(lang('ClashgramExportErrBothDates'));
         return;
       }
       if (new Date(startDate) > new Date(endDate)) {
-        setValidationError('Start date cannot be after end date.');
+        setValidationError(lang('ClashgramExportErrDateRange'));
         return;
       }
     }
@@ -607,7 +609,7 @@ function ClashgramExportModal({
     setIsExporting(true);
     isAbortedRef.current = false;
     setProgressPercent(5);
-    setProgressText('Preparing message fetch...');
+    setProgressText(lang('ClashgramExportProgressFetch'));
     logMessage(`Starting export for chat: ${chat.title}`);
 
     try {
@@ -619,7 +621,7 @@ function ClashgramExportModal({
       const startTimestamp = startDate ? Math.floor(new Date(startDate).getTime() / 1000) : 0;
       const endTimestamp = endDate ? Math.floor(new Date(endDate).getTime() / 1000) + 86399 : Infinity;
 
-      logMessage('Fetching chat history...');
+      logMessage(lang('ClashgramExportProgressHistory'));
       while (hasMore) {
         if (isAbortedRef.current) break;
 
@@ -674,7 +676,7 @@ function ClashgramExportModal({
           break;
         }
 
-        setProgressText(`Fetched ${allMessages.length} messages...`);
+        setProgressText(`${lang('ClashgramExportProgressHistory')} ${allMessages.length}...`);
         offsetId = result.messages[result.messages.length - 1].id;
         
         // Minor delay to prevent aggressive flooding
@@ -691,7 +693,7 @@ function ClashgramExportModal({
       setProgressPercent(30);
 
       // Media downloading phase
-      setProgressText('Checking and downloading media...');
+      setProgressText(lang('ClashgramExportProgressMedia'));
       const mediaFiles: Record<number, string> = {}; // msgId -> relative filename
       const zipEntries: Record<string, Uint8Array> = {};
 
@@ -753,7 +755,7 @@ function ClashgramExportModal({
 
         // Update progress safely
         const completed = ++downloadedProgressCount;
-        setProgressText(`Downloading media ${completed}/${mediaMessages.length}...`);
+        setProgressText(lang('ClashgramExportProgressMediaProgress', { completed, total: mediaMessages.length }));
         setProgressPercent(Math.floor(30 + (completed / mediaMessages.length) * 50));
       });
 
@@ -781,7 +783,7 @@ function ClashgramExportModal({
       }
 
       setProgressPercent(80);
-      setProgressText('Structuring export file...');
+      setProgressText(lang('ClashgramExportProgressStructuring'));
       logMessage(`Downloaded ${downloadedCount} media files.`);
 
       if (format === 'json') {
@@ -867,15 +869,15 @@ function ClashgramExportModal({
       }
 
       setProgressPercent(90);
-      setProgressText('Compressing ZIP file...');
-      logMessage('Compressing everything into a ZIP archive...');
+      setProgressText(lang('ClashgramExportProgressCompressing'));
+      logMessage(lang('ClashgramExportProgressCompressing'));
 
       // Run zipping
       const zipped = zipSync(zipEntries);
 
       setProgressPercent(98);
-      setProgressText('Triggering download...');
-      logMessage('Generating download trigger...');
+      setProgressText(lang('ClashgramExportProgressTriggering'));
+      logMessage(lang('ClashgramExportProgressTriggering'));
 
       const blob = new Blob([zipped as any], { type: 'application/zip' });
       const blobUrl = URL.createObjectURL(blob);
@@ -888,11 +890,11 @@ function ClashgramExportModal({
       URL.revokeObjectURL(blobUrl);
 
       setProgressPercent(100);
-      setProgressText('Export completed successfully!');
-      logMessage('Export completed!');
+      setProgressText(lang('ClashgramExportProgressSuccess'));
+      logMessage(lang('ClashgramExportProgressSuccess'));
     } catch (err) {
       logMessage(`Error during export: ${err}`);
-      setProgressText('Export failed.');
+      setProgressText(lang('ClashgramExportProgressFailed'));
     } finally {
       setIsExporting(false);
     }
@@ -900,7 +902,7 @@ function ClashgramExportModal({
 
   const handleAbort = () => {
     isAbortedRef.current = true;
-    setProgressText('Export aborted.');
+    setProgressText(lang('ClashgramExportProgressAborted'));
     setIsExporting(false);
     logMessage('Export aborted by user.');
   };
@@ -910,11 +912,11 @@ function ClashgramExportModal({
       isOpen={isOpen}
       onClose={closeClashgramExportModal}
       className={buildClassName(styles.modal, 'narrow')}
-      title="Export Chat History"
+      title={lang('ClashgramExportTitle')}
     >
       <div className={styles.container}>
         <p className={styles.description}>
-          Export messages and media from this chat locally. The exported content will be packaged into a ZIP archive.
+          {lang('ClashgramExportDesc')}
         </p>
 
         {!isExporting && progressPercent !== 100 && (
@@ -926,21 +928,21 @@ function ClashgramExportModal({
             )}
 
             <div className={styles.optionsSection}>
-              <h4 className={styles.sectionHeader}>Export Range</h4>
+              <h4 className={styles.sectionHeader}>{lang('ClashgramExportRange')}</h4>
               <div className={styles.rangeSelector}>
                 <button
                   type="button"
                   className={buildClassName(styles.rangeButton, exportRange === '50' && styles.rangeButtonActive)}
                   onClick={() => { setExportRange('50'); setValidationError(''); }}
                 >
-                  Recent 50
+                  {lang('ClashgramExportRange50')}
                 </button>
                 <button
                   type="button"
                   className={buildClassName(styles.rangeButton, exportRange === '100' && styles.rangeButtonActive)}
                   onClick={() => { setExportRange('100'); setValidationError(''); }}
                 >
-                  Recent 100
+                  {lang('ClashgramExportRange100')}
                 </button>
                 <button
                   type="button"
@@ -954,7 +956,7 @@ function ClashgramExportModal({
                   className={buildClassName(styles.rangeButton, exportRange === 'date' && styles.rangeButtonActive)}
                   onClick={() => { setExportRange('date'); setValidationError(''); }}
                 >
-                  By Date
+                  {lang('ClashgramExportRangeDate')}
                 </button>
               </div>
             </div>
@@ -962,7 +964,7 @@ function ClashgramExportModal({
             {exportRange === 'date' && (
               <div className={styles.dateContainer}>
                 <div className={styles.dateField}>
-                  <label className={styles.dateLabel}>Start Date</label>
+                  <label className={styles.dateLabel}>{lang('ClashgramExportStartDate')}</label>
                   <input
                     type="date"
                     className={styles.dateInput}
@@ -971,7 +973,7 @@ function ClashgramExportModal({
                   />
                 </div>
                 <div className={styles.dateField}>
-                  <label className={styles.dateLabel}>End Date</label>
+                  <label className={styles.dateLabel}>{lang('ClashgramExportEndDate')}</label>
                   <input
                     type="date"
                     className={styles.dateInput}
@@ -983,12 +985,12 @@ function ClashgramExportModal({
             )}
 
             <div className={styles.optionsSection}>
-              <h4 className={styles.sectionHeader}>Format</h4>
+              <h4 className={styles.sectionHeader}>{lang('ClashgramExportFormat')}</h4>
               <RadioGroup
                 name="export-format"
                 options={[
-                  { label: 'HTML (Beautiful web view)', value: 'html' },
-                  { label: 'JSON (Raw data)', value: 'json' },
+                  { label: lang('ClashgramExportFormatHtml'), value: 'html' },
+                  { label: lang('ClashgramExportFormatJson'), value: 'json' },
                 ]}
                 selected={format}
                 onChange={(val) => setFormat(val as 'html' | 'json')}
@@ -996,35 +998,35 @@ function ClashgramExportModal({
             </div>
 
             <div className={styles.optionsSection}>
-              <h4 className={styles.sectionHeader}>Media to include</h4>
+              <h4 className={styles.sectionHeader}>{lang('ClashgramExportMedia')}</h4>
               <div className={styles.checkboxes}>
                 <Checkbox
-                  label="Photos"
+                  label={lang('ClashgramExportMediaPhotos')}
                   checked={exportPhotos}
                   onCheck={setExportPhotos}
                 />
                 <Checkbox
-                  label="Videos"
+                  label={lang('ClashgramExportMediaVideos')}
                   checked={exportVideos}
                   onCheck={setExportVideos}
                 />
                 <Checkbox
-                  label="Audio files"
+                  label={lang('ClashgramExportMediaAudios')}
                   checked={exportAudios}
                   onCheck={setExportAudios}
                 />
                 <Checkbox
-                  label="Voice messages"
+                  label={lang('ClashgramExportMediaVoices')}
                   checked={exportVoices}
                   onCheck={setExportVoices}
                 />
                 <Checkbox
-                  label="Stickers"
+                  label={lang('ClashgramExportMediaStickers')}
                   checked={exportStickers}
                   onCheck={setExportStickers}
                 />
                 <Checkbox
-                  label="Files & Documents"
+                  label={lang('ClashgramExportMediaDocs')}
                   checked={exportDocs}
                   onCheck={setExportDocs}
                 />
@@ -1053,7 +1055,7 @@ function ClashgramExportModal({
               color="danger"
               onClick={handleAbort}
             >
-              Cancel
+              {lang('ClashgramExportButtonCancel')}
             </Button>
           ) : (
             <>
@@ -1062,14 +1064,14 @@ function ClashgramExportModal({
                 color="translucent"
                 onClick={() => closeClashgramExportModal()}
               >
-                Close
+                {lang('ClashgramExportButtonClose')}
               </Button>
               <Button
                 type="button"
                 color="primary"
                 onClick={handleStartExport}
               >
-                Start Export
+                {lang('ClashgramExportButtonStart')}
               </Button>
             </>
           )}

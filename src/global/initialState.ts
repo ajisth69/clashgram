@@ -340,6 +340,7 @@ export const INITIAL_GLOBAL_STATE: GlobalState = {
       canTranslateChats: true,
       doNotTranslate: [],
       translationTone: 'neutral',
+      translationProvider: 'google',
     },
     privacy: {},
     botVerificationShownPeerIds: [],

@@ -20,13 +20,21 @@ import {
 } from '../../index';
 import { replaceSettings, updateSharedSettings, updateThemeSettings } from '../../reducers';
 import { updateTabState } from '../../reducers/tabs';
-import { selectCanAnimateInterface, selectChatFolder, selectTabState } from '../../selectors';
+import { selectCanAnimateInterface, selectChatFolder, selectTabState, selectIsCurrentUserPremium } from '../../selectors';
 import { selectSharedSettings } from '../../selectors/sharedState';
 
 let prevGlobal: GlobalState | undefined;
 
 addCallback((global: GlobalState) => {
   const { updatePageTitle, updateShouldDebugExportedSenders, updateShouldEnableDebugLog } = getActions();
+
+  const isPremium = selectIsCurrentUserPremium(global);
+  if (global.settings.byKey.translationProvider === 'cocoon' && !isPremium) {
+    global = replaceSettings(global, {
+      translationProvider: 'google',
+    });
+    setGlobal(global);
+  }
 
   const oldGlobal = prevGlobal;
   prevGlobal = global;

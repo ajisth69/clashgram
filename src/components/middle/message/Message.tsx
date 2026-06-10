@@ -154,7 +154,7 @@ import useEnsureMessage from '../../../hooks/useEnsureMessage';
 import useEnsureStory from '../../../hooks/useEnsureStory';
 import useFlag from '../../../hooks/useFlag';
 import useHiddenMessages, { useIsMessageHidden } from '../../../hooks/useHiddenMessages';
-import { useOnIntersect } from '../../../hooks/useIntersectionObserver';
+import { useOnIntersect, useIsIntersecting } from '../../../hooks/useIntersectionObserver';
 import useLang from '../../../hooks/useLang';
 import useLastCallback from '../../../hooks/useLastCallback';
 import useOldLang from '../../../hooks/useOldLang';
@@ -870,9 +870,11 @@ const Message = ({
   const translationLanguageForHook = parsedManualTranslation?.languageCode || requestedChatTranslationLanguage;
   const translationToneForHook = parsedManualTranslation?.tone || requestedTranslationTone;
 
+  const isIntersectingForLoading = useIsIntersecting(ref, observeIntersectionForLoading);
+
   const { isPending: isTranslationPending, translatedText, translatedButtons } = useMessageTranslation(
     chatTranslations, chatId, shouldTranslate ? messageId : undefined, translationLanguageForHook,
-    translationToneForHook,
+    translationToneForHook, isIntersectingForLoading,
   );
   const isSummaryPending = Boolean(summary?.isPending);
   const isNewTextPending = isTranslationPending || isSummaryPending;

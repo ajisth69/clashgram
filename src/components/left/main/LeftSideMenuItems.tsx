@@ -150,7 +150,7 @@ const LeftSideMenuItems = ({
 
   const handleReadOnServer = useLastCallback(() => {
     if (!unreadChatIds.length) {
-      showNotification({ message: 'No unread messages found' });
+      showNotification({ message: lang('ClashgramNoUnreadFound') });
       return;
     }
     const ids = [...unreadChatIds];
@@ -166,7 +166,7 @@ const LeftSideMenuItems = ({
       if (ids.length > 0) {
         setTimeout(processBatch, 16);
       } else {
-        showNotification({ message: 'All messages successfully read on server' });
+        showNotification({ message: lang('ClashgramAllReadSuccess') });
       }
     }
 
@@ -229,7 +229,7 @@ const LeftSideMenuItems = ({
         onClick={handleReadOnServer}
         disabled={unreadChatIds.length === 0}
       >
-        <span className="menu-item-name">Read on Server</span>
+        <span className="menu-item-name">{lang('MenuClashgramReadOnServer')}</span>
         {unreadChatIds.length > 0 && (
           <div className="right-badge">{unreadChatIds.length}</div>
         )}

@@ -5,7 +5,7 @@ import { type ApiChat, type ApiChatFolder, MAIN_THREAD_ID } from '../../../api/t
 import { SettingsScreens } from '../../../types';
 
 import useHistoryBack from '../../../hooks/useHistoryBack';
-import useOldLang from '../../../hooks/useOldLang';
+import useLang from '../../../hooks/useLang';
 import useLastCallback from '../../../hooks/useLastCallback';
 
 import Button from '../../ui/Button';
@@ -43,7 +43,7 @@ const SettingsClashgramPasscode = ({
   onReset,
 }: OwnProps & StateProps) => {
   const { setSharedSettingOption, openSettingsScreen, signOut } = getActions();
-  const lang = useOldLang();
+  const lang = useLang();
 
   useHistoryBack({
     isActive,
@@ -116,15 +116,15 @@ const SettingsClashgramPasscode = ({
   const handleSetupPasscode = useLastCallback(async () => {
     clearMessages();
     if (!setupPrimary || !setupRecovery) {
-      setErrorMsg('Both primary and recovery passcodes are required.');
+      setErrorMsg(lang('ClashgramPasscodeErrBothRequired'));
       return;
     }
     if (setupPrimary.length < 4) {
-      setErrorMsg('Primary passcode should be at least 4 characters.');
+      setErrorMsg(lang('ClashgramPasscodeErrMinLength'));
       return;
     }
     if (setupPrimary === setupRecovery) {
-      setErrorMsg('Recovery passcode must be different from primary passcode.');
+      setErrorMsg(lang('ClashgramPasscodeErrDifferent'));
       return;
     }
 
@@ -136,14 +136,14 @@ const SettingsClashgramPasscode = ({
     setHasPasscode(true);
     setSetupPrimary('');
     setSetupRecovery('');
-    setSuccessMsg('Passcode protection configured successfully!');
+    setSuccessMsg(lang('ClashgramPasscodeSuccessSetup'));
   });
 
   // B. Change Passcode
   const handleChangePasscode = useLastCallback(async () => {
     clearMessages();
     if (!changeVerifyInput || !changeNewPrimary || !changeNewRecovery) {
-      setErrorMsg('All fields (current verify, new primary, and new recovery passcode) are required.');
+      setErrorMsg(lang('ClashgramPasscodeErrBothRequired'));
       return;
     }
 
@@ -154,17 +154,17 @@ const SettingsClashgramPasscode = ({
     
     const enteredHash = await sha256(changeVerifyInput);
     if (enteredHash !== storedHash) {
-      setErrorMsg(`Incorrect ${isPrimaryAuth ? 'current primary' : 'recovery'} passcode.`);
+      setErrorMsg(isPrimaryAuth ? lang('ClashgramPasscodeErrIncorrectPrimary') : lang('ClashgramPasscodeErrIncorrectRecovery'));
       return;
     }
 
     if (changeNewPrimary.length < 4) {
-      setErrorMsg('New primary passcode should be at least 4 characters.');
+      setErrorMsg(lang('ClashgramPasscodeErrMinLength'));
       return;
     }
 
     if (changeNewPrimary === changeNewRecovery) {
-      setErrorMsg('Recovery passcode must be different from primary passcode.');
+      setErrorMsg(lang('ClashgramPasscodeErrDifferent'));
       return;
     }
 
@@ -173,7 +173,7 @@ const SettingsClashgramPasscode = ({
     localStorage.setItem('clashgramPasscodeHash', hash);
     localStorage.setItem('clashgramRecoveryPasscodeHash', recoveryHash);
 
-    setSuccessMsg('Passcode changed successfully.');
+    setSuccessMsg(lang('ClashgramPasscodeSuccessChange'));
     setTimeout(() => navigateTo(null), 1000);
   });
 
@@ -181,7 +181,7 @@ const SettingsClashgramPasscode = ({
   const handleVerifyRecovery = useLastCallback(async () => {
     clearMessages();
     if (!recoveryInput) {
-      setErrorMsg('Please enter your recovery passcode.');
+      setErrorMsg(lang('ClashgramPasscodeBackupPlaceholder'));
       return;
     }
 
@@ -189,26 +189,26 @@ const SettingsClashgramPasscode = ({
     const enteredRecoveryHash = await sha256(recoveryInput);
 
     if (enteredRecoveryHash !== storedRecoveryHash) {
-      setErrorMsg('Incorrect recovery passcode.');
+      setErrorMsg(lang('ClashgramPasscodeErrIncorrectRecovery'));
       return;
     }
 
     setRecoverySuccess(true);
-    setSuccessMsg('Recovery verified! Choose your new primary & recovery passcodes.');
+    setSuccessMsg(lang('ClashgramPasscodeRecoveryVerified'));
   });
 
   const handleSetNewPasscodesAfterRecovery = useLastCallback(async () => {
     clearMessages();
     if (!recoveryNewPrimary || !recoveryNewRecovery) {
-      setErrorMsg('Please enter both new primary and recovery passcodes.');
+      setErrorMsg(lang('ClashgramPasscodeErrBothRequired'));
       return;
     }
     if (recoveryNewPrimary.length < 4) {
-      setErrorMsg('Primary passcode must be at least 4 characters.');
+      setErrorMsg(lang('ClashgramPasscodeErrMinLength'));
       return;
     }
     if (recoveryNewPrimary === recoveryNewRecovery) {
-      setErrorMsg('Recovery passcode must be different from primary passcode.');
+      setErrorMsg(lang('ClashgramPasscodeErrDifferent'));
       return;
     }
 
@@ -217,7 +217,7 @@ const SettingsClashgramPasscode = ({
     localStorage.setItem('clashgramPasscodeHash', hash);
     localStorage.setItem('clashgramRecoveryPasscodeHash', recoveryHash);
 
-    setSuccessMsg('Passcodes have been reset successfully!');
+    setSuccessMsg(lang('ClashgramPasscodeSaveNew'));
     setTimeout(() => navigateTo(null), 1000);
   });
 
@@ -225,7 +225,7 @@ const SettingsClashgramPasscode = ({
   const handleDisablePasscode = useLastCallback(async () => {
     clearMessages();
     if (!disableVerifyInput) {
-      setErrorMsg('Please enter passcode to verify identity.');
+      setErrorMsg(lang('ClashgramPasscodeBackupPlaceholder'));
       return;
     }
 
@@ -236,7 +236,7 @@ const SettingsClashgramPasscode = ({
 
     const enteredHash = await sha256(disableVerifyInput);
     if (enteredHash !== storedHash) {
-      setErrorMsg(`Incorrect ${isPrimaryAuth ? 'current primary' : 'recovery'} passcode.`);
+      setErrorMsg(isPrimaryAuth ? lang('ClashgramPasscodeErrIncorrectPrimary') : lang('ClashgramPasscodeErrIncorrectRecovery'));
       return;
     }
 
@@ -249,7 +249,7 @@ const SettingsClashgramPasscode = ({
     setLockedChats([]);
     setLockedFolders([]);
     setSharedSettingOption({});
-    setSuccessMsg('Passcode protection has been disabled.');
+    setSuccessMsg(lang('ClashgramPasscodeDisable'));
     setTimeout(() => navigateTo(null), 1000);
   });
 
@@ -418,8 +418,8 @@ const SettingsClashgramPasscode = ({
             />
             <p className="settings-item-description mb-3" dir="auto">
               {hasPasscode
-                ? 'Clashgram Passcode Lock is enabled.'
-                : 'Set a local passcode to secure your private chats and custom folders on this device.'}
+                ? lang('ClashgramPasscodeEnabled')
+                : lang('ClashgramPasscodeDisabledDesc')}
             </p>
           </div>
 
@@ -430,21 +430,21 @@ const SettingsClashgramPasscode = ({
                 icon="edit"
                 onClick={() => navigateTo('change')}
               >
-                Change Passcode
+                {lang('ClashgramPasscodeChange')}
               </ListItem>
 
               <ListItem
                 icon="key"
                 onClick={() => navigateTo('recovery')}
               >
-                Reset via Recovery Passcode
+                {lang('ClashgramPasscodeResetRec')}
               </ListItem>
 
               <ListItem
                 icon="lock"
                 onClick={() => navigateTo('items')}
               >
-                Manage Locked Items ({lockedChats.length + lockedFolders.length})
+                {lang('ClashgramPasscodeManageItems')} ({lockedChats.length + lockedFolders.length})
               </ListItem>
 
               <ListItem
@@ -452,7 +452,7 @@ const SettingsClashgramPasscode = ({
                 className="color-danger"
                 onClick={() => navigateTo('disable')}
               >
-                <span style="color: var(--color-error)">Turn Passcode Off</span>
+                <span style="color: var(--color-error)">{lang('ClashgramPasscodeDisable')}</span>
               </ListItem>
             </div>
           ) : (
@@ -468,9 +468,9 @@ const SettingsClashgramPasscode = ({
                   spellCheck={false}
                   value={setupPrimary}
                   onChange={(e) => setSetupPrimary((e.target as HTMLInputElement).value)}
-                  placeholder="Min 4 characters"
+                  placeholder={lang('ClashgramPasscodeMinChars')}
                 />
-                <label htmlFor="clashgram-setup-primary">Primary Passcode</label>
+                <label htmlFor="clashgram-setup-primary">{lang('ClashgramPasscodePrimary')}</label>
               </div>
 
               <div className="input-group touched with-label">
@@ -484,13 +484,13 @@ const SettingsClashgramPasscode = ({
                   spellCheck={false}
                   value={setupRecovery}
                   onChange={(e) => setSetupRecovery((e.target as HTMLInputElement).value)}
-                  placeholder="Enter backup recovery code"
+                  placeholder={lang('ClashgramPasscodeBackupPlaceholder')}
                 />
-                <label htmlFor="clashgram-setup-recovery">Recovery Passcode (Backup)</label>
+                <label htmlFor="clashgram-setup-recovery">{lang('ClashgramPasscodeRecovery')}</label>
               </div>
 
               <p className="settings-item-description" style="margin: 0; font-size: 12px; line-height: 1.4; color: var(--color-text-secondary)">
-                Note: The Recovery passcode serves as a master override. If you forget your primary passcode, you can use it to reset your lock instantly without losing any local settings.
+                {lang('ClashgramPasscodeNote')}
               </p>
 
               <Button
@@ -498,7 +498,7 @@ const SettingsClashgramPasscode = ({
                 disabled={!setupPrimary || !setupRecovery}
                 style="margin-top: 10px; width: 100%"
               >
-                Enable Passcode Protection
+                {lang('ClashgramPasscodeEnableButton')}
               </Button>
             </div>
           )}
@@ -510,11 +510,11 @@ const SettingsClashgramPasscode = ({
         <>
           <div className="subscreen-header" onClick={() => navigateTo(null)}>
             <span className="back-arrow">←</span>
-            <h3>Change Passcode</h3>
+            <h3>{lang('ClashgramPasscodeChange')}</h3>
           </div>
           <div className="subscreen-body">
             <p className="settings-item-description" style="margin: 0; color: var(--color-text-secondary)">
-              Confirm identity to set a new primary passcode. You can verify using either your primary or recovery backup key.
+              {lang('ClashgramPasscodeConfirmVerify')}
             </p>
 
             <div className="auth-tab-bar">
@@ -522,13 +522,13 @@ const SettingsClashgramPasscode = ({
                 className={`auth-tab ${changeAuthMode === 'primary' ? 'active' : ''}`}
                 onClick={() => { setChangeAuthMode('primary'); clearMessages(); }}
               >
-                Use Primary Passcode
+                {lang('ClashgramPasscodeUsePrimary')}
               </div>
               <div 
                 className={`auth-tab ${changeAuthMode === 'recovery' ? 'active' : ''}`}
                 onClick={() => { setChangeAuthMode('recovery'); clearMessages(); }}
               >
-                Use Recovery Passcode
+                {lang('ClashgramPasscodeUseRecovery')}
               </div>
             </div>
 
@@ -543,10 +543,10 @@ const SettingsClashgramPasscode = ({
                 spellCheck={false}
                 value={changeVerifyInput}
                 onChange={(e) => setChangeVerifyInput((e.target as HTMLInputElement).value)}
-                placeholder={changeAuthMode === 'primary' ? 'Enter current primary passcode' : 'Enter current recovery passcode'}
+                placeholder={changeAuthMode === 'primary' ? lang('ClashgramPasscodeCurrent') : lang('ClashgramPasscodeRecovery')}
               />
               <label htmlFor="clashgram-change-verify">
-                {changeAuthMode === 'primary' ? 'Current Passcode' : 'Recovery Passcode'}
+                {changeAuthMode === 'primary' ? lang('ClashgramPasscodeCurrent') : lang('ClashgramPasscodeRecovery')}
               </label>
             </div>
 
@@ -562,9 +562,9 @@ const SettingsClashgramPasscode = ({
                   spellCheck={false}
                   value={changeNewPrimary}
                   onChange={(e) => setChangeNewPrimary((e.target as HTMLInputElement).value)}
-                  placeholder="Min 4 characters"
+                  placeholder={lang('ClashgramPasscodeMinChars')}
                 />
-                <label htmlFor="clashgram-change-new-primary">New Primary Passcode</label>
+                <label htmlFor="clashgram-change-new-primary">{lang('ClashgramPasscodeNewPrimary')}</label>
               </div>
 
               <div className="input-group touched with-label">
@@ -578,9 +578,9 @@ const SettingsClashgramPasscode = ({
                   spellCheck={false}
                   value={changeNewRecovery}
                   onChange={(e) => setChangeNewRecovery((e.target as HTMLInputElement).value)}
-                  placeholder="Must be different"
+                  placeholder={lang('ClashgramPasscodeErrDifferent')}
                 />
-                <label htmlFor="clashgram-change-new-rec">New Recovery Passcode (Backup)</label>
+                <label htmlFor="clashgram-change-new-rec">{lang('ClashgramPasscodeNewRecovery')}</label>
               </div>
             </div>
 
@@ -589,7 +589,7 @@ const SettingsClashgramPasscode = ({
               disabled={!changeVerifyInput || !changeNewPrimary || !changeNewRecovery}
               style="width: 100%; margin-top: 8px"
             >
-              Update Passcode Settings
+              {lang('ClashgramPasscodeUpdateSettings')}
             </Button>
           </div>
         </>
@@ -600,13 +600,13 @@ const SettingsClashgramPasscode = ({
         <>
           <div className="subscreen-header" onClick={() => navigateTo(null)}>
             <span className="back-arrow">←</span>
-            <h3>Reset via Recovery</h3>
+            <h3>{lang('ClashgramPasscodeResetRec')}</h3>
           </div>
           <div className="subscreen-body">
             {!recoverySuccess ? (
               <>
                 <p className="settings-item-description" style="margin: 0; color: var(--color-text-secondary)">
-                  Forgot your primary passcode? Enter the backup recovery code you configured.
+                  {lang('ClashgramPasscodeForgotDesc')}
                 </p>
                 <div className="input-group touched with-label">
                   <input
@@ -620,7 +620,7 @@ const SettingsClashgramPasscode = ({
                     value={recoveryInput}
                     onChange={(e) => setRecoveryInput((e.target as HTMLInputElement).value)}
                   />
-                  <label htmlFor="clashgram-recovery-verify">Backup Recovery Passcode</label>
+                  <label htmlFor="clashgram-recovery-verify">{lang('ClashgramPasscodeRecovery')}</label>
                 </div>
 
                 <Button
@@ -628,26 +628,26 @@ const SettingsClashgramPasscode = ({
                   disabled={!recoveryInput}
                   style="width: 100%"
                 >
-                  Verify Backup Code
+                  {lang('ClashgramPasscodeUseRecovery')}
                 </Button>
 
                 {/* Secure Account Exit Fallback */}
                 <div style="margin-top: 15px; border-top: 1px dashed var(--color-borders); padding-top: 18px">
                   <p className="settings-item-description" style="margin: 0 0 8px 0; color: var(--color-error); font-weight: 600">
-                    Lost both Primary & Recovery passcodes?
+                    {lang('ClashgramPasscodeLostBothHeader')}
                   </p>
                   <p className="settings-item-description" style="margin: 0 0 12px 0; font-size: 12px; line-height: 1.4; color: var(--color-text-secondary)">
-                    To protect your chats from unauthorized access, the local locks can only be wiped by terminating the current active device session.
+                    {lang('ClashgramPasscodeLostBothDesc')}
                   </p>
                   <Button onClick={handleResetAndLogout} color="danger" style="width: 100%">
-                    Logout & Reset Device Locks
+                    {lang('ClashgramPasscodeLogoutReset')}
                   </Button>
                 </div>
               </>
             ) : (
               <>
                 <p className="settings-item-description" style="margin: 0; color: #2ecc71; font-weight: 500">
-                  Recovery verified! Please define a brand new primary passcode and a different backup recovery passcode.
+                  {lang('ClashgramPasscodeRecoveryVerified')}
                 </p>
                 <div className="input-group touched with-label">
                   <input
@@ -660,9 +660,9 @@ const SettingsClashgramPasscode = ({
                     spellCheck={false}
                     value={recoveryNewPrimary}
                     onChange={(e) => setRecoveryNewPrimary((e.target as HTMLInputElement).value)}
-                    placeholder="Min 4 characters"
+                    placeholder={lang('ClashgramPasscodeMinChars')}
                   />
-                  <label htmlFor="clashgram-rec-new-p">New Primary Passcode</label>
+                  <label htmlFor="clashgram-rec-new-p">{lang('ClashgramPasscodeNewPrimary')}</label>
                 </div>
 
                 <div className="input-group touched with-label">
@@ -676,9 +676,9 @@ const SettingsClashgramPasscode = ({
                     spellCheck={false}
                     value={recoveryNewRecovery}
                     onChange={(e) => setRecoveryNewRecovery((e.target as HTMLInputElement).value)}
-                    placeholder="Must be different"
+                    placeholder={lang('ClashgramPasscodeErrDifferent')}
                   />
-                  <label htmlFor="clashgram-rec-new-r">New Recovery Passcode (Backup)</label>
+                  <label htmlFor="clashgram-rec-new-r">{lang('ClashgramPasscodeNewRecovery')}</label>
                 </div>
 
                 <Button
@@ -686,7 +686,7 @@ const SettingsClashgramPasscode = ({
                   disabled={!recoveryNewPrimary || !recoveryNewRecovery}
                   style="width: 100%; margin-top: 8px"
                 >
-                  Save New Security Settings
+                  {lang('ClashgramPasscodeSaveNew')}
                 </Button>
               </>
             )}
@@ -699,16 +699,16 @@ const SettingsClashgramPasscode = ({
         <>
           <div className="subscreen-header" onClick={() => navigateTo(null)}>
             <span className="back-arrow">←</span>
-            <h3>Manage Locked Items</h3>
+            <h3>{lang('ClashgramPasscodeManageItems')}</h3>
           </div>
           <div className="subscreen-body">
             <p className="settings-item-description" style="margin: 0 0 8px 0; color: var(--color-text-secondary)">
-              Below is a list of folders and private chats protected on this device. Click Unlock to lift protection.
+              {lang('ClashgramPasscodeManageItemsDesc')}
             </p>
 
             {lockedChats.length === 0 && lockedFolders.length === 0 ? (
               <p style="margin: 30px 0; font-size: 14px; text-align: center; color: var(--color-text-secondary)">
-                No chats or folders are locked.
+                {lang('ClashgramPasscodeNoLockedItems')}
               </p>
             ) : (
               <div style="max-height: 400px; overflow-y: auto; padding-right: 4px">
@@ -721,7 +721,7 @@ const SettingsClashgramPasscode = ({
                         <span>📂</span>
                         <span>{name}</span>
                       </div>
-                      <Button onClick={() => handleUnlockFolder(folderId)} color="danger" size="tiny">Unlock</Button>
+                      <Button onClick={() => handleUnlockFolder(folderId)} color="danger" size="tiny">{lang('Unlock')}</Button>
                     </div>
                   );
                 })}
@@ -734,14 +734,14 @@ const SettingsClashgramPasscode = ({
                         <span>💬</span>
                         <span>{name}</span>
                       </div>
-                      <Button onClick={() => handleUnlockChat(chatId)} color="danger" size="tiny">Unlock</Button>
+                      <Button onClick={() => handleUnlockChat(chatId)} color="danger" size="tiny">{lang('Unlock')}</Button>
                     </div>
                   );
                 })}
               </div>
             )}
             <p className="settings-item-description" style="margin: 10px 0 0 0; font-size: 12px; line-height: 1.4; color: var(--color-text-secondary)">
-              Tip: You can lock new conversations at any time by right-clicking a folder tab or any individual item in your chats menu and selecting "Lock Chat/Folder".
+              {lang('ClashgramPasscodeManageItemsTip')}
             </p>
           </div>
         </>
@@ -752,11 +752,11 @@ const SettingsClashgramPasscode = ({
         <>
           <div className="subscreen-header" onClick={() => navigateTo(null)}>
             <span className="back-arrow">←</span>
-            <h3>Disable Passcode Lock</h3>
+            <h3>{lang('ClashgramPasscodeDisable')}</h3>
           </div>
           <div className="subscreen-body">
             <p className="settings-item-description" style="margin: 0; color: var(--color-text-secondary)">
-              Disabling the passcode lock will immediately delete all active locks and wipe your primary and backup keys. Confirm your identity below:
+              {lang('ClashgramPasscodeDisableNote')}
             </p>
 
             <div className="auth-tab-bar">
@@ -764,13 +764,13 @@ const SettingsClashgramPasscode = ({
                 className={`auth-tab ${disableAuthMode === 'primary' ? 'active' : ''}`}
                 onClick={() => { setDisableAuthMode('primary'); clearMessages(); }}
               >
-                Use Primary Passcode
+                {lang('ClashgramPasscodeUsePrimary')}
               </div>
               <div 
                 className={`auth-tab ${disableAuthMode === 'recovery' ? 'active' : ''}`}
                 onClick={() => { setDisableAuthMode('recovery'); clearMessages(); }}
               >
-                Use Recovery Passcode
+                {lang('ClashgramPasscodeUseRecovery')}
               </div>
             </div>
 
@@ -785,10 +785,10 @@ const SettingsClashgramPasscode = ({
                 spellCheck={false}
                 value={disableVerifyInput}
                 onChange={(e) => setDisableVerifyInput((e.target as HTMLInputElement).value)}
-                placeholder={disableAuthMode === 'primary' ? 'Enter current primary passcode' : 'Enter current recovery passcode'}
+                placeholder={disableAuthMode === 'primary' ? lang('ClashgramPasscodeCurrent') : lang('ClashgramPasscodeRecovery')}
               />
               <label htmlFor="clashgram-disable-verify">
-                {disableAuthMode === 'primary' ? 'Current Passcode' : 'Recovery Passcode'}
+                {disableAuthMode === 'primary' ? lang('ClashgramPasscodeCurrent') : lang('ClashgramPasscodeRecovery')}
               </label>
             </div>
 
@@ -798,7 +798,7 @@ const SettingsClashgramPasscode = ({
               disabled={!disableVerifyInput}
               style="width: 100%; margin-top: 8px"
             >
-              Disable Passcode Protection
+              {lang('ClashgramPasscodeDisableButton')}
             </Button>
           </div>
         </>

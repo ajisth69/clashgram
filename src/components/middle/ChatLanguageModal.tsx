@@ -28,6 +28,24 @@ import Modal from '../ui/Modal';
 
 import styles from './ChatLanguageModal.module.scss';
 
+const ORIGINAL_NAMES_CACHE = new Map<string, string>();
+
+function getOriginalLanguageName(langCode: string) {
+  if (ORIGINAL_NAMES_CACHE.has(langCode)) {
+    return ORIGINAL_NAMES_CACHE.get(langCode)!;
+  }
+  try {
+    const originalName = new Intl.DisplayNames([langCode], { type: 'language' }).of(langCode);
+    if (originalName) {
+      ORIGINAL_NAMES_CACHE.set(langCode, originalName);
+      return originalName;
+    }
+  } catch (e) {
+    // Fallback
+  }
+  return langCode;
+}
+
 type LanguageItem = {
   langCode: string;
   translatedName: string;
@@ -82,19 +100,20 @@ const ChatLanguageModal: FC<OwnProps & StateProps> = ({
     setSearch(e.target.value);
   });
 
-  const translateLanguages = useMemo(() => SUPPORTED_TRANSLATION_LANGUAGES.map((langCode: string) => {
+  const translateLanguages = useMemo(() => {
     const translatedNames = new Intl.DisplayNames([currentLanguageCode], { type: 'language' });
-    const translatedName = translatedNames.of(langCode)!;
 
-    const originalNames = new Intl.DisplayNames([langCode], { type: 'language' });
-    const originalName = originalNames.of(langCode)!;
+    return SUPPORTED_TRANSLATION_LANGUAGES.map((langCode: string) => {
+      const translatedName = translatedNames.of(langCode)!;
+      const originalName = getOriginalLanguageName(langCode);
 
-    return {
-      langCode,
-      translatedName,
-      originalName,
-    } satisfies LanguageItem;
-  }), [currentLanguageCode]);
+      return {
+        langCode,
+        translatedName,
+        originalName,
+      } satisfies LanguageItem;
+    });
+  }, [currentLanguageCode]);
 
   useEffect(() => {
     if (!isOpen) setSearch('');
