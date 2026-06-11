@@ -58,4 +58,5 @@ export interface SharedSettings {
   clashgramConfirmGifEmoji?: boolean;
   clashgramConfirmMsg?: boolean;
   clashgramHideBlockedInGroups?: boolean;
+  clashgramHideAllChats?: boolean;
 }

@@ -21,6 +21,9 @@ import { useFolderManagerForUnreadChatsByFolder, useFolderManagerForUnreadCounte
 import useLang from './useLang';
 import useLastCallback from './useLastCallback';
 
+import useSelector from './data/useSelector';
+import { selectSharedSettings } from '../global/selectors/sharedState';
+
 type FolderNameOptions = {
   text: string;
   entities?: ApiMessageEntity[];
@@ -61,6 +64,7 @@ const useFolderTabs = (params: Params) => {
 
   const lang = useLang();
   const { isMobile } = useAppLayout();
+  const { clashgramHideAllChats } = useSelector(selectSharedSettings);
 
   const {
     openShareChatFolderModal,
@@ -86,13 +90,13 @@ const useFolderTabs = (params: Params) => {
     return orderedFolderIds
       ? orderedFolderIds.map((id) => {
         if (id === ALL_FOLDER_ID) {
-          return allChatsFolder;
+          return clashgramHideAllChats ? undefined : allChatsFolder;
         }
 
         return chatFoldersById[id] || {};
-      }).filter(Boolean)
+      }).filter(Boolean) as ApiChatFolder[]
       : undefined;
-  }, [chatFoldersById, allChatsFolder, orderedFolderIds]);
+  }, [chatFoldersById, allChatsFolder, orderedFolderIds, clashgramHideAllChats]);
 
   const folderUnreadChatsCountersById = useFolderManagerForUnreadChatsByFolder();
   const handleReadAllChats = useLastCallback((folderId: number) => {

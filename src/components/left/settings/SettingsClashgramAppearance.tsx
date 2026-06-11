@@ -39,20 +39,7 @@ type StateProps = {
   clashgramCustomAnimation?: string;
 };
 
-const IMPORT_CONTAINER_STYLE = 'display: flex; flex-direction: column; '
-  + 'gap: 0.5rem; margin-bottom: 0.75rem;';
-
-const SEARCH_INPUT_STYLE = 'width: 100%; box-sizing: border-box; padding: 0.5rem; '
-  + 'border: 1px solid rgba(var(--color-text-rgb), 0.12); border-radius: 0.375rem; '
-  + 'background: var(--color-background); color: var(--color-text); '
-  + 'font-size: 0.8125rem; outline: none;';
-
-const ACTIVE_PREVIEW_STYLE = 'margin-bottom: 0.75rem; font-size: 0.8125rem; '
-  + 'color: var(--color-text-secondary);';
-
-const FONT_LIST_SCROLL_STYLE = 'height: 320px; overflow-y: auto; '
-  + 'border: 1px solid rgba(var(--color-text-rgb), 0.08); border-radius: 0.375rem; '
-  + 'background: var(--color-background);';
+// Style removed because custom fonts moved to a separate panel
 
 const PRE_CODE_STYLE = 'margin: 0.5rem 0; padding: 0.625rem; '
   + 'background: rgba(0,0,0,0.15); border-radius: 4px; font-size: 0.725rem; '
@@ -125,133 +112,11 @@ const SettingsClashgramAppearance = ({
     }
   }, []);
 
-  const [googleFontInput, setGoogleFontInput] = useState('');
-  const [fontsList, setFontsList] = useState([
-    { label: 'System Default', value: 'default' },
-    { label: 'Arial', value: 'Arial' },
-    { label: 'Avenir Next', value: 'Avenir Next' },
-    { label: 'Anton', value: 'Anton' },
-    { label: 'Bebas Neue', value: 'Bebas Neue' },
-    { label: 'Bricolage Grotesk', value: 'Bricolage Grotesk' },
-    { label: 'Cabinet Grotesk', value: 'Cabinet Grotesk' },
-    { label: 'Cabinet', value: 'Cabinet' },
-    { label: 'Cabin', value: 'Cabin' },
-    { label: 'Cascadia Code', value: 'Cascadia Code' },
-    { label: 'Clash Display', value: 'Clash Display' },
-    { label: 'Clash Grotesk', value: 'Clash Grotesk' },
-    { label: 'Chillax', value: 'Chillax' },
-    { label: 'Cinzel', value: 'Cinzel' },
-    { label: 'Comic Sans MS', value: 'Comic Sans MS' },
-    { label: 'Consolas', value: 'Consolas' },
-    { label: 'Courier New', value: 'Courier New' },
-    { label: 'Cormorant Garamond', value: 'Cormorant Garamond' },
-    { label: 'Crimson Text', value: 'Crimson Text' },
-    { label: 'DM Sans', value: 'DM Sans' },
-    { label: 'Fjalla One', value: 'Fjalla One' },
-    { label: 'Fira Sans', value: 'Fira Sans' },
-    { label: 'General Sans', value: 'General Sans' },
-    { label: 'Georgia', value: 'Georgia' },
-    { label: 'Impact', value: 'Impact' },
-    { label: 'Inter', value: 'Inter' },
-    { label: 'Josefin Sans', value: 'Josefin Sans' },
-    { label: 'Kanit', value: 'Kanit' },
-    { label: 'Lato', value: 'Lato' },
-    { label: 'Lexend', value: 'Lexend' },
-    { label: 'Libre Baskerville', value: 'Libre Baskerville' },
-    { label: 'Lora', value: 'Lora' },
-    { label: 'Lucida Console', value: 'Lucida Console' },
-    { label: 'Merriweather', value: 'Merriweather' },
-    { label: 'Montserrat', value: 'Montserrat' },
-    { label: 'Nunito', value: 'Nunito' },
-    { label: 'Open Sans', value: 'Open Sans' },
-    { label: 'Oswald', value: 'Oswald' },
-    { label: 'Outfit', value: 'Outfit' },
-    { label: 'Playfair Display', value: 'Playfair Display' },
-    { label: 'Playfair', value: 'Playfair' },
-    { label: 'Poppins', value: 'Poppins' },
-    { label: 'Plus Jakarta Sans', value: 'Plus Jakarta Sans' },
-    { label: 'Quicksand', value: 'Quicksand' },
-    { label: 'Raleway', value: 'Raleway' },
-    { label: 'Roboto', value: 'Roboto' },
-    { label: 'Satoshi', value: 'Satoshi' },
-    { label: 'Segoe UI', value: 'Segoe UI' },
-    { label: 'Space Grotesk', value: 'Space Grotesk' },
-    { label: 'Spectral', value: 'Spectral' },
-    { label: 'Syne', value: 'Syne' },
-    { label: 'Telma', value: 'Telma' },
-    { label: 'Trebuchet MS', value: 'Trebuchet MS' },
-    { label: 'Ubuntu', value: 'Ubuntu' },
-    { label: 'Unbounded', value: 'Unbounded' },
-    { label: 'Work Sans', value: 'Work Sans' },
-    { label: 'Bubblegum Sans', value: 'Bubblegum Sans' },
-    { label: 'Bungee Outline', value: 'Bungee Outline' },
-    { label: 'Creepster', value: 'Creepster' },
-    { label: 'Eater', value: 'Eater' },
-    { label: 'Monoton', value: 'Monoton' },
-    { label: 'Nosifer', value: 'Nosifer' },
-    { label: 'Rubik Glitch', value: 'Rubik Glitch' },
-    { label: 'Rubik Beastly', value: 'Rubik Beastly' },
-    { label: 'Press Start 2P', value: 'Press Start 2P' },
-    { label: 'VT323', value: 'VT323' },
-    { label: 'Shojumaru', value: 'Shojumaru' },
-    { label: 'Pirata One', value: 'Pirata One' },
-    { label: 'Uncial Antiqua', value: 'Uncial Antiqua' },
-    { label: 'Fredericka the Great', value: 'Fredericka the Great' },
-    { label: 'Cinzel Decorative', value: 'Cinzel Decorative' },
-    { label: 'Pacifico', value: 'Pacifico' },
-    { label: 'Sacramento', value: 'Sacramento' },
-    { label: 'Special Elite', value: 'Special Elite' },
-    { label: 'Righteous', value: 'Righteous' },
-    { label: 'Comfortaa', value: 'Comfortaa' },
-    { label: 'Megrim', value: 'Megrim' },
-  ]);
+  // Local fonts state removed (moved to SettingsClashgramCustomFonts)
 
   const [customAnimText, setCustomAnimText] = useState(clashgramCustomAnimation || '');
 
-  const handleFontSelect = useLastCallback((fontValue: string) => {
-    setSharedSettingOption({ clashgramCustomFont: fontValue });
-    document.documentElement.style.setProperty(
-      '--clashgram-custom-font',
-      fontValue === 'default' ? 'inherit' : `"${fontValue}", sans-serif`,
-    );
-    if (fontValue && fontValue !== 'default') {
-      const systemFonts = ['arial', 'helvetica', 'georgia', 'impact', 'segoe ui', 'trebuchet ms', 'courier new', 'consolas', 'lucida console', 'comic sans ms', 'avenir next', 'cabinet', 'clash display', 'clash grotesk', 'chillax', 'general sans', 'satoshi', 'telma'];
-      if (!systemFonts.includes(fontValue.toLowerCase())) {
-        const linkId = `gfont-${fontValue.replace(/\s+/g, '-')}`;
-        if (!document.getElementById(linkId)) {
-          const link = document.createElement('link');
-          link.id = linkId;
-          link.rel = 'stylesheet';
-          link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontValue)}:wght@400;500;700&display=swap`;
-          document.head.appendChild(link);
-        }
-      }
-    }
-  });
-
-  const handleImportGoogleFont = () => {
-    if (!googleFontInput.trim()) return;
-    const fontName = googleFontInput.trim();
-    const linkId = `gfont-${fontName.replace(/\s+/g, '-')}`;
-
-    if (document.getElementById(linkId)) {
-      showNotification({ message: lang('ClashgramFontAlreadyImported') });
-      return;
-    }
-
-    const link = document.createElement('link');
-    link.id = linkId;
-    link.rel = 'stylesheet';
-    link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontName)}`
-      + ':wght@400;500;700&display=swap';
-    document.head.appendChild(link);
-
-    const newFont = { label: fontName, value: fontName };
-    setFontsList((prev) => [...prev, newFont]);
-    handleFontSelect(fontName);
-    setGoogleFontInput('');
-    showNotification({ message: lang('ClashgramFontImportSuccess', { fontName }) });
-  };
+  // Font handlers removed (moved to SettingsClashgramCustomFonts)
 
   const handleNativeGlassToggle = useLastCallback((isChecked: boolean) => {
     applyClashgramGlassTheme(isChecked, renderingGlassColorValue, renderingGlassOpacityValue);
@@ -298,9 +163,7 @@ const SettingsClashgramAppearance = ({
     }
   };
 
-  const filteredFontsList = googleFontInput.trim()
-    ? fontsList.filter((f) => f.label.toLowerCase().includes(googleFontInput.toLowerCase()))
-    : fontsList;
+  // filteredFontsList removed
 
   return (
     <div className="settings-content custom-scroll clashgram-settings-dashboard">
@@ -358,56 +221,28 @@ const SettingsClashgramAppearance = ({
               />
             </div>
           </div>
-        </div>
 
-        <div className="settings-item">
-          <h4 className="settings-item-header">{lang('ClashgramCustomFonts')}</h4>
-
-          <div className="font-import-container" style={IMPORT_CONTAINER_STYLE}>
-            <input
-              type="text"
-              placeholder={lang('ClashgramSearchFontsPlaceholder')}
-              value={googleFontInput}
-              onChange={(e) => setGoogleFontInput(e.currentTarget.value)}
-              className="font-search-input"
-              style={SEARCH_INPUT_STYLE}
-            />
-            <Button onClick={handleImportGoogleFont} color="primary" style="width: 100%;">
-              {lang('ClashgramImportFontButton')}
-            </Button>
-          </div>
-
-          <div className="font-active-preview" style={ACTIVE_PREVIEW_STYLE}>
-            {lang('ClashgramActiveFontLabel')}
-            {' '}
-            <strong
-              style={
-                clashgramCustomFont && clashgramCustomFont !== 'default'
-                  ? `font-family: "${clashgramCustomFont}", sans-serif; color: var(--color-text);`
-                  : 'color: var(--color-text);'
-              }
+          <div style="margin-top: 1.5rem;">
+            <ListItem
+              icon="fontsize"
+              narrow
+              onClick={() => openSettingsScreen({ screen: SettingsScreens.ClashgramCustomFonts })}
             >
-              {clashgramCustomFont && clashgramCustomFont !== 'default' ? clashgramCustomFont : lang('SystemDefault')}
-            </strong>
-          </div>
-
-          <div className="font-list-scroll custom-scroll" style={FONT_LIST_SCROLL_STYLE}>
-            {filteredFontsList.map((font) => {
-              const isSelected = (clashgramCustomFont || 'default') === font.value;
-              const fontLabel = font.value === 'default' ? lang('SystemDefault') : font.label;
-              return (
-                <ListItem
-                  key={font.value}
-                  narrow
-                  style={isSelected ? 'background: var(--color-background-selected); font-weight: 500;' : ''}
-                  onClick={() => handleFontSelect(font.value)}
+              <div className="multiline-item" style="min-width: 0; flex: 1; overflow: hidden;">
+                <span
+                  className="title"
+                  style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;"
                 >
-                  <span style={font.value !== 'default' ? `font-family: "${font.value}", sans-serif;` : ''}>
-                    {fontLabel}
-                  </span>
-                </ListItem>
-              );
-            })}
+                  {lang('ClashgramCustomFonts') || 'Custom Fonts'}
+                </span>
+                <span
+                  className="subtitle"
+                  style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;"
+                >
+                  {clashgramCustomFont && clashgramCustomFont !== 'default' ? clashgramCustomFont : lang('SystemDefault')}
+                </span>
+              </div>
+            </ListItem>
           </div>
         </div>
 

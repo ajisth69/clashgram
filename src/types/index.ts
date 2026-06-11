@@ -288,6 +288,7 @@ export enum SettingsScreens {
   ClashgramAppearance,
   ClashgramChats,
   ClashgramThemeDocs,
+  ClashgramCustomFonts,
 }
 
 export type StickerSetOrReactionsSetOrRecent = Pick<ApiStickerSet, (

@@ -2973,6 +2973,8 @@
 "ClashgramFontAlreadyImported" = "Font already imported";
 "ClashgramFontImportSuccess" = "Successfully imported \"{fontName}\" Google Font";
 "ClashgramChatControlRetention" = "Chat Control and Retention";
+"ClashgramHideAllChats" = "Hide \"All Chats\" Folder";
+"ClashgramHideAllChatsSub" = "Remove the default 'All Chats' tab from the sidebar navigation.";
 "ClashgramMarkAllRead" = "Mark all chats as read";
 "ClashgramAntiDelete" = "Anti-Delete Messages";
 "ClashgramAntiDeleteSub" = "Keep chat messages that other users delete.";

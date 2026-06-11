@@ -2709,12 +2709,28 @@ async function translateClientSide(
             : 'Please translate the following text in a casual tone';
           query = `${toneInstruction} ||| ${text}`;
         }
-        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${toLanguageCode}&dt=t&q=${encodeURIComponent(query)}`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`Google translate error: ${res.status}`);
-        const data = await res.json();
-        if (data && data[0]) {
-          const translatedFull = data[0].map((item: any) => item[0] || '').join('');
+        
+        let translatedFull = '';
+        try {
+          const url = `https://translate.googleapis.com/translate_a/single?client=gtx&oe=UTF-8&ie=UTF-8&sl=auto&tl=${toLanguageCode}&dt=t&q=${encodeURIComponent(query)}`;
+          const res = await fetch(url);
+          if (!res.ok) throw new Error(`Google translate primary error: ${res.status}`);
+          const data = await res.json();
+          if (data && data[0]) {
+            translatedFull = data[0].map((item: any) => item[0] || '').join('');
+          }
+        } catch (primaryError) {
+          console.warn('[Translation] Primary Google Translate API failed, trying clients5 fallback...', primaryError);
+          const fallbackUrl = `https://clients5.google.com/translate_a/t?client=dict-chrome-ex&oe=UTF-8&ie=UTF-8&sl=auto&tl=${toLanguageCode}&q=${encodeURIComponent(query)}`;
+          const res = await fetch(fallbackUrl);
+          if (!res.ok) throw new Error(`Google translate fallback error: ${res.status}`);
+          const data = await res.json();
+          if (Array.isArray(data) && data[0]) {
+            translatedFull = typeof data[0] === 'string' ? data[0] : (data[0][0] || '');
+          }
+        }
+
+        if (translatedFull) {
           if (hasTone) {
             const separatorIndex = translatedFull.indexOf('|||');
             if (separatorIndex !== -1) {

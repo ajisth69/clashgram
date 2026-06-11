@@ -117,6 +117,8 @@ const SettingsHeader: FC<OwnProps> = ({
         return <h3>{lang('Chats') || 'Chats'}</h3>;
       case SettingsScreens.ClashgramThemeDocs:
         return <h3>Theme Engine Specs</h3>;
+      case SettingsScreens.ClashgramCustomFonts:
+        return <h3>{lang('ClashgramCustomFonts')}</h3>;
 
       case SettingsScreens.GeneralChatBackground:
         return <h3>{oldLang('ChatBackground')}</h3>;

@@ -28,6 +28,7 @@ type StateProps = {
   clashgramConfirmFile?: boolean;
   clashgramConfirmGifEmoji?: boolean;
   clashgramConfirmMsg?: boolean;
+  clashgramHideAllChats?: boolean;
   unreadChatIds: string[];
 };
 
@@ -43,6 +44,7 @@ const SettingsClashgramChats = ({
   clashgramConfirmFile,
   clashgramConfirmGifEmoji,
   clashgramConfirmMsg,
+  clashgramHideAllChats,
   unreadChatIds,
 }: OwnProps & StateProps) => {
   const { setSharedSettingOption } = getActions();
@@ -135,6 +137,13 @@ const SettingsClashgramChats = ({
             onCheck={() => setSharedSettingOption({ clashgramRetainKickedChats: !clashgramRetainKickedChats })}
           />
 
+          <Checkbox
+            label={lang('ClashgramHideAllChats')}
+            subLabel={lang('ClashgramHideAllChatsSub')}
+            checked={Boolean(clashgramHideAllChats)}
+            onCheck={() => setSharedSettingOption({ clashgramHideAllChats: !clashgramHideAllChats })}
+          />
+
           <div style="margin-top: 1.5rem; margin-bottom: 0.5rem;">
             <h4 className="settings-item-subheader">{lang('ClashgramMessageFiltering')}</h4>
           </div>
@@ -197,6 +206,7 @@ export default memo(withGlobal(
       clashgramConfirmGifEmoji,
       clashgramConfirmMsg,
       clashgramHideBlockedInGroups,
+      clashgramHideAllChats,
     } = selectSharedSettings(global);
 
     const chatsById = global.chats.byId;
@@ -217,6 +227,7 @@ export default memo(withGlobal(
       clashgramConfirmGifEmoji,
       clashgramConfirmMsg,
       clashgramHideBlockedInGroups,
+      clashgramHideAllChats,
       unreadChatIds,
     };
   },

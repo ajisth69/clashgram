@@ -48,6 +48,7 @@ import SettingsClashgramGeneral from './SettingsClashgramGeneral';
 import SettingsClashgramAppearance from './SettingsClashgramAppearance';
 import SettingsClashgramChats from './SettingsClashgramChats';
 import SettingsClashgramThemeDocs from './SettingsClashgramThemeDocs';
+import SettingsClashgramCustomFonts from './SettingsClashgramCustomFonts';
 
 import './Settings.scss';
 
@@ -339,6 +340,10 @@ const Settings: FC<OwnProps> = ({
       case SettingsScreens.ClashgramThemeDocs:
         return (
           <SettingsClashgramThemeDocs isActive={isScreenActive} onReset={handleReset} />
+        );
+      case SettingsScreens.ClashgramCustomFonts:
+        return (
+          <SettingsClashgramCustomFonts isActive={isScreenActive} onReset={handleReset} />
         );
       case SettingsScreens.Credits:
         return (

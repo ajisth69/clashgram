@@ -78,7 +78,7 @@ export default function createConfig(
     target: 'web',
 
     devServer: {
-      port: 1234,
+      port: 1111,
       host: '127.0.0.1',
       allowedHosts: 'auto',
       hot: false,

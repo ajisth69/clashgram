@@ -2185,6 +2185,8 @@ export interface LangPair {
   'ClashgramCustomAnimApplied': undefined;
   'ClashgramFontAlreadyImported': undefined;
   'ClashgramChatControlRetention': undefined;
+  'ClashgramHideAllChats': undefined;
+  'ClashgramHideAllChatsSub': undefined;
   'ClashgramMarkAllRead': undefined;
   'ClashgramAntiDelete': undefined;
   'ClashgramAntiDeleteSub': undefined;
