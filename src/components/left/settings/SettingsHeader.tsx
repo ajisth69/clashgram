@@ -107,6 +107,16 @@ const SettingsHeader: FC<OwnProps> = ({
         return <h3>{lang('ClashgramCredits')}</h3>;
       case SettingsScreens.ClashgramPasscode:
         return <h3>{lang('ClashgramPasscodeLock')}</h3>;
+      case SettingsScreens.ClashgramStealth:
+        return <h3>{lang('ClashgramStealthOptions') || 'Stealth Options'}</h3>;
+      case SettingsScreens.ClashgramGeneral:
+        return <h3>{lang('General') || 'General'}</h3>;
+      case SettingsScreens.ClashgramAppearance:
+        return <h3>{lang('Theme') || 'Theme'}</h3>;
+      case SettingsScreens.ClashgramChats:
+        return <h3>{lang('Chats') || 'Chats'}</h3>;
+      case SettingsScreens.ClashgramThemeDocs:
+        return <h3>Theme Engine Specs</h3>;
 
       case SettingsScreens.GeneralChatBackground:
         return <h3>{oldLang('ChatBackground')}</h3>;

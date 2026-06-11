@@ -43,6 +43,11 @@ import SettingsTwoFa from './twoFa/SettingsTwoFa';
 import SettingsClashgram from './SettingsClashgram';
 import SettingsCredits from './SettingsCredits';
 import SettingsClashgramPasscode from './SettingsClashgramPasscode';
+import SettingsClashgramStealth from './SettingsClashgramStealth';
+import SettingsClashgramGeneral from './SettingsClashgramGeneral';
+import SettingsClashgramAppearance from './SettingsClashgramAppearance';
+import SettingsClashgramChats from './SettingsClashgramChats';
+import SettingsClashgramThemeDocs from './SettingsClashgramThemeDocs';
 
 import './Settings.scss';
 
@@ -314,6 +319,26 @@ const Settings: FC<OwnProps> = ({
       case SettingsScreens.Clashgram:
         return (
           <SettingsClashgram isActive={isScreenActive} onReset={handleReset} />
+        );
+      case SettingsScreens.ClashgramStealth:
+        return (
+          <SettingsClashgramStealth isActive={isScreenActive} onReset={handleReset} />
+        );
+      case SettingsScreens.ClashgramGeneral:
+        return (
+          <SettingsClashgramGeneral isActive={isScreenActive} onReset={handleReset} />
+        );
+      case SettingsScreens.ClashgramAppearance:
+        return (
+          <SettingsClashgramAppearance isActive={isScreenActive} onReset={handleReset} />
+        );
+      case SettingsScreens.ClashgramChats:
+        return (
+          <SettingsClashgramChats isActive={isScreenActive} onReset={handleReset} />
+        );
+      case SettingsScreens.ClashgramThemeDocs:
+        return (
+          <SettingsClashgramThemeDocs isActive={isScreenActive} onReset={handleReset} />
         );
       case SettingsScreens.Credits:
         return (

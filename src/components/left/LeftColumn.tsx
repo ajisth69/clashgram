@@ -201,6 +201,18 @@ function LeftColumn({
           openSettingsScreen({ screen: SettingsScreens.GeneralChatBackground });
           return;
 
+        case SettingsScreens.ClashgramStealth:
+        case SettingsScreens.ClashgramGeneral:
+        case SettingsScreens.ClashgramAppearance:
+        case SettingsScreens.ClashgramChats:
+        case SettingsScreens.ClashgramPasscode:
+          openSettingsScreen({ screen: SettingsScreens.Clashgram });
+          return;
+
+        case SettingsScreens.ClashgramThemeDocs:
+          openSettingsScreen({ screen: SettingsScreens.ClashgramAppearance });
+          return;
+
         case SettingsScreens.PrivacyPhoneNumber:
         case SettingsScreens.PrivacyAddByPhone:
         case SettingsScreens.PrivacyLastSeen:

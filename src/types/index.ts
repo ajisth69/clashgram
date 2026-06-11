@@ -283,6 +283,11 @@ export enum SettingsScreens {
   Clashgram,
   Credits,
   ClashgramPasscode,
+  ClashgramStealth,
+  ClashgramGeneral,
+  ClashgramAppearance,
+  ClashgramChats,
+  ClashgramThemeDocs,
 }
 
 export type StickerSetOrReactionsSetOrRecent = Pick<ApiStickerSet, (

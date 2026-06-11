@@ -1,6 +1,83 @@
 import { memo, useEffect, useRef } from '../../lib/teact/teact';
 import './BackgroundAnimation.scss';
 
+// Mathematical Expression Compiler
+function compileExpression(expr: any): (variables: Record<string, number>) => any {
+  if (typeof expr !== 'string') {
+    return () => (typeof expr === 'number' ? expr : 0);
+  }
+
+  let jsExpr = expr
+    .replace(/\bpi\b/gi, 'Math.PI')
+    .replace(/\bsin\b/gi, 'Math.sin')
+    .replace(/\bcos\b/gi, 'Math.cos')
+    .replace(/\btan\b/gi, 'Math.tan')
+    .replace(/\babs\b/gi, 'Math.abs')
+    .replace(/\bsqrt\b/gi, 'Math.sqrt')
+    .replace(/\bpow\b/gi, 'Math.pow')
+    .replace(/\bmin\b/gi, 'Math.min')
+    .replace(/\bmax\b/gi, 'Math.max')
+    .replace(/\blog\b/gi, 'Math.log')
+    .replace(/\bexp\b/gi, 'Math.exp')
+    .replace(/\brandom\(([^)]*)\)/gi, (_, args) => {
+      const parts = args.split(',').map((x: string) => x.trim());
+      if (parts.length === 2) {
+        return `(${parts[0]} + Math.random() * (${parts[1]} - (${parts[0]})))`;
+      } else if (parts.length === 1 && parts[0] !== '') {
+        return `(Math.random() * (${parts[0]}))`;
+      }
+      return 'Math.random()';
+    });
+
+  const sanitized = jsExpr.replace(/[a-zA-Z_$][a-zA-Z0-9_$]*/g, (match) => {
+    if (
+      [
+        't', 'w', 'h', 'mx', 'my', 'bass', 'mid', 'treble', 'x', 'y', 'life', 'size',
+        'Math', 'PI', 'sin', 'cos', 'tan', 'abs', 'sqrt', 'pow', 'min', 'max', 'log', 'exp'
+      ].includes(match)
+    ) {
+      return match;
+    }
+    return '0';
+  });
+
+  try {
+    return new Function(
+      'vars',
+      `const { t, w, h, mx, my, bass, mid, treble, x, y, life, size } = vars; return (${sanitized});`
+    ) as any;
+  } catch (err) {
+    console.error('Clashgram expression compile error:', expr, err);
+    return () => 0;
+  }
+}
+
+// Color Expression Evaluator
+function evaluateColor(colorExpr: string, vars: Record<string, number>): string {
+  if (typeof colorExpr !== 'string') return colorExpr;
+  if (!colorExpr.includes('${')) return colorExpr;
+
+  return colorExpr.replace(/\$\{([^}]+)\}/g, (_, subExpr) => {
+    const fn = compileExpression(subExpr);
+    return String(fn(vars));
+  });
+}
+
+// WebGL Shader Compiler Helper
+function compileShader(gl: WebGLRenderingContext, source: string, type: number): WebGLShader | null {
+  const shader = gl.createShader(type);
+  if (!shader) return null;
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+    gl.deleteShader(shader);
+    return null;
+  }
+  return shader;
+}
+
+
 type Props = {
   type: 'none' | 'starfall' | 'neon-rain' | 'fluid-gradients' | 'cosmic-dust' | 'bubbles' | 'custom';
   theme: string;
@@ -829,7 +906,7 @@ const BackgroundAnimation = ({ type, theme, customConfig }: Props) => {
     };
   }, [type, theme]);
 
-  // Custom JSON particle renderer
+  // Custom JSON theme engine
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || type !== 'custom' || !customConfig) return undefined;
@@ -837,50 +914,239 @@ const BackgroundAnimation = ({ type, theme, customConfig }: Props) => {
     let parsed: any;
     try {
       parsed = JSON.parse(customConfig);
-    } catch {
+    } catch (e) {
+      console.warn("Clashgram: Invalid custom theme JSON", e);
       return undefined;
     }
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return undefined;
 
-    const particleCount = Math.min(parsed.particleCount || 65, 300);
-    const colors: string[] = parsed.colors || ['#ff7b00', '#ff007b', '#7b00ff', '#00ffff'];
-    const minSpeed = parsed.minSpeed ?? 0.4;
-    const maxSpeed = parsed.maxSpeed ?? 1.2;
-    const minSize = parsed.minSize ?? 1.5;
-    const maxSize = parsed.maxSize ?? 4.5;
-    const glowEffect = parsed.glowEffect !== false;
-    const spawnOnClick = parsed.spawnOnClick !== false;
-    const gravity = parsed.gravity ?? 0;
-    const drift = parsed.drift ?? 0.05;
+    // Support dark/light mode overrides
+    const isDark = theme === 'dark' || document.documentElement.classList.contains('theme-dark');
+    if (parsed.themeOverrides) {
+      const overrides = isDark ? parsed.themeOverrides.dark : parsed.themeOverrides.light;
+      if (overrides) {
+        parsed = { ...parsed, ...overrides };
+      }
+    }
 
+    // Convert legacy schema to layered schema for backwards compatibility
+    let layers: any[] = parsed.layers;
+    if (!layers) {
+      layers = [];
+      if (parsed.background) {
+        layers.push({
+          type: 'background',
+          background: parsed.background
+        });
+      }
+      layers.push({
+        type: 'particles',
+        particleCount: parsed.particleCount ?? 65,
+        colors: parsed.colors ?? ['#ff7b00', '#ff007b', '#7b00ff', '#00ffff'],
+        minSpeed: parsed.minSpeed,
+        maxSpeed: parsed.maxSpeed,
+        minSize: parsed.minSize,
+        maxSize: parsed.maxSize,
+        glowEffect: parsed.glowEffect,
+        spawnOnClick: parsed.spawnOnClick,
+        gravity: parsed.gravity,
+        drift: parsed.drift
+      });
+    }
+
+    // Setup sizing & device pixel ratio
     let animFrameId: number;
     let width = 0;
     let height = 0;
     let dpr = window.devicePixelRatio || 1;
 
-    interface CustomParticle {
-      x: number; y: number; vx: number; vy: number;
-      size: number; color: string; alpha: number; life: number; maxLife: number;
+    // Offscreen WebGL setup if needed
+    let hasShaderLayer = layers.some(l => l.type === 'shader' || l.type === 'webgl');
+    let webglCanvas: HTMLCanvasElement | null = null;
+    let gl: WebGLRenderingContext | null = null;
+    let glProgram: WebGLProgram | null = null;
+    let glBuffers: { position: WebGLBuffer } | null = null;
+
+    if (hasShaderLayer) {
+      webglCanvas = document.createElement('canvas');
+      gl = (webglCanvas.getContext('webgl2')
+        || webglCanvas.getContext('webgl')
+        || webglCanvas.getContext('experimental-webgl')) as any;
+      if (gl) {
+        gl.getExtension('OES_standard_derivatives');
+        const shaderLayer = layers.find(l => l.type === 'shader' || l.type === 'webgl');
+        const vsSource = shaderLayer.vertexShader || `
+          attribute vec2 position;
+          void main() {
+            gl_Position = vec4(position, 0.0, 1.0);
+          }
+        `;
+        let fsSource = shaderLayer.fragmentShader || `
+          precision highp float;
+          uniform vec2 u_resolution;
+          uniform float u_time;
+          void main() {
+            vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+            gl_FragColor = vec4(uv.x, uv.y, 0.5 + 0.5 * sin(u_time), 1.0);
+          }
+        `;
+
+        // Auto-enable standard derivatives for WebGL 1.0 if fwidth/dFdx/dFdy is used
+        const glVersion = gl.getParameter(gl.VERSION) || '';
+        if (glVersion.indexOf('WebGL 2.0') === -1) {
+          if (fsSource.indexOf('fwidth') !== -1 || fsSource.indexOf('dFdx') !== -1 || fsSource.indexOf('dFdy') !== -1) {
+            if (fsSource.indexOf('GL_OES_standard_derivatives') === -1) {
+              fsSource = '#extension GL_OES_standard_derivatives : enable\n' + fsSource;
+            }
+          }
+        }
+
+        const vs = compileShader(gl, vsSource, gl.VERTEX_SHADER);
+        const fs = compileShader(gl, fsSource, gl.FRAGMENT_SHADER);
+        if (vs && fs) {
+          glProgram = gl.createProgram();
+          if (glProgram) {
+            gl.attachShader(glProgram, vs);
+            gl.attachShader(glProgram, fs);
+            gl.linkProgram(glProgram);
+            if (!gl.getProgramParameter(glProgram, gl.LINK_STATUS)) {
+              console.error('Shader link error:', gl.getProgramInfoLog(glProgram));
+              glProgram = null;
+            }
+          }
+        }
+
+        if (glProgram) {
+          gl.useProgram(glProgram);
+          const positionLocation = gl.getAttribLocation(glProgram, 'position');
+          const positionBuffer = gl.createBuffer();
+          if (positionBuffer) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+              -1, -1,  1, -1, -1,  1,
+              -1,  1,  1, -1,  1,  1,
+            ]), gl.STATIC_DRAW);
+            glBuffers = { position: positionBuffer };
+          }
+        }
+      }
     }
 
-    let particles: CustomParticle[] = [];
+    // Math compile utility cache
+    const exprCache = new Map<string, (vars: any) => any>();
+    const getExpr = (expr: any) => {
+      if (expr === undefined || expr === null) return () => 0;
+      if (typeof expr !== 'string') return () => expr;
+      if (exprCache.has(expr)) return exprCache.get(expr)!;
+      const compiled = compileExpression(expr);
+      exprCache.set(expr, compiled);
+      return compiled;
+    };
+
+    // Particles System Setup
+    interface Particle {
+      x: number; y: number;
+      vx: number; vy: number;
+      size: number; color: string;
+      alpha: number; life: number; maxLife: number;
+      mass: number; charge: number;
+    }
+
+    interface SystemInstance {
+      config: any;
+      particles: Particle[];
+      particleCountFn: (vars: any) => number;
+      minSpeedFn: (vars: any) => number;
+      maxSpeedFn: (vars: any) => number;
+      minSizeFn: (vars: any) => number;
+      maxSizeFn: (vars: any) => number;
+      gravityFn: (vars: any) => number;
+      driftFn: (vars: any) => number;
+      windFn: (vars: any) => number;
+    }
+
+    const systems: SystemInstance[] = [];
+
+    // DOM Injection for HTML and CSS layers
+    const injectedStyles: HTMLStyleElement[] = [];
+    const injectedHtmlContainers: HTMLDivElement[] = [];
+
+    layers.forEach((layer, idx) => {
+      if (layer.type === 'css' && layer.css) {
+        const styleEl = document.createElement('style');
+        styleEl.id = `clashgram-custom-css-${idx}`;
+        styleEl.textContent = layer.css;
+        document.head.appendChild(styleEl);
+        injectedStyles.push(styleEl);
+      }
+      if (layer.type === 'html' && layer.html) {
+        const containerEl = document.createElement('div');
+        containerEl.className = `clashgram-custom-html-layer clashgram-custom-html-${idx}`;
+        containerEl.style.position = 'absolute';
+        containerEl.style.inset = '0';
+        containerEl.style.pointerEvents = 'none';
+        containerEl.style.zIndex = '-1';
+        containerEl.innerHTML = layer.html;
+        canvas.parentElement?.appendChild(containerEl);
+        injectedHtmlContainers.push(containerEl);
+      }
+    });
+
+    // Initialize systems
+    layers.forEach((layer) => {
+      if (layer.type === 'particles') {
+        const countFn = getExpr(layer.particleCount ?? 65);
+        const minSpeedFn = getExpr(layer.minSpeed ?? 0.4);
+        const maxSpeedFn = getExpr(layer.maxSpeed ?? 1.2);
+        const minSizeFn = getExpr(layer.minSize ?? 1.5);
+        const maxSizeFn = getExpr(layer.maxSize ?? 4.5);
+        const gravityFn = getExpr(layer.gravity ?? 0);
+        const driftFn = getExpr(layer.drift ?? 0.05);
+        const windFn = getExpr(layer.physics?.wind ?? 0);
+
+        systems.push({
+          config: layer,
+          particles: [],
+          particleCountFn: countFn as any,
+          minSpeedFn: minSpeedFn as any,
+          maxSpeedFn: maxSpeedFn as any,
+          minSizeFn: minSizeFn as any,
+          maxSizeFn: maxSizeFn as any,
+          gravityFn: gravityFn as any,
+          driftFn: driftFn as any,
+          windFn: windFn as any,
+        });
+      }
+    });
 
     const rand = (a: number, b: number) => a + Math.random() * (b - a);
 
-    const spawnParticle = (x?: number, y?: number): CustomParticle => ({
-      x: x ?? Math.random() * width,
-      y: y ?? Math.random() * height,
-      vx: (Math.random() - 0.5) * drift * 60,
-      vy: -(rand(minSpeed, maxSpeed)),
-      size: rand(minSize, maxSize),
-      color: colors[Math.floor(Math.random() * colors.length)],
-      alpha: rand(0.3, 0.9),
-      life: 0,
-      maxLife: rand(120, 360),
-    });
+    const spawnParticle = (sys: SystemInstance, x?: number, y?: number): Particle => {
+      const vars = { t: (Date.now() - startTime) / 1000, w: width, h: height, mx: mouseX, my: mouseY, bass, mid, treble };
+      const minS = sys.minSpeedFn(vars);
+      const maxS = sys.maxSpeedFn(vars);
+      const minSz = sys.minSizeFn(vars);
+      const maxSz = sys.maxSizeFn(vars);
+      const colors = sys.config.colors || ['#ff7b00', '#ff007b', '#7b00ff', '#00ffff'];
 
+      return {
+        x: x ?? Math.random() * width,
+        y: y ?? (sys.gravityFn(vars) >= 0 ? -10 : height + 10),
+        vx: (Math.random() - 0.5) * sys.driftFn(vars) * 60,
+        vy: sys.gravityFn(vars) >= 0 ? rand(minS, maxS) : -rand(minS, maxS),
+        size: rand(minSz, maxSz),
+        color: colors[Math.floor(Math.random() * colors.length)],
+        alpha: rand(0.3, 0.9),
+        life: 0,
+        maxLife: rand(120, 360),
+        mass: sys.config.physics?.mass ?? 1,
+        charge: sys.config.physics?.charge ?? 0,
+      };
+    };
+
+    // Resize
     const resize = () => {
       dpr = window.devicePixelRatio || 1;
       width = canvas.parentElement?.clientWidth || window.innerWidth;
@@ -890,128 +1156,323 @@ const BackgroundAnimation = ({ type, theme, customConfig }: Props) => {
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
 
+      if (webglCanvas && gl) {
+        webglCanvas.width = width * dpr;
+        webglCanvas.height = height * dpr;
+        gl.viewport(0, 0, width * dpr, height * dpr);
+      }
+    };
     resize();
     window.addEventListener('resize', resize);
 
-    // Initialize particles
-    for (let i = 0; i < particleCount; i++) {
-      const p = spawnParticle();
-      p.life = Math.random() * p.maxLife;
-      particles.push(p);
-    }
+    // Mouse tracking
+    let mouseX = width / 2;
+    let mouseY = height / 2;
+    let isMouseActive = false;
 
-    // Click spawner
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+      isMouseActive = true;
+    };
+
+    const handleMouseLeave = () => {
+      isMouseActive = false;
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('mouseleave', handleMouseLeave);
+
+
+    let bass = 0;
+    let mid = 0;
+    let treble = 0;
+
+
+    // Click behavior
     const handleClick = (e: MouseEvent) => {
-      if (!spawnOnClick) return;
       const rect = canvas.getBoundingClientRect();
       const cx = e.clientX - rect.left;
       const cy = e.clientY - rect.top;
-      for (let i = 0; i < 8; i++) {
-        particles.push(spawnParticle(
-          cx + (Math.random() - 0.5) * 40,
-          cy + (Math.random() - 0.5) * 40,
-        ));
-      }
+
+      systems.forEach((sys) => {
+        if (sys.config.spawnOnClick || sys.config.interaction?.onClick?.action === 'spawn') {
+          const count = sys.config.interaction?.onClick?.count ?? 8;
+          for (let i = 0; i < count; i++) {
+            sys.particles.push(spawnParticle(
+              sys,
+              cx + (Math.random() - 0.5) * 40,
+              cy + (Math.random() - 0.5) * 40
+            ));
+          }
+        }
+      });
     };
     window.addEventListener('click', handleClick);
 
-    // Background config
-    const bgConfig = parsed.background || undefined;
-    const bgType = bgConfig?.type || 'none';
-    const bgColors: string[] = bgConfig?.colors || ['#0a0a1a'];
-    const bgAnimSpeedStr: string = bgConfig?.animationSpeed || '15s';
-    const bgAnimSpeed = parseFloat(bgAnimSpeedStr) || 15;
+    const startTime = Date.now();
 
+    // Render loop
     const render = () => {
       if (document.hidden) {
         animFrameId = requestAnimationFrame(render);
         return;
       }
 
+      const t = (Date.now() - startTime) / 1000;
+
+      // Update Audio Reactivity (Simulated Fallback)
+      if (parsed.audioReactive?.enabled) {
+        bass = 0.5 + 0.3 * Math.sin(t * 3.0);
+        mid = 0.4 + 0.2 * Math.cos(t * 5.0);
+        treble = 0.3 + 0.3 * Math.sin(t * 8.0);
+      }
+
+      const vars = { t, w: width, h: height, mx: mouseX, my: mouseY, bass, mid, treble };
+
       ctx.clearRect(0, 0, width, height);
 
-      // Draw background
-      if (bgType === 'animated-gradient' && bgColors.length >= 2) {
-        const t = (Date.now() / (bgAnimSpeed * 1000)) % 1;
-        const angle = t * Math.PI * 2;
-        const cx = width / 2;
-        const cy = height / 2;
-        const diagLen = Math.sqrt(width * width + height * height);
-        const x0 = cx + Math.cos(angle) * diagLen * 0.5;
-        const y0 = cy + Math.sin(angle) * diagLen * 0.5;
-        const x1 = cx - Math.cos(angle) * diagLen * 0.5;
-        const y1 = cy - Math.sin(angle) * diagLen * 0.5;
-        const grad = ctx.createLinearGradient(x0, y0, x1, y1);
-        bgColors.forEach((c: string, idx: number) => {
-          grad.addColorStop(idx / Math.max(1, bgColors.length - 1), c);
-        });
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-      } else if (bgType === 'radial-gradient' && bgColors.length >= 2) {
-        const t = (Date.now() / (bgAnimSpeed * 1000)) % 1;
-        const pulse = 0.35 + Math.sin(t * Math.PI * 2) * 0.15;
-        const grad = ctx.createRadialGradient(
-          width / 2, height / 2, 0,
-          width / 2, height / 2, Math.max(width, height) * pulse,
-        );
-        bgColors.forEach((c: string, idx: number) => {
-          grad.addColorStop(idx / Math.max(1, bgColors.length - 1), c);
-        });
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-      } else if (bgType === 'static-gradient' && bgColors.length >= 2) {
-        const grad = ctx.createLinearGradient(0, 0, 0, height);
-        bgColors.forEach((c: string, idx: number) => {
-          grad.addColorStop(idx / Math.max(1, bgColors.length - 1), c);
-        });
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-      } else if (bgType === 'solid' && bgColors.length >= 1) {
-        ctx.fillStyle = bgColors[0];
-        ctx.fillRect(0, 0, width, height);
-      }
+      // Render layers
+      layers.forEach((layer) => {
+        // 1. Background static / animated / solid
+        if (layer.type === 'background') {
+          const bgConfig = layer.background || {};
+          const bgType = bgConfig.type || 'none';
+          const bgColors = bgConfig.colors || ['#0a0a1a'];
+          const bgAnimSpeed = parseFloat(bgConfig.animationSpeed) || 15;
 
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.life++;
-        p.vy += gravity;
-        p.vx += (Math.random() - 0.5) * drift;
-        p.x += p.vx;
-        p.y += p.vy;
-
-        const lifeRatio = p.life / p.maxLife;
-        let opacity = p.alpha;
-        if (lifeRatio < 0.1) opacity *= lifeRatio / 0.1;
-        else if (lifeRatio > 0.8) opacity *= (1 - lifeRatio) / 0.2;
-
-        if (p.life >= p.maxLife || p.y < -20 || p.y > height + 20 || p.x < -20 || p.x > width + 20) {
-          if (particles.length <= particleCount) {
-            particles[i] = spawnParticle();
-          } else {
-            particles.splice(i, 1);
+          if (bgType === 'animated-gradient' && bgColors.length >= 2) {
+            const angle = (t / bgAnimSpeed) * Math.PI * 2;
+            const diagLen = Math.sqrt(width * width + height * height);
+            const x0 = width / 2 + Math.cos(angle) * diagLen * 0.5;
+            const y0 = height / 2 + Math.sin(angle) * diagLen * 0.5;
+            const x1 = width / 2 - Math.cos(angle) * diagLen * 0.5;
+            const y1 = height / 2 - Math.sin(angle) * diagLen * 0.5;
+            const grad = ctx.createLinearGradient(x0, y0, x1, y1);
+            bgColors.forEach((c: string, idx: number) => {
+              grad.addColorStop(idx / Math.max(1, bgColors.length - 1), c);
+            });
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, width, height);
+          } else if (bgType === 'radial-gradient' && bgColors.length >= 2) {
+            const pulse = 0.35 + Math.sin((t / bgAnimSpeed) * Math.PI * 2) * 0.15;
+            const grad = ctx.createRadialGradient(
+              width / 2, height / 2, 0,
+              width / 2, height / 2, Math.max(width, height) * pulse
+            );
+            bgColors.forEach((c: string, idx: number) => {
+              grad.addColorStop(idx / Math.max(1, bgColors.length - 1), c);
+            });
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, width, height);
+          } else if (bgType === 'static-gradient' && bgColors.length >= 2) {
+            const grad = ctx.createLinearGradient(0, 0, 0, height);
+            bgColors.forEach((c: string, idx: number) => {
+              grad.addColorStop(idx / Math.max(1, bgColors.length - 1), c);
+            });
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, width, height);
+          } else if (bgType === 'solid' && bgColors.length >= 1) {
+            ctx.fillStyle = bgColors[0];
+            ctx.fillRect(0, 0, width, height);
           }
-          continue;
         }
 
-        if (glowEffect) {
-          const hexOpacity = Math.round(opacity * 80).toString(16).padStart(2, '0');
-          const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 4);
-          glow.addColorStop(0, p.color + hexOpacity);
-          glow.addColorStop(1, p.color + '00');
-          ctx.fillStyle = glow;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2);
-          ctx.fill();
+        // 2. WebGL Shader background
+        else if ((layer.type === 'shader' || layer.type === 'webgl') && gl && glProgram && webglCanvas) {
+          gl.useProgram(glProgram);
+
+          const uTimeLoc = gl.getUniformLocation(glProgram, 'u_time');
+          const uResolutionLoc = gl.getUniformLocation(glProgram, 'u_resolution');
+          const uMouseLoc = gl.getUniformLocation(glProgram, 'u_mouse');
+          const uAudioLoc = gl.getUniformLocation(glProgram, 'u_audio');
+
+          if (uTimeLoc !== null) gl.uniform1f(uTimeLoc, t);
+          if (uResolutionLoc !== null) gl.uniform2f(uResolutionLoc, width * dpr, height * dpr);
+          if (uMouseLoc !== null) gl.uniform2f(uMouseLoc, mouseX * dpr, (height - mouseY) * dpr);
+          if (uAudioLoc !== null) gl.uniform3f(uAudioLoc, bass, mid, treble);
+
+          if (layer.uniforms) {
+            Object.entries(layer.uniforms).forEach(([name, val]) => {
+              const loc = gl!.getUniformLocation(glProgram!, name);
+              if (loc !== null) {
+                let evaluated = typeof val === 'string' ? getExpr(val)!(vars) : val;
+                if (typeof evaluated === 'number') {
+                  gl!.uniform1f(loc, evaluated);
+                } else if (Array.isArray(evaluated)) {
+                  if (evaluated.length === 2) gl!.uniform2f(loc, evaluated[0], evaluated[1]);
+                  else if (evaluated.length === 3) gl!.uniform3f(loc, evaluated[0], evaluated[1], evaluated[2]);
+                  else if (evaluated.length === 4) gl!.uniform4f(loc, evaluated[0], evaluated[1], evaluated[2], evaluated[3]);
+                }
+              }
+            });
+          }
+
+          if (glBuffers) {
+            const positionLocation = gl.getAttribLocation(glProgram, 'position');
+            gl.enableVertexAttribArray(positionLocation);
+            gl.bindBuffer(gl.ARRAY_BUFFER, glBuffers.position);
+            gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+          }
+
+          ctx.drawImage(webglCanvas, 0, 0, width, height);
         }
 
-        ctx.globalAlpha = Math.max(0, opacity);
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
+        // 3. Particles system layer
+        else if (layer.type === 'particles') {
+          const sys = systems.find(s => s.config === layer);
+          if (!sys) return;
+
+          const blendMode = layer.blendMode || 'normal';
+          ctx.save();
+          ctx.globalCompositeOperation = blendMode as any;
+
+          const activeCount = Math.min(sys.particleCountFn(vars), 400);
+
+          while (sys.particles.length < activeCount) {
+            sys.particles.push(spawnParticle(sys));
+          }
+
+          const gravity = sys.gravityFn(vars);
+          const drift = sys.driftFn(vars);
+          const wind = sys.windFn(vars);
+          const glowEffect = layer.glowEffect !== false;
+
+          const attractors = layer.physics?.attractors || [];
+          const flowField = layer.physics?.flowField;
+
+          for (let i = sys.particles.length - 1; i >= 0; i--) {
+            const p = sys.particles[i];
+            p.life++;
+
+            let ax = wind;
+            let ay = gravity;
+
+            attractors.forEach((att: any) => {
+              const attX = typeof att.x === 'string' ? getExpr(att.x)!(vars) : att.x;
+              const attY = typeof att.y === 'string' ? getExpr(att.y)!(vars) : att.y;
+              const strength = typeof att.strength === 'string' ? getExpr(att.strength)!(vars) : (att.strength ?? 50);
+              const radius = att.radius ?? 200;
+
+              const dx = attX - p.x;
+              const dy = attY - p.y;
+              const distSq = dx * dx + dy * dy;
+              const dist = Math.sqrt(distSq);
+
+              if (dist < radius && dist > 1) {
+                const force = (1 - dist / radius) * strength * 0.05;
+                if (att.type === 'magnetic') {
+                  const magForce = force / distSq;
+                  ax += (dx / dist) * magForce * 100;
+                  ay += (dy / dist) * magForce * 100;
+                } else {
+                  ax += (dx / dist) * force;
+                  ay += (dy / dist) * force;
+                }
+              }
+            });
+
+            if (flowField) {
+              const scale = flowField.scale ?? 0.01;
+              const force = flowField.force ?? 0.2;
+              ax += Math.sin(p.y * scale + t) * force;
+              ay += Math.cos(p.x * scale + t) * force;
+            }
+
+            const mouseForce = layer.interaction?.mouseForce;
+            if (mouseForce && isMouseActive) {
+              const strength = mouseForce.strength ?? 100;
+              const radius = mouseForce.radius ?? 150;
+              const dx = mouseX - p.x;
+              const dy = mouseY - p.y;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+
+              if (dist < radius && dist > 1) {
+                const pct = 1 - dist / radius;
+                const force = pct * strength * 0.02;
+                if (mouseForce.type === 'repel') {
+                  ax -= (dx / dist) * force;
+                  ay -= (dy / dist) * force;
+                } else {
+                  ax += (dx / dist) * force;
+                  ay += (dy / dist) * force;
+                }
+              }
+            }
+
+            p.vx += ax;
+            p.vy += ay;
+            p.vx += (Math.random() - 0.5) * drift;
+
+            p.vx *= 0.98;
+            p.vy *= 0.98;
+
+            p.x += p.vx;
+            p.y += p.vy;
+
+            const lifeRatio = p.life / p.maxLife;
+            let opacity = p.alpha;
+            if (lifeRatio < 0.1) opacity *= lifeRatio / 0.1;
+            else if (lifeRatio > 0.8) opacity *= (1 - lifeRatio) / 0.2;
+
+            if (p.life >= p.maxLife || p.y < -30 || p.y > height + 30 || p.x < -30 || p.x > width + 30) {
+              if (sys.particles.length <= activeCount) {
+                sys.particles[i] = spawnParticle(sys);
+              } else {
+                sys.particles.splice(i, 1);
+              }
+              continue;
+            }
+
+            const particleVars = { ...vars, x: p.x, y: p.y, life: p.life };
+
+            let size = p.size;
+            if (layer.particle?.size) {
+              size = getExpr(layer.particle.size)(particleVars);
+            }
+            let color = p.color;
+            if (layer.particle?.color) {
+              color = evaluateColor(layer.particle.color, particleVars);
+            }
+
+            if (glowEffect) {
+              const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, size * 4);
+              glow.addColorStop(0, color);
+              glow.addColorStop(1, 'rgba(0,0,0,0)');
+              ctx.save();
+              ctx.globalAlpha = Math.max(0, opacity * 0.28);
+              ctx.fillStyle = glow;
+              ctx.beginPath();
+              ctx.arc(p.x, p.y, size * 4, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.restore();
+            }
+
+            ctx.globalAlpha = Math.max(0, opacity);
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          ctx.restore();
+        }
+
+        // 4. Custom Renderer JavaScript execution
+        else if (layer.type === 'custom' && layer.code) {
+          try {
+            if (!(layer as any)._compiledFn) {
+              (layer as any)._compiledFn = new Function('ctx', 'w', 'h', 't', 'vars', `(${layer.code})(ctx, w, h, t, vars);`);
+            }
+            (layer as any)._compiledFn(ctx, width, height, t, vars);
+          } catch (err) {
+            // Ignore custom loop error to prevent frame lock
+          }
+        }
+      });
 
       ctx.globalAlpha = 1;
       animFrameId = requestAnimationFrame(render);
@@ -1020,7 +1481,15 @@ const BackgroundAnimation = ({ type, theme, customConfig }: Props) => {
     render();
 
     return () => {
+      injectedStyles.forEach(s => {
+        if (s.parentElement) s.parentElement.removeChild(s);
+      });
+      injectedHtmlContainers.forEach(c => {
+        if (c.parentElement) c.parentElement.removeChild(c);
+      });
       window.removeEventListener('resize', resize);
+      window.removeEventListener('mousemove', handleMouseMove);
+      canvas.removeEventListener('mouseleave', handleMouseLeave);
       window.removeEventListener('click', handleClick);
       cancelAnimationFrame(animFrameId);
     };
