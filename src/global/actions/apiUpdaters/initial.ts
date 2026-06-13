@@ -287,7 +287,11 @@ function onUpdateConnectionState<T extends GlobalState>(
   }
 
   if (connectionState === 'connectionStateBroken') {
-    scheduleStorageSafeReconnect(actions);
+    if (update.isTerminal) {
+      actions.signOut({ forceInitApi: true });
+    } else {
+      scheduleStorageSafeReconnect(actions);
+    }
   }
 }
 

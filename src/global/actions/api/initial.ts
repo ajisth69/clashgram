@@ -18,7 +18,7 @@ import {
 } from '../../../util/browser/windowEnvironment';
 import * as cacheApi from '../../../util/cacheApi';
 import { getCurrentTabId } from '../../../util/establishMultitabRole';
-import { ACCOUNT_SLOT, getAccountsInfo } from '../../../util/multiaccount';
+import { ACCOUNT_SLOT, getAccountsInfo, getAccountSlotUrl, reorganizeAccountSlots } from '../../../util/multiaccount';
 import { unsubscribe } from '../../../util/notifications';
 import { clearEncryptedSession, encryptSession, forgetPasscode } from '../../../util/passcode';
 import { parseInitialLocationHash, resetInitialLocationHash, resetLocationHash } from '../../../util/routing';
@@ -215,6 +215,13 @@ addActionHandler('signOut', async (global, actions, payload): Promise<void> => {
   }
 
   actions.reset();
+
+  const nextSlot = await reorganizeAccountSlots();
+  if (nextSlot !== undefined) {
+    const newUrl = getAccountSlotUrl(nextSlot);
+    window.location.replace(newUrl);
+    return;
+  }
 
   if (payload?.forceInitApi) {
     actions.initApi();

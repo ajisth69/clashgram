@@ -110,6 +110,7 @@ export type ApiUpdateUserAlreadyAuthorized = {
 export type ApiUpdateConnectionState = {
   '@type': 'updateConnectionState';
   connectionState: ApiUpdateConnectionStateType;
+  isTerminal?: boolean;
 };
 
 export type ApiUpdateCurrentUser = {

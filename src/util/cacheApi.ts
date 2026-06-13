@@ -1,4 +1,4 @@
-import { LANG_CACHE_NAME, MEDIA_CACHE_NAME, MEDIA_CACHE_NAME_AVATARS, MEDIA_PROGRESSIVE_CACHE_NAME } from '../config';
+import { LANG_CACHE_NAME, MEDIA_CACHE_NAME, MEDIA_CACHE_NAME_AVATARS, MEDIA_PROGRESSIVE_CACHE_NAME, CUSTOM_BG_CACHE_NAME } from '../config';
 import { yieldToMain } from './browser/scheduler';
 import { ACCOUNT_SLOT } from './multiaccount';
 
@@ -198,5 +198,18 @@ async function updateAccessTime(cache: Cache, request: Request, response: Respon
   } catch (err) {
     // eslint-disable-next-line no-console
     console.warn(err);
+  }
+}
+
+export async function clearCacheForSlot(slot: number | undefined) {
+  if (!cacheApi) return;
+  const suffix = slot && slot !== 1 ? `_${slot}` : '';
+  const names = [MEDIA_CACHE_NAME, MEDIA_CACHE_NAME_AVATARS, MEDIA_PROGRESSIVE_CACHE_NAME, CUSTOM_BG_CACHE_NAME];
+  for (const name of names) {
+    try {
+      await cacheApi.delete(`${name}${suffix}`);
+    } catch (e) {
+      // ignore
+    }
   }
 }

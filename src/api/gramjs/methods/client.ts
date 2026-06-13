@@ -134,9 +134,17 @@ export async function init(initialArgs: ApiInitialArgs, onConnected?: NoneToVoid
       console.error(err);
 
       if (err.message !== 'Disconnect' && err.message !== 'Cannot send requests while disconnected') {
+        const isTerminal = err.errorMessage === 'AUTH_KEY_UNREGISTERED'
+          || err.errorMessage === 'SESSION_REVOKED'
+          || err.errorMessage === 'USER_DEACTIVATED'
+          || err.message === 'AUTH_KEY_UNREGISTERED'
+          || err.message === 'SESSION_REVOKED'
+          || err.message === 'USER_DEACTIVATED';
+
         sendApiUpdate({
           '@type': 'updateConnectionState',
           connectionState: 'connectionStateBroken',
+          isTerminal,
         });
 
         return;
@@ -568,10 +576,14 @@ async function handleTerminatedSession() {
       err.errorMessage === 'AUTH_KEY_UNREGISTERED'
       || err.errorMessage === 'SESSION_REVOKED'
       || err.errorMessage === 'USER_DEACTIVATED'
+      || err.message === 'AUTH_KEY_UNREGISTERED'
+      || err.message === 'SESSION_REVOKED'
+      || err.message === 'USER_DEACTIVATED'
     ) {
       sendApiUpdate({
         '@type': 'updateConnectionState',
         connectionState: 'connectionStateBroken',
+        isTerminal: true,
       });
     }
   }
