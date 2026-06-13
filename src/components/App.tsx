@@ -93,14 +93,18 @@ const App = ({
 
   useEffect(() => {
     const initSlots = async () => {
+      const hash = getInitialLocationHash();
+      const isLogin = hash.includes('login');
+      if (isLogin) {
+        return;
+      }
+
       const nextSlot = await reorganizeAccountSlots();
       if (nextSlot !== undefined) {
         const newUrl = getAccountSlotUrl(nextSlot);
         window.location.replace(newUrl);
         return;
       }
-
-      const hash = getInitialLocationHash();
       // If there is no stored session on first slot, navigate to any other slot with stored session
       if (!hasStoredSession() && !ACCOUNT_SLOT && !hash) {
         const accounts = getAccountsInfo();
