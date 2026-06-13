@@ -269,6 +269,12 @@ const App = ({
       const global = getGlobal();
       const actions = getActions();
 
+      // Don't attempt reconnects during active login flow — there's no session to reconnect to,
+      // and calling initApi would restart the auth handshake from scratch.
+      if (global.auth.state && global.auth.state !== 'authorizationStateReady' && !hasStoredSession()) {
+        return;
+      }
+
       // If we are already connecting or broken, trigger a reconnect
       if (global.connectionState !== 'connectionStateReady') {
         actions.apiUpdate({ '@type': 'requestReconnectApi' });

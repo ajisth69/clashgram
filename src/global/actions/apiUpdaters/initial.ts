@@ -84,6 +84,11 @@ addActionHandler('apiUpdate', (global, actions, update): ActionReturnType => {
       break;
 
     case 'requestReconnectApi':
+      // Don't reconnect during active login — no session to recover
+      if (global.auth.state && global.auth.state !== 'authorizationStateReady' && !hasStoredSession()) {
+        break;
+      }
+
       global = { ...global, isSynced: false };
       setGlobal(global);
 
@@ -291,7 +296,9 @@ function onUpdateConnectionState<T extends GlobalState>(
       if (global.auth.state === 'authorizationStateReady') {
         actions.signOut({ forceInitApi: true });
       }
-    } else {
+    } else if (global.auth.state === 'authorizationStateReady' || hasStoredSession()) {
+      // Only schedule reconnect for authenticated sessions — during login there's
+      // no session to recover and reconnecting would restart the auth handshake.
       scheduleStorageSafeReconnect(actions);
     }
   }
@@ -321,6 +328,8 @@ async function reconnectWithoutClearingSession(actions: RequiredGlobalActions) {
     if (global.auth.state === 'authorizationStateReady') {
       actions.signOut({ forceInitApi: true });
     }
+    // If mid-login (auth state is not ready and no session), don't restart initApi —
+    // it would destroy the current auth handshake.
     return;
   }
 
