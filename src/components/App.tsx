@@ -101,8 +101,9 @@ const App = ({
 
       const nextSlot = await reorganizeAccountSlots();
       if (nextSlot !== undefined) {
-        const newUrl = getAccountSlotUrl(nextSlot);
-        window.location.replace(newUrl);
+        const nextUrl = new URL(getAccountSlotUrl(nextSlot));
+        if (hash) nextUrl.hash = hash;
+        window.location.replace(nextUrl.toString());
         return;
       }
       // If there is no stored session on first slot, navigate to any other slot with stored session
@@ -146,8 +147,9 @@ const App = ({
         const targetSlot = Number(slot);
         const currentSlot = ACCOUNT_SLOT || 1;
         if (targetSlot !== currentSlot) {
-          const newUrl = getAccountSlotUrl(targetSlot);
-          window.location.replace(newUrl);
+          const nextUrl = new URL(getAccountSlotUrl(targetSlot));
+          if (window.location.hash) nextUrl.hash = window.location.hash;
+          window.location.replace(nextUrl.toString());
         }
       }
     }
