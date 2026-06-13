@@ -5,7 +5,7 @@ import type { GlobalState } from '../global/types';
 import type { ThemeKey } from '../types';
 import type { UiLoaderPage } from './common/UiLoader';
 
-import { DARK_THEME_BG_COLOR, INACTIVE_MARKER, LIGHT_THEME_BG_COLOR, PAGE_TITLE, PAGE_TITLE_TAURI } from '../config';
+import { DARK_THEME_BG_COLOR, INACTIVE_MARKER, LIGHT_THEME_BG_COLOR, PAGE_TITLE, PAGE_TITLE_TAURI, SESSION_ACCOUNT_PREFIX } from '../config';
 import { forceMutation } from '../lib/fasterdom/stricterdom.ts';
 import { selectActionMessageBg, selectTabState, selectTheme } from '../global/selectors';
 import { selectSharedSettings } from '../global/selectors/sharedState';
@@ -41,6 +41,7 @@ import Transition from './ui/Transition';
 import styles from './App.module.scss';
 
 type StateProps = {
+  currentUserId?: string;
   authState: GlobalState['auth']['state'];
   isScreenLocked?: boolean;
   hasPasscode?: boolean;
@@ -67,6 +68,7 @@ const ACTIVE_PAGE_TITLE = IS_TAURI ? PAGE_TITLE_TAURI : PAGE_TITLE;
 const INACTIVE_PAGE_TITLE = `${ACTIVE_PAGE_TITLE} ${INACTIVE_MARKER}`;
 
 const App = ({
+  currentUserId,
   authState,
   isScreenLocked,
   hasPasscode,
@@ -116,6 +118,31 @@ const App = ({
     };
     checkMultiaccPasscode();
   }, []);
+
+  useEffect(() => {
+    if (!currentUserId) return undefined;
+
+    function handleStorageChange(e: StorageEvent) {
+      if (e.key && !e.key.startsWith(SESSION_ACCOUNT_PREFIX)) return;
+
+      const accounts = getAccountsInfo();
+      const slot = Object.entries(accounts).find(([_, info]) => info.userId === currentUserId)?.[0];
+      if (slot) {
+        const targetSlot = Number(slot);
+        const currentSlot = ACCOUNT_SLOT || 1;
+        if (targetSlot !== currentSlot) {
+          const newUrl = getAccountSlotUrl(targetSlot);
+          window.location.replace(newUrl);
+        }
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [currentUserId]);
 
   // Prevent drop on elements that do not accept it
   useEffect(() => {
@@ -366,6 +393,7 @@ export default withGlobal(
       clashgramCustomFont,
     } = selectSharedSettings(global);
     return {
+      currentUserId: global.currentUserId,
       authState,
       isScreenLocked: global.passcode?.isScreenLocked,
       hasPasscode: global.passcode?.hasPasscode,
