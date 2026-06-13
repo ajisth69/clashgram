@@ -288,7 +288,9 @@ function onUpdateConnectionState<T extends GlobalState>(
 
   if (connectionState === 'connectionStateBroken') {
     if (update.isTerminal) {
-      actions.signOut({ forceInitApi: true });
+      if (global.auth.state === 'authorizationStateReady') {
+        actions.signOut({ forceInitApi: true });
+      }
     } else {
       scheduleStorageSafeReconnect(actions);
     }
@@ -315,7 +317,10 @@ function scheduleStorageSafeReconnect(actions: RequiredGlobalActions) {
 async function reconnectWithoutClearingSession(actions: RequiredGlobalActions) {
   const didRecover = await syncAndVerifySessionKeys().catch(() => false);
   if (!didRecover && !hasStoredSession()) {
-    actions.signOut({ forceInitApi: true });
+    const global = getGlobal();
+    if (global.auth.state === 'authorizationStateReady') {
+      actions.signOut({ forceInitApi: true });
+    }
     return;
   }
 
