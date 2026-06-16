@@ -146,10 +146,9 @@ export default class PromisedWebSockets {
       this.resolveRead = resolve;
     });
     this.closed = false;
+    this.timeout = PromisedWebSockets.proxyEnabled ? 30000 : CONNECTION_TIMEOUT;
     this.website = this.getWebSocketLink(ip, port, isTestServer, isPremium);
-    this.client = PromisedWebSockets.proxyEnabled
-      ? new WebSocket(this.website)
-      : new WebSocket(this.website, 'binary');
+    this.client = new WebSocket(this.website, 'binary');
     this.client.binaryType = 'arraybuffer';
 
     return new Promise((resolve, reject) => {

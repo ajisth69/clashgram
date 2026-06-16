@@ -1100,8 +1100,9 @@ export default {
         const upstreamFetch = fetch(targetUrl, {
           headers: upstreamHeaders,
         });
+        let timeoutId;
         const timeoutRace = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('upstream_timeout')), UPSTREAM_TIMEOUT_MS);
+          timeoutId = setTimeout(() => reject(new Error('upstream_timeout')), UPSTREAM_TIMEOUT_MS);
         });
 
         let upstreamResponse;
@@ -1112,6 +1113,8 @@ export default {
           connectionErrors++;
           try { serverSocket.close(1001, 'Upstream timeout'); } catch (_) {}
           return new Response("Gateway Timeout: upstream did not respond in time", { status: 504 });
+        } finally {
+          clearTimeout(timeoutId);
         }
 
         const upstreamSocket = upstreamResponse.webSocket;
@@ -1138,12 +1141,12 @@ export default {
         // Client → Upstream
         serverSocket.addEventListener('message', (event) => {
           try {
-            const data = event.data;
-            bytesSent += typeof data === 'string' ? data.length : data.byteLength;
             if (upstreamSocket.readyState === 1) {
-              upstreamSocket.send(data);
+              upstreamSocket.send(event.data);
+              const len = event.data.byteLength || event.data.length || 0;
+              bytesSent += len;
             }
-          } catch (err) {
+          } catch (_) {
             safeCleanup(1011, 'Forward error');
           }
         });
@@ -1151,12 +1154,12 @@ export default {
         // Upstream → Client
         upstreamSocket.addEventListener('message', (event) => {
           try {
-            const data = event.data;
-            bytesReceived += typeof data === 'string' ? data.length : data.byteLength;
             if (serverSocket.readyState === 1) {
-              serverSocket.send(data);
+              serverSocket.send(event.data);
+              const len = event.data.byteLength || event.data.length || 0;
+              bytesReceived += len;
             }
-          } catch (err) {
+          } catch (_) {
             safeCleanup(1011, 'Relay error');
           }
         });
