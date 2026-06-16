@@ -1,87 +1,88 @@
-// Clashgram WebSocket Proxy Worker
-// Secure, stateless MTProto routing for Clashgram client
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-const TELEGRAM_CIDRS = [
+// .wrangler/tmp/bundle-h6JBD9/strip-cf-connecting-ip-header.js
+function stripCfConnectingIPHeader(input, init) {
+  const request = new Request(input, init);
+  request.headers.delete("CF-Connecting-IP");
+  return request;
+}
+__name(stripCfConnectingIPHeader, "stripCfConnectingIPHeader");
+globalThis.fetch = new Proxy(globalThis.fetch, {
+  apply(target, thisArg, argArray) {
+    return Reflect.apply(target, thisArg, [
+      stripCfConnectingIPHeader.apply(null, argArray)
+    ]);
+  }
+});
+
+// src/index.js
+var TELEGRAM_CIDRS = [
   { ip: [149, 154, 160, 0], mask: 20 },
   { ip: [91, 108, 0, 0], mask: 16 }
 ];
-
-// In-memory stats (reset when the worker container is recycled)
-let totalConnections = 0;
-let activeConnections = 0;
-let peakConnections = 0;
-let bandwidthReceived = 0;
-let bandwidthSent = 0;
-let connectionErrors = 0;
-const workerStartTime = Date.now();
-
+var totalConnections = 0;
+var activeConnections = 0;
+var peakConnections = 0;
+var bandwidthReceived = 0;
+var bandwidthSent = 0;
+var connectionErrors = 0;
+var workerStartTime = Date.now();
 function ipInSandbox(ipParts, rangeParts, mask) {
   const ipNum = (ipParts[0] << 24) + (ipParts[1] << 16) + (ipParts[2] << 8) + ipParts[3];
   const rangeNum = (rangeParts[0] << 24) + (rangeParts[1] << 16) + (rangeParts[2] << 8) + rangeParts[3];
-  const maskNum = mask === 0 ? 0 : (~0 << (32 - mask));
+  const maskNum = mask === 0 ? 0 : ~0 << 32 - mask;
   return (ipNum & maskNum) === (rangeNum & maskNum);
 }
-
+__name(ipInSandbox, "ipInSandbox");
 function isTelegramAllowed(target) {
-  if (!target) return false;
-  
+  if (!target)
+    return false;
   const cleanTarget = target.trim().toLowerCase();
-  
-  // Allow Telegram subdomains
-  if (cleanTarget.endsWith('.telegram.org') || cleanTarget === 'telegram.org') {
+  if (cleanTarget.endsWith(".telegram.org") || cleanTarget === "telegram.org") {
     return true;
   }
-  
-  if (cleanTarget.endsWith('.web.telegram.org')) {
+  if (cleanTarget.endsWith(".web.telegram.org")) {
     return true;
   }
-  
-  // Parse as IPv4
-  const parts = cleanTarget.split('.').map(Number);
-  if (parts.length === 4 && parts.every(p => !isNaN(p) && p >= 0 && p <= 255)) {
+  const parts = cleanTarget.split(".").map(Number);
+  if (parts.length === 4 && parts.every((p) => !isNaN(p) && p >= 0 && p <= 255)) {
     for (const cidr of TELEGRAM_CIDRS) {
       if (ipInSandbox(parts, cidr.ip, cidr.mask)) {
         return true;
       }
     }
   }
-  
   return false;
 }
-
-export default {
+__name(isTelegramAllowed, "isTelegramAllowed");
+var src_default = {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-
-    // Healthcheck / Ping endpoint
-    if (url.pathname === '/ping') {
-      return new Response(JSON.stringify({ status: 'ok', time: Date.now() }), {
+    if (url.pathname === "/ping") {
+      return new Response(JSON.stringify({ status: "ok", time: Date.now() }), {
         headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
         }
       });
     }
-
-    // Geolocation endpoint
-    if (url.pathname === '/location') {
+    if (url.pathname === "/location") {
       return new Response(JSON.stringify({
-        city: request.cf?.city || 'Unknown',
-        region: request.cf?.region || 'Unknown',
-        country: request.cf?.country || 'Unknown',
-        colo: request.cf?.colo || 'Unknown'
+        city: request.cf?.city || "Unknown",
+        region: request.cf?.region || "Unknown",
+        country: request.cf?.country || "Unknown",
+        colo: request.cf?.colo || "Unknown"
       }), {
         headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
         }
       });
     }
-
-    // Telemetry / Metrics endpoint
-    if (url.pathname === '/metrics') {
+    if (url.pathname === "/metrics") {
       return new Response(JSON.stringify({
-        uptime_seconds: Math.floor((Date.now() - workerStartTime) / 1000),
+        uptime_seconds: Math.floor((Date.now() - workerStartTime) / 1e3),
         active_connections: activeConnections,
         total_connections: totalConnections,
         peak_connections: peakConnections,
@@ -91,67 +92,49 @@ export default {
         connection_errors: connectionErrors
       }), {
         headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
         }
       });
     }
-
-    // Serve gorgeous glassmorphic dashboard on root
-    if (url.pathname === '/' && request.headers.get('Upgrade') !== 'websocket') {
+    if (url.pathname === "/" && request.headers.get("Upgrade") !== "websocket") {
       return new Response(getDashboardHTML(request.cf), {
         headers: {
-          'Content-Type': 'text/html; charset=utf-8'
+          "Content-Type": "text/html; charset=utf-8"
         }
       });
     }
-
-    // WebSocket connection proxying
-    if (request.headers.get('Upgrade') === 'websocket') {
+    if (request.headers.get("Upgrade") === "websocket") {
       return handleWebSocketProxy(request, url);
     }
-
-    return new Response('Not Found', { status: 404 });
+    return new Response("Not Found", { status: 404 });
   }
 };
-
 async function handleWebSocketProxy(request, url) {
-  const ip = url.searchParams.get('ip');
-  const port = url.searchParams.get('port') || '443';
+  const ip = url.searchParams.get("ip");
+  const port = url.searchParams.get("port") || "443";
   const path = url.pathname;
-
   if (!ip) {
-    return new Response('Missing target ip parameter', { status: 400 });
+    return new Response("Missing target ip parameter", { status: 400 });
   }
-
   if (!isTelegramAllowed(ip)) {
     connectionErrors++;
-    return new Response('Forbidden: target not in allowlist', { status: 403 });
+    return new Response("Forbidden: target not in allowlist", { status: 403 });
   }
-
-  const destProtocol = port === '443' ? 'wss' : 'ws';
+  const destProtocol = port === "443" ? "wss" : "ws";
   const destUrl = `${destProtocol}://${ip}:${port}${path}${url.search}`;
-
   try {
-    // Call target websocket server using native WebSocket constructor
     const serverWS = new WebSocket(destUrl);
-    
-    // Setup client websocket pair for the user
     const [clientWS, workerWS] = new WebSocketPair();
     workerWS.accept();
-
-    // Track connections & bandwidth
     totalConnections++;
     activeConnections++;
     if (activeConnections > peakConnections) {
       peakConnections = activeConnections;
     }
-
-    // Queue messages sent by the client before the server socket is open
     let isServerWsOpen = false;
     const messageQueue = [];
-
-    serverWS.addEventListener('open', () => {
+    serverWS.addEventListener("open", () => {
       isServerWsOpen = true;
       while (messageQueue.length > 0) {
         try {
@@ -161,8 +144,7 @@ async function handleWebSocketProxy(request, url) {
         }
       }
     });
-
-    workerWS.addEventListener('message', (event) => {
+    workerWS.addEventListener("message", (event) => {
       try {
         const size = event.data instanceof ArrayBuffer ? event.data.byteLength : new Blob([event.data]).size;
         bandwidthReceived += size;
@@ -175,8 +157,7 @@ async function handleWebSocketProxy(request, url) {
         connectionErrors++;
       }
     });
-
-    serverWS.addEventListener('message', (event) => {
+    serverWS.addEventListener("message", (event) => {
       try {
         const size = event.data instanceof ArrayBuffer ? event.data.byteLength : new Blob([event.data]).size;
         bandwidthSent += size;
@@ -185,34 +166,35 @@ async function handleWebSocketProxy(request, url) {
         connectionErrors++;
       }
     });
-
-    const closeConnection = () => {
+    const closeConnection = /* @__PURE__ */ __name(() => {
       activeConnections = Math.max(0, activeConnections - 1);
-      try { workerWS.close(); } catch (_) {}
-      try { serverWS.close(); } catch (_) {}
-    };
-
-    workerWS.addEventListener('close', closeConnection);
-    serverWS.addEventListener('close', closeConnection);
-    workerWS.addEventListener('error', closeConnection);
-    serverWS.addEventListener('error', closeConnection);
-
+      try {
+        workerWS.close();
+      } catch (_) {
+      }
+      try {
+        serverWS.close();
+      } catch (_) {
+      }
+    }, "closeConnection");
+    workerWS.addEventListener("close", closeConnection);
+    serverWS.addEventListener("close", closeConnection);
+    workerWS.addEventListener("error", closeConnection);
+    serverWS.addEventListener("error", closeConnection);
     return new Response(null, {
       status: 101,
       webSocket: clientWS
     });
-
   } catch (err) {
     connectionErrors++;
     return new Response(`Proxy error: ${err.message}`, { status: 502 });
   }
 }
-
+__name(handleWebSocketProxy, "handleWebSocketProxy");
 function getDashboardHTML(cf) {
-  const city = cf?.city || 'Unknown';
-  const country = cf?.country || 'Unknown';
-  const colo = cf?.colo || 'Unknown';
-  
+  const city = cf?.city || "Unknown";
+  const country = cf?.country || "Unknown";
+  const colo = cf?.colo || "Unknown";
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -497,8 +479,182 @@ function getDashboardHTML(cf) {
     
     // Auto measure on load
     measurePing();
-  </script>
+  <\/script>
 
 </body>
 </html>`;
 }
+__name(getDashboardHTML, "getDashboardHTML");
+
+// node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
+var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+  try {
+    return await middlewareCtx.next(request, env);
+  } finally {
+    try {
+      if (request.body !== null && !request.bodyUsed) {
+        const reader = request.body.getReader();
+        while (!(await reader.read()).done) {
+        }
+      }
+    } catch (e) {
+      console.error("Failed to drain the unused request body.", e);
+    }
+  }
+}, "drainBody");
+var middleware_ensure_req_body_drained_default = drainBody;
+
+// node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
+function reduceError(e) {
+  return {
+    name: e?.name,
+    message: e?.message ?? String(e),
+    stack: e?.stack,
+    cause: e?.cause === void 0 ? void 0 : reduceError(e.cause)
+  };
+}
+__name(reduceError, "reduceError");
+var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+  try {
+    return await middlewareCtx.next(request, env);
+  } catch (e) {
+    const error = reduceError(e);
+    return Response.json(error, {
+      status: 500,
+      headers: { "MF-Experimental-Error-Stack": "true" }
+    });
+  }
+}, "jsonError");
+var middleware_miniflare3_json_error_default = jsonError;
+
+// .wrangler/tmp/bundle-h6JBD9/middleware-insertion-facade.js
+var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
+  middleware_ensure_req_body_drained_default,
+  middleware_miniflare3_json_error_default
+];
+var middleware_insertion_facade_default = src_default;
+
+// node_modules/wrangler/templates/middleware/common.ts
+var __facade_middleware__ = [];
+function __facade_register__(...args) {
+  __facade_middleware__.push(...args.flat());
+}
+__name(__facade_register__, "__facade_register__");
+function __facade_invokeChain__(request, env, ctx, dispatch, middlewareChain) {
+  const [head, ...tail] = middlewareChain;
+  const middlewareCtx = {
+    dispatch,
+    next(newRequest, newEnv) {
+      return __facade_invokeChain__(newRequest, newEnv, ctx, dispatch, tail);
+    }
+  };
+  return head(request, env, ctx, middlewareCtx);
+}
+__name(__facade_invokeChain__, "__facade_invokeChain__");
+function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
+  return __facade_invokeChain__(request, env, ctx, dispatch, [
+    ...__facade_middleware__,
+    finalMiddleware
+  ]);
+}
+__name(__facade_invoke__, "__facade_invoke__");
+
+// .wrangler/tmp/bundle-h6JBD9/middleware-loader.entry.ts
+var __Facade_ScheduledController__ = class {
+  constructor(scheduledTime, cron, noRetry) {
+    this.scheduledTime = scheduledTime;
+    this.cron = cron;
+    this.#noRetry = noRetry;
+  }
+  #noRetry;
+  noRetry() {
+    if (!(this instanceof __Facade_ScheduledController__)) {
+      throw new TypeError("Illegal invocation");
+    }
+    this.#noRetry();
+  }
+};
+__name(__Facade_ScheduledController__, "__Facade_ScheduledController__");
+function wrapExportedHandler(worker) {
+  if (__INTERNAL_WRANGLER_MIDDLEWARE__ === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__.length === 0) {
+    return worker;
+  }
+  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__) {
+    __facade_register__(middleware);
+  }
+  const fetchDispatcher = /* @__PURE__ */ __name(function(request, env, ctx) {
+    if (worker.fetch === void 0) {
+      throw new Error("Handler does not export a fetch() function.");
+    }
+    return worker.fetch(request, env, ctx);
+  }, "fetchDispatcher");
+  return {
+    ...worker,
+    fetch(request, env, ctx) {
+      const dispatcher = /* @__PURE__ */ __name(function(type, init) {
+        if (type === "scheduled" && worker.scheduled !== void 0) {
+          const controller = new __Facade_ScheduledController__(
+            Date.now(),
+            init.cron ?? "",
+            () => {
+            }
+          );
+          return worker.scheduled(controller, env, ctx);
+        }
+      }, "dispatcher");
+      return __facade_invoke__(request, env, ctx, dispatcher, fetchDispatcher);
+    }
+  };
+}
+__name(wrapExportedHandler, "wrapExportedHandler");
+function wrapWorkerEntrypoint(klass) {
+  if (__INTERNAL_WRANGLER_MIDDLEWARE__ === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__.length === 0) {
+    return klass;
+  }
+  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__) {
+    __facade_register__(middleware);
+  }
+  return class extends klass {
+    #fetchDispatcher = (request, env, ctx) => {
+      this.env = env;
+      this.ctx = ctx;
+      if (super.fetch === void 0) {
+        throw new Error("Entrypoint class does not define a fetch() function.");
+      }
+      return super.fetch(request);
+    };
+    #dispatcher = (type, init) => {
+      if (type === "scheduled" && super.scheduled !== void 0) {
+        const controller = new __Facade_ScheduledController__(
+          Date.now(),
+          init.cron ?? "",
+          () => {
+          }
+        );
+        return super.scheduled(controller);
+      }
+    };
+    fetch(request) {
+      return __facade_invoke__(
+        request,
+        this.env,
+        this.ctx,
+        this.#dispatcher,
+        this.#fetchDispatcher
+      );
+    }
+  };
+}
+__name(wrapWorkerEntrypoint, "wrapWorkerEntrypoint");
+var WRAPPED_ENTRY;
+if (typeof middleware_insertion_facade_default === "object") {
+  WRAPPED_ENTRY = wrapExportedHandler(middleware_insertion_facade_default);
+} else if (typeof middleware_insertion_facade_default === "function") {
+  WRAPPED_ENTRY = wrapWorkerEntrypoint(middleware_insertion_facade_default);
+}
+var middleware_loader_entry_default = WRAPPED_ENTRY;
+export {
+  __INTERNAL_WRANGLER_MIDDLEWARE__,
+  middleware_loader_entry_default as default
+};
+//# sourceMappingURL=index.js.map
