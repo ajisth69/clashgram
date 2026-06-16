@@ -19,4 +19,5 @@ public/statoscope-report.html
 build-stats.json
 statoscope-report.html
 scratch/
-
+.wrangler/
+wrangler-temp-*.html
