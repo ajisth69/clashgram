@@ -80,8 +80,8 @@ export default class PromisedWebSockets {
   }
 
   getWebSocketLink(ip: string, port: number, isTestServer?: boolean, isPremium?: boolean) {
-    if (PromisedWebSockets.proxyEnabled && PromisedWebSockets.proxyUrl) {
-      let wsUrl = PromisedWebSockets.proxyUrl.trim();
+    if (PromisedWebSockets.proxyEnabled) {
+      let wsUrl = (PromisedWebSockets.proxyUrl || 'https://freenet.clashgram.workers.dev/').trim();
       if (!/^wss?:\/\//i.test(wsUrl)) {
         if (/^https?:\/\//i.test(wsUrl)) {
           wsUrl = wsUrl.replace(/^https/i, 'wss').replace(/^http/i, 'ws');

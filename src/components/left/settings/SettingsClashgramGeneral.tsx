@@ -5,7 +5,6 @@ import useLang from '../../../hooks/useLang';
 
 import Checkbox from '../../ui/Checkbox';
 import RadioGroup from '../../ui/RadioGroup';
-import InputText from '../../ui/InputText';
 
 import './SettingsClashgram.scss';
 
@@ -19,7 +18,6 @@ type StateProps = {
   clashgramWhisperTask?: 'transcribe' | 'translate';
   clashgramVoiceChangerEnabled?: boolean;
   clashgramProxyEnabled?: boolean;
-  clashgramProxyUrl?: string;
   connectionState?: 'connectionStateConnecting' | 'connectionStateReady' | 'connectionStateBroken';
 };
 
@@ -48,7 +46,6 @@ const SettingsClashgramGeneral = ({
   clashgramWhisperTask,
   clashgramVoiceChangerEnabled,
   clashgramProxyEnabled,
-  clashgramProxyUrl,
   connectionState,
 }: OwnProps & StateProps) => {
   const { setSharedSettingOption } = getActions();
@@ -117,18 +114,6 @@ const SettingsClashgramGeneral = ({
               clashgramProxyEnabled: !clashgramProxyEnabled,
             })}
           />
-          {clashgramProxyEnabled && (
-            <div style="margin-top: 1rem;">
-              <InputText
-                value={clashgramProxyUrl ?? 'https://freenet.clashgram.workers.dev/'}
-                label={lang('ClashgramProxyUrlHeader') || 'Proxy URL'}
-                placeholder="https://freenet.clashgram.workers.dev/"
-                onChange={(e) => setSharedSettingOption({
-                  clashgramProxyUrl: (e.target as HTMLInputElement).value,
-                })}
-              />
-            </div>
-          )}
         </div>
       </div>
     </div>
@@ -142,7 +127,6 @@ export default memo(withGlobal(
       clashgramWhisperTask,
       clashgramVoiceChangerEnabled,
       clashgramProxyEnabled,
-      clashgramProxyUrl,
     } = selectSharedSettings(global);
 
     return {
@@ -150,7 +134,6 @@ export default memo(withGlobal(
       clashgramWhisperTask,
       clashgramVoiceChangerEnabled,
       clashgramProxyEnabled,
-      clashgramProxyUrl,
       connectionState: global.connectionState,
     };
   },
