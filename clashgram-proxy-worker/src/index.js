@@ -1084,23 +1084,24 @@ export default {
         lastConnectionTime = Date.now();
         if (activeConnections > peakConnections) peakConnections = activeConnections;
 
-        const targetUrl = 'https://' + targetHost + targetPath + url.search;
+        const targetUrl = 'https://' + targetHost + targetPath;
 
-        // Scrub tracking headers
-        const upstreamHeaders = new Headers(request.headers);
-        const scrubHeaders = [
-          "cf-connecting-ip", "x-forwarded-for", "via",
-          "forwarded", "true-client-ip", "x-real-ip"
-        ];
-        for (const h of scrubHeaders) upstreamHeaders.delete(h);
-        upstreamHeaders.set("User-Agent",
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
+        // Clean upstream headers — only send what Telegram needs
+        // Do NOT forward client's Host, Origin, Sec-WebSocket-Key, or CF headers
+        const upstreamHeaders = new Headers();
+        upstreamHeaders.set('Upgrade', 'websocket');
+        upstreamHeaders.set('User-Agent',
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
         );
+        // Forward the WebSocket subprotocol if present (Telegram expects 'binary')
+        const wsProtocol = request.headers.get('Sec-WebSocket-Protocol');
+        if (wsProtocol) {
+          upstreamHeaders.set('Sec-WebSocket-Protocol', wsProtocol);
+        }
 
         // Upstream connection with timeout
         const upstreamFetch = fetch(targetUrl, {
           headers: upstreamHeaders,
-          redirect: "follow"
         });
         const timeoutRace = new Promise((_, reject) => {
           setTimeout(() => reject(new Error('upstream_timeout')), UPSTREAM_TIMEOUT_MS);
