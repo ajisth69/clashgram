@@ -1,0 +1,14 @@
+{
+  "name": "clashgram-proxy-worker",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker proxy for Clashgram WebSocket MTProto connections",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "start": "wrangler dev"
+  },
+  "devDependencies": {
+    "wrangler": "^3.109.0"
+  }
+}

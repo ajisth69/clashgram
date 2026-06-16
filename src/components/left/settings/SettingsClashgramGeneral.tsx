@@ -20,6 +20,27 @@ type StateProps = {
   clashgramVoiceChangerEnabled?: boolean;
   clashgramProxyEnabled?: boolean;
   clashgramProxyUrl?: string;
+  connectionState?: 'connectionStateConnecting' | 'connectionStateReady' | 'connectionStateBroken';
+};
+
+const getBadgeStyleString = (state?: string) => {
+  let bg = 'rgba(241, 196, 15, 0.15)';
+  let color = '#f1c40f';
+  if (state === 'connectionStateReady') {
+    bg = 'rgba(46, 204, 113, 0.15)';
+    color = '#2ecc71';
+  } else if (state === 'connectionStateBroken') {
+    bg = 'rgba(231, 76, 60, 0.15)';
+    color = '#e74c3c';
+  }
+  return `background-color: ${bg}; color: ${color}; padding: 0.25rem 0.6rem; border-radius: 12px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.03em; display: inline-flex; align-items: center;`;
+};
+
+const getBadgeDotStyleString = (state?: string) => {
+  let color = '#f1c40f';
+  if (state === 'connectionStateReady') color = '#2ecc71';
+  if (state === 'connectionStateBroken') color = '#e74c3c';
+  return `width: 6px; height: 6px; border-radius: 50%; background-color: ${color}; margin-right: 6px; display: inline-block;`;
 };
 
 const SettingsClashgramGeneral = ({
@@ -28,6 +49,7 @@ const SettingsClashgramGeneral = ({
   clashgramVoiceChangerEnabled,
   clashgramProxyEnabled,
   clashgramProxyUrl,
+  connectionState,
 }: OwnProps & StateProps) => {
   const { setSharedSettingOption } = getActions();
   const lang = useLang();
@@ -77,7 +99,16 @@ const SettingsClashgramGeneral = ({
         </div>
 
         <div className="settings-item">
-          <h4 className="settings-item-header">{lang('ClashgramProxyHeader') || 'Proxy Settings'}</h4>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+            <h4 className="settings-item-header" style="margin: 0;">{lang('ClashgramProxyHeader') || 'Proxy Settings'}</h4>
+            {clashgramProxyEnabled && (
+              <span style={getBadgeStyleString(connectionState)}>
+                <span style={getBadgeDotStyleString(connectionState)} />
+                {connectionState === 'connectionStateReady' ? 'Connected' :
+                 connectionState === 'connectionStateBroken' ? 'Connection Failed' : 'Connecting...'}
+              </span>
+            )}
+          </div>
           <Checkbox
             label={lang('ClashgramProxyEnable') || 'Enable Connection Proxy'}
             subLabel={lang('ClashgramProxyEnableSub') || 'Route MTProto traffic through a WebSocket proxy worker'}
@@ -120,6 +151,7 @@ export default memo(withGlobal(
       clashgramVoiceChangerEnabled,
       clashgramProxyEnabled,
       clashgramProxyUrl,
+      connectionState: global.connectionState,
     };
   },
 )(SettingsClashgramGeneral));
