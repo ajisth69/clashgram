@@ -1170,7 +1170,14 @@ export default {
         upstreamSocket.addEventListener('close', (e) => safeCleanup(e.code || 1000, e.reason));
         upstreamSocket.addEventListener('error', () => safeCleanup(1006, 'Upstream error'));
 
-        return new Response(null, { status: 101, webSocket: clientSocket });
+        // Echo the negotiated subprotocol back to the client
+        const responseHeaders = new Headers();
+        const requestedProtocol = request.headers.get('Sec-WebSocket-Protocol');
+        if (requestedProtocol) {
+          responseHeaders.set('Sec-WebSocket-Protocol', requestedProtocol.split(',')[0].trim());
+        }
+
+        return new Response(null, { status: 101, webSocket: clientSocket, headers: responseHeaders });
 
       } catch (err) {
         connectionErrors++;
