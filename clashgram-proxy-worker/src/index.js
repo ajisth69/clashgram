@@ -961,8 +961,8 @@ const renderDashboard = (uptimeStr) => `
     measureLatency();
     fetchMetrics();
     fetchLocation();
-    setInterval(fetchMetrics, 2000);
-    setInterval(measureLatency, 8000);
+    setInterval(fetchMetrics, 15000);
+    setInterval(measureLatency, 30000);
   </script>
 
 </body>
