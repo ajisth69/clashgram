@@ -9,6 +9,7 @@ import type { MethodArgs, MethodResponse, Methods } from './types';
 import Deferred from '../../../util/Deferred';
 import { updateFullLocalDb } from '../localDb';
 import { init as initUpdateEmitter } from '../updates/apiUpdateEmitter';
+import { PromisedWebSockets } from '../../../lib/gramjs/extensions';
 import { init as initClient } from './client';
 import * as methods from './index';
 
@@ -16,6 +17,13 @@ export function initApi(_onUpdate: OnApiUpdate, initialArgs: ApiInitialArgs, ini
   initUpdateEmitter(_onUpdate);
 
   if (initialLocalDb) updateFullLocalDb(initialLocalDb);
+
+  if (initialArgs.clashgramProxyEnabled !== undefined) {
+    PromisedWebSockets.proxyEnabled = initialArgs.clashgramProxyEnabled;
+  }
+  if (initialArgs.clashgramProxyUrl !== undefined) {
+    PromisedWebSockets.proxyUrl = initialArgs.clashgramProxyUrl;
+  }
 
   const connectDeferred = new Deferred<void>();
   initClient(initialArgs, () => connectDeferred.resolve());

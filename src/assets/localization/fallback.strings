@@ -2947,6 +2947,10 @@
 "ClashgramWhisperTranslate" = "Translate (To English)";
 "ClashgramEnableVoiceChanger" = "Enable Voice Changer";
 "ClashgramEnableVoiceChangerSub" = "Apply chipmunk, robot, or voice pitch shifts when sending voice messages.";
+"ClashgramProxyHeader" = "Proxy Settings";
+"ClashgramProxyEnable" = "Enable Connection Proxy";
+"ClashgramProxyEnableSub" = "Route MTProto traffic through a WebSocket proxy worker";
+"ClashgramProxyUrlHeader" = "Proxy URL";
 "ClashgramAestheticsLayout" = "Aesthetics and Layout";
 "ClashgramNativeGlass" = "Native Glass Theme";
 "ClashgramNativeGlassSub" = "Apply premium translucency and depth effects to sidebars, headers, and menus.";

@@ -5,6 +5,7 @@ import useLang from '../../../hooks/useLang';
 
 import Checkbox from '../../ui/Checkbox';
 import RadioGroup from '../../ui/RadioGroup';
+import InputText from '../../ui/InputText';
 
 import './SettingsClashgram.scss';
 
@@ -17,12 +18,16 @@ type StateProps = {
   clashgramWhisperModel?: 'tiny' | 'base' | 'small';
   clashgramWhisperTask?: 'transcribe' | 'translate';
   clashgramVoiceChangerEnabled?: boolean;
+  clashgramProxyEnabled?: boolean;
+  clashgramProxyUrl?: string;
 };
 
 const SettingsClashgramGeneral = ({
   clashgramWhisperModel,
   clashgramWhisperTask,
   clashgramVoiceChangerEnabled,
+  clashgramProxyEnabled,
+  clashgramProxyUrl,
 }: OwnProps & StateProps) => {
   const { setSharedSettingOption } = getActions();
   const lang = useLang();
@@ -70,6 +75,30 @@ const SettingsClashgramGeneral = ({
             />
           </div>
         </div>
+
+        <div className="settings-item">
+          <h4 className="settings-item-header">{lang('ClashgramProxyHeader') || 'Proxy Settings'}</h4>
+          <Checkbox
+            label={lang('ClashgramProxyEnable') || 'Enable Connection Proxy'}
+            subLabel={lang('ClashgramProxyEnableSub') || 'Route MTProto traffic through a WebSocket proxy worker'}
+            checked={Boolean(clashgramProxyEnabled)}
+            onCheck={() => setSharedSettingOption({
+              clashgramProxyEnabled: !clashgramProxyEnabled,
+            })}
+          />
+          {clashgramProxyEnabled && (
+            <div style="margin-top: 1rem;">
+              <InputText
+                value={clashgramProxyUrl ?? 'https://freenet.clashgram.workers.dev/'}
+                label={lang('ClashgramProxyUrlHeader') || 'Proxy URL'}
+                placeholder="https://freenet.clashgram.workers.dev/"
+                onChange={(e) => setSharedSettingOption({
+                  clashgramProxyUrl: (e.target as HTMLInputElement).value,
+                })}
+              />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -81,12 +110,16 @@ export default memo(withGlobal(
       clashgramWhisperModel,
       clashgramWhisperTask,
       clashgramVoiceChangerEnabled,
+      clashgramProxyEnabled,
+      clashgramProxyUrl,
     } = selectSharedSettings(global);
 
     return {
       clashgramWhisperModel,
       clashgramWhisperTask,
       clashgramVoiceChangerEnabled,
+      clashgramProxyEnabled,
+      clashgramProxyUrl,
     };
   },
 )(SettingsClashgramGeneral));

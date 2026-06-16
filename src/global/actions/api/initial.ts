@@ -52,6 +52,8 @@ addActionHandler('initApi', async (global, actions): Promise<void> => {
     shouldDebugExportedSenders,
     shouldCollectDebugLogs,
     language,
+    clashgramProxyEnabled,
+    clashgramProxyUrl,
   } = selectSharedSettings(global);
 
   const hasTestParam = window.location.search.includes('test') || initialLocationHash?.tgWebAuthTest === '1';
@@ -81,6 +83,8 @@ addActionHandler('initApi', async (global, actions): Promise<void> => {
     isTestServerRequested: hasTestParam,
     accountIds,
     hasPasskeySupport: IS_WEBAUTHN_SUPPORTED,
+    clashgramProxyEnabled,
+    clashgramProxyUrl,
   });
 
   void setShouldEnableDebugLog(Boolean(shouldCollectDebugLogs));

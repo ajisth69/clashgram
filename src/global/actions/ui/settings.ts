@@ -154,6 +154,12 @@ addActionHandler('setSettingOption', (global, actions, payload): ActionReturnTyp
 });
 
 addActionHandler('setSharedSettingOption', (global, actions, payload): ActionReturnType => {
+  if (payload && ('clashgramProxyEnabled' in payload || 'clashgramProxyUrl' in payload)) {
+    const settings = selectSharedSettings(global);
+    const enabled = payload.clashgramProxyEnabled !== undefined ? payload.clashgramProxyEnabled : (settings.clashgramProxyEnabled ?? false);
+    const url = payload.clashgramProxyUrl !== undefined ? payload.clashgramProxyUrl : settings.clashgramProxyUrl;
+    void callApi('updateProxySettings', { enabled, url: url || '' });
+  }
   return updateSharedSettings(global, payload);
 });
 

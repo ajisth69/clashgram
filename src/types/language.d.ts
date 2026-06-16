@@ -2148,6 +2148,10 @@ export interface LangPair {
   'ClashgramConfigurePasscodeSettings': undefined;
   'ClashgramConfigurePasscodeSettingsSub': undefined;
   'ClashgramLocalPremium': undefined;
+  'ClashgramProxyHeader': undefined;
+  'ClashgramProxyEnable': undefined;
+  'ClashgramProxyEnableSub': undefined;
+  'ClashgramProxyUrlHeader': undefined;
   'ClashgramLocalPremiumSub': undefined;
   'ClashgramSpeechMediaModels': undefined;
   'ClashgramWhisperModelHeader': undefined;

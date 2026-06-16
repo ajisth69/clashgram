@@ -7,7 +7,7 @@ import {
 import type { TwoFaParams } from '../../../lib/gramjs/client/2fa';
 import ClashgramClient from '../../../lib/gramjs/client/ClashgramClient';
 import { RPCError } from '../../../lib/gramjs/errors';
-import { Logger as GramJsLogger } from '../../../lib/gramjs/extensions/index';
+import { Logger as GramJsLogger, PromisedWebSockets } from '../../../lib/gramjs/extensions/index';
 import type CallbackSession from '../../../lib/gramjs/sessions/CallbackSession';
 
 import type { ThreadId } from '../../../types';
@@ -283,6 +283,15 @@ export async function destroy(noLogOut = false, noClearLocalDb = false) {
 
 export function disconnect() {
   client.disconnect();
+}
+
+export function updateProxySettings(params: { enabled: boolean; url: string }) {
+  PromisedWebSockets.proxyEnabled = params.enabled;
+  PromisedWebSockets.proxyUrl = params.url;
+
+  if (client) {
+    client.disconnect();
+  }
 }
 
 export function getClient() {

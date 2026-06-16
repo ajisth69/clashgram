@@ -122,6 +122,8 @@ export const INITIAL_SHARED_STATE: SharedState = {
     clashgramConfirmMsg: false,
     clashgramHideBlockedInGroups: false,
     clashgramHideAllChats: false,
+    clashgramProxyEnabled: false,
+    clashgramProxyUrl: 'https://freenet.clashgram.workers.dev/',
     clashgramCustomAnimation: '{\n  "particleCount": 65,\n  "colors": ["#ff7b00", "#ff007b", "#7b00ff", "#00ffff"],\n  "minSpeed": 0.4,\n  "maxSpeed": 1.2,\n  "minSize": 1.5,\n  "maxSize": 4.5,\n  "glowEffect": true,\n  "spawnOnClick": true,\n  "gravity": 0.0,\n  "drift": 0.05\n}',
   },
   isInitial: true,

@@ -5,6 +5,9 @@ const CONNECTION_TIMEOUT = 3000;
 const MAX_TIMEOUT = 30000;
 
 export default class PromisedWebSockets {
+  static proxyEnabled = false;
+  static proxyUrl = '';
+
   private readonly mutex = new Mutex();
 
   private closed: boolean;
@@ -77,6 +80,22 @@ export default class PromisedWebSockets {
   }
 
   getWebSocketLink(ip: string, port: number, isTestServer?: boolean, isPremium?: boolean) {
+    if (PromisedWebSockets.proxyEnabled && PromisedWebSockets.proxyUrl) {
+      let wsUrl = PromisedWebSockets.proxyUrl.trim();
+      if (!/^wss?:\/\//i.test(wsUrl)) {
+        if (/^https?:\/\//i.test(wsUrl)) {
+          wsUrl = wsUrl.replace(/^https/i, 'wss').replace(/^http/i, 'ws');
+        } else {
+          wsUrl = `wss://${wsUrl}`;
+        }
+      }
+      if (!wsUrl.endsWith('/')) {
+        wsUrl += '/';
+      }
+      const suffix = `apiws${isTestServer ? '_test' : ''}${isPremium ? '_premium' : ''}`;
+      return `${wsUrl}${suffix}?ip=${ip}&port=${port}`;
+    }
+
     if (port === 443) {
       return `wss://${ip}:${port}/apiws${isTestServer ? '_test' : ''}${isPremium ? '_premium' : ''}`;
     } else {
