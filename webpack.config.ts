@@ -40,7 +40,7 @@ const {
 
 const CSP = `
   default-src 'self';
-  connect-src 'self' wss://*.web.telegram.org blob: https: ${APP_ENV === 'development' ? 'wss: ipc:' : ''};
+  connect-src 'self' wss://*.web.telegram.org wss: blob: https: ${APP_ENV === 'development' ? 'ipc:' : ''};
   script-src 'self' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://t.me/_websync_ https://telegram.me/_websync_;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   img-src 'self' data: blob: https://images.unsplash.com https://ss3.4sqi.net/img/categories_v2/;
