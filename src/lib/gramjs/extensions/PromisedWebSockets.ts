@@ -4,6 +4,38 @@ const closeError = new Error('WebSocket was closed');
 const CONNECTION_TIMEOUT = 3000;
 const MAX_TIMEOUT = 30000;
 
+const IP_TO_DOMAIN_MAP: Record<string, string> = {
+  // Production
+  '149.154.175.50': 'zws1.web.telegram.org',
+  '149.154.167.91': 'zws2.web.telegram.org',
+  '149.154.175.100': 'zws3.web.telegram.org',
+  '91.108.56.165': 'zws4.web.telegram.org',
+  '91.108.56.156': 'zws5.web.telegram.org',
+  // Test Servers
+  '149.154.175.10': 'zws1.web.telegram.org',
+  '149.154.167.40': 'zws2.web.telegram.org',
+  '149.154.175.117': 'zws3.web.telegram.org',
+};
+
+const getTelegramDomain = (ip: string) => {
+  if (IP_TO_DOMAIN_MAP[ip]) {
+    return IP_TO_DOMAIN_MAP[ip];
+  }
+  // Fallback heuristic based on standard octets
+  if (ip.startsWith('91.108.56.')) {
+    return ip.endsWith('156') ? 'zws5.web.telegram.org' : 'zws4.web.telegram.org';
+  }
+  if (ip.startsWith('149.154.167.')) {
+    return 'zws2.web.telegram.org';
+  }
+  if (ip.startsWith('149.154.175.')) {
+    const lastOctet = Number(ip.split('.').pop());
+    if (lastOctet >= 90 && lastOctet <= 110) return 'zws3.web.telegram.org';
+    return 'zws1.web.telegram.org';
+  }
+  return 'zws2.web.telegram.org'; // default fallback
+};
+
 export default class PromisedWebSockets {
   static proxyEnabled = false;
   static proxyUrl = '';
@@ -92,8 +124,9 @@ export default class PromisedWebSockets {
       if (!wsUrl.endsWith('/')) {
         wsUrl += '/';
       }
+      const domain = getTelegramDomain(ip);
       const suffix = `apiws${isTestServer ? '_test' : ''}${isPremium ? '_premium' : ''}`;
-      return `${wsUrl}${suffix}?ip=${ip}&port=${port}`;
+      return `${wsUrl}${domain}/${suffix}?ip=${ip}&port=${port}`;
     }
 
     if (port === 443) {
