@@ -1084,7 +1084,7 @@ export default {
         lastConnectionTime = Date.now();
         if (activeConnections > peakConnections) peakConnections = activeConnections;
 
-        const targetUrl = 'wss://' + targetHost + targetPath + url.search;
+        const targetUrl = 'https://' + targetHost + targetPath + url.search;
 
         // Scrub tracking headers
         const upstreamHeaders = new Headers(request.headers);
