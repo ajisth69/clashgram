@@ -823,12 +823,14 @@ const renderDashboard = (uptimeStr) => `
           }
           btn.textContent = 'ping';
           btn.disabled = false;
+          fetchMetrics(); // Also refresh bandwidth/connection stats on manual ping
         })
         .catch(function() {
           el.textContent = 'offline';
           el.style.color = '#f87171';
           btn.textContent = 'ping';
           btn.disabled = false;
+          fetchMetrics(); // Refresh stats even if offline/failed
         });
     }
 
@@ -961,8 +963,6 @@ const renderDashboard = (uptimeStr) => `
     measureLatency();
     fetchMetrics();
     fetchLocation();
-    setInterval(fetchMetrics, 15000);
-    setInterval(measureLatency, 30000);
   </script>
 
 </body>
