@@ -21,6 +21,10 @@ const getTelegramDomain = (ip: string) => {
   if (IP_TO_DOMAIN_MAP[ip]) {
     return IP_TO_DOMAIN_MAP[ip];
   }
+  // If the IP argument is already a domain name, return it directly
+  if (/[a-zA-Z]/.test(ip)) {
+    return ip;
+  }
   // Fallback heuristic based on standard octets
   if (ip.startsWith('91.108.56.')) {
     return ip.endsWith('156') ? 'zws5.web.telegram.org' : 'zws4.web.telegram.org';
