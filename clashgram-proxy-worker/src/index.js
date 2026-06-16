@@ -1093,11 +1093,8 @@ export default {
         upstreamHeaders.set('User-Agent',
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
         );
-        // Forward the WebSocket subprotocol if present (Telegram expects 'binary')
-        const wsProtocol = request.headers.get('Sec-WebSocket-Protocol');
-        if (wsProtocol) {
-          upstreamHeaders.set('Sec-WebSocket-Protocol', wsProtocol);
-        }
+        // Telegram always requires 'binary' subprotocol
+        upstreamHeaders.set('Sec-WebSocket-Protocol', 'binary');
 
         // Upstream connection with timeout
         const upstreamFetch = fetch(targetUrl, {

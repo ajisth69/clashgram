@@ -147,7 +147,9 @@ export default class PromisedWebSockets {
     });
     this.closed = false;
     this.website = this.getWebSocketLink(ip, port, isTestServer, isPremium);
-    this.client = new WebSocket(this.website, 'binary');
+    this.client = PromisedWebSockets.proxyEnabled
+      ? new WebSocket(this.website)
+      : new WebSocket(this.website, 'binary');
     this.client.binaryType = 'arraybuffer';
 
     return new Promise((resolve, reject) => {
