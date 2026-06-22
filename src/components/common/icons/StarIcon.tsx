@@ -8,7 +8,7 @@ import styles from './StarIcon.module.scss';
 
 import StarWebp from '../../../assets/icons/star/star.webp';
 
-import ClashgramLogoFilled from '../../../assets/clashgram-logo-filled.svg';
+import PremiumStar from '../../../assets/premium/PremiumStar.svg';
 
 type OwnProps = {
   type?: 'gold' | 'premium' | 'regular';
@@ -144,13 +144,13 @@ function GoldStarIcon({ randomId, asVector }: { randomId: string; asVector?: boo
 
 function PremiumStarIcon() {
   return (
-    <img src={ClashgramLogoFilled} className={styles.img} alt="" />
+    <img src={PremiumStar} className={styles.img} alt="" />
   );
 }
 
 function RegularStarIcon() {
   return (
-    <img src={ClashgramLogoFilled} className={styles.img} alt="" />
+    <img src={PremiumStar} className={styles.img} alt="" />
   );
 }
 
