@@ -32,6 +32,7 @@ import FakeIcon from './FakeIcon';
 import GiftEffectWrapper from './gift/GiftEffectWrapper';
 import StarIcon from './icons/StarIcon';
 import VerifiedIcon from './VerifiedIcon';
+import ClashgramBadge from '../../clshgram/ClashgramBadge';
 
 import styles from './FullNameTitle.module.scss';
 
@@ -179,6 +180,7 @@ const FullNameTitle = ({
             </Transition>
           )}
           {canShowEmojiStatus && !emojiStatus && isPremium && <StarIcon size="adaptive" />}
+          <ClashgramBadge userId={'id' in peer ? peer.id : peer.key} userName={title} />
           {isMonoforum && (
             <div className={buildClassName(styles.monoforumBadge, monoforumBadgeClassName)}>
               {lang('MonoforumBadge')}

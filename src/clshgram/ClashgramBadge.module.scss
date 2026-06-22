@@ -1,0 +1,147 @@
+.container {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  vertical-align: middle;
+  margin-left: 0.4rem;
+  flex-shrink: 0;
+}
+
+.badgeWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  // Circle clip lives here — cleaner antialiasing than on <img>
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  pointer-events: auto; // Force clickability even if parent container disables it
+  // Remove hardware acceleration hacks (translateZ) as they rasterize SVGs into blurry textures
+
+  // Tooltip trigger
+  &:hover {
+    .tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+}
+
+.badgeIcon {
+  // Slight zoom (108%) to maximize visual clarity while keeping it crisp
+  display: block;
+  width: 108%;
+  height: 108%;
+  margin: -4%;
+  object-fit: cover;
+  
+  // Force extreme high-quality vector rendering
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: high-quality;
+
+  // Smooth transitions for hover effects
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: scale(1.18);
+  }
+}
+
+// Lightweight CSS-only premium tooltip using glassmorphism effects
+.tooltip {
+  position: absolute;
+  bottom: 140%;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  
+  // Premium dark-mode glassmorphic aesthetics
+  background: rgba(18, 18, 18, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fbfbfb;
+  
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  
+  // Drop shadow for a floating elevation effect
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  
+  // Transition state
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.18s ease-out, transform 0.18s ease-out, visibility 0.18s ease-out;
+  z-index: 100;
+}
+
+// Modal styling for badge details
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1rem;
+  color: var(--color-text);
+}
+
+.modalMessage {
+  font-size: 1rem;
+  line-height: 1.4;
+  margin-bottom: 1.5rem;
+  strong {
+    color: var(--color-primary);
+  }
+}
+
+.learnMoreContent {
+  margin-top: 1rem;
+  padding: 1.25rem;
+  border-radius: 0.5rem;
+  background-color: var(--color-background-secondary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  text-align: left;
+  animation: fadeSlideDown 0.2s ease-out forwards;
+
+  p {
+    margin-bottom: 0.75rem;
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  strong {
+    color: var(--color-primary);
+  }
+}
+
+@keyframes fadeSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mentionLink {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
