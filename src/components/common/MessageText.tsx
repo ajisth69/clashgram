@@ -1,0 +1,181 @@
+import {
+  memo, useMemo, useRef,
+} from '../../lib/teact/teact';
+
+import type { ApiFormattedText, ApiMessage, ApiStory } from '../../api/types';
+import type { ObserveFn } from '../../hooks/useIntersectionObserver';
+import type { ThreadId } from '../../types';
+import { ApiMessageEntityTypes } from '../../api/types';
+
+import { extractMessageText, stripCustomEmoji } from '../../global/helpers';
+import trimText from '../../util/trimText';
+import { insertTextEntity, renderTextWithEntities } from './helpers/renderTextWithEntities';
+
+import useLang from '../../hooks/useLang';
+import useLastCallback from '../../hooks/useLastCallback';
+import useSyncEffect from '../../hooks/useSyncEffect';
+import useUniqueId from '../../hooks/useUniqueId';
+
+import TypingWrapper from './TypingWrapper';
+
+interface OwnProps {
+  messageOrStory: ApiMessage | ApiStory;
+  threadId?: ThreadId;
+  forcedText?: ApiFormattedText;
+  isForAnimation?: boolean;
+  emojiSize?: number;
+  highlight?: string;
+  asPreview?: boolean;
+  truncateLength?: number;
+  isProtected?: boolean;
+  observeIntersectionForLoading?: ObserveFn;
+  observeIntersectionForPlaying?: ObserveFn;
+  withTranslucentThumbs?: boolean;
+  shouldRenderAsHtml?: boolean;
+  inChatList?: boolean;
+  forcePlayback?: boolean;
+  focusedQuote?: string;
+  focusedQuoteOffset?: number;
+  isInSelectMode?: boolean;
+  canBeEmpty?: boolean;
+  maxTimestamp?: number;
+  shouldAnimateTyping?: boolean;
+  canAnimateTextStreaming?: boolean;
+  onTypingAnimationEnd?: NoneToVoidFunction;
+}
+
+const MIN_CUSTOM_EMOJIS_FOR_SHARED_CANVAS = 3;
+
+function MessageText({
+  messageOrStory,
+  forcedText,
+  isForAnimation,
+  emojiSize,
+  highlight,
+  asPreview,
+  truncateLength,
+  isProtected,
+  observeIntersectionForLoading,
+  observeIntersectionForPlaying,
+  withTranslucentThumbs,
+  shouldRenderAsHtml,
+  inChatList,
+  forcePlayback,
+  focusedQuote,
+  focusedQuoteOffset,
+  isInSelectMode,
+  canBeEmpty,
+  maxTimestamp,
+  threadId,
+  shouldAnimateTyping,
+  canAnimateTextStreaming,
+  onTypingAnimationEnd,
+}: OwnProps) {
+  const sharedCanvasRef = useRef<HTMLCanvasElement>();
+  const sharedCanvasHqRef = useRef<HTMLCanvasElement>();
+
+  const textCacheBusterRef = useRef(0);
+
+  const lang = useLang();
+
+  const formattedText = forcedText || extractMessageText(messageOrStory, inChatList);
+  const adaptedFormattedText = isForAnimation && formattedText ? stripCustomEmoji(formattedText) : formattedText;
+  const { text, entities } = adaptedFormattedText || {};
+
+  const entitiesWithFocusedQuote = useMemo(() => {
+    if (!text || !focusedQuote) return entities;
+
+    const offsetIndex = text.indexOf(focusedQuote, focusedQuoteOffset);
+    const index = offsetIndex >= 0 ? offsetIndex : text.indexOf(focusedQuote); // Fallback to first occurrence
+    const lendth = focusedQuote.length;
+    if (index >= 0) {
+      return insertTextEntity(entities || [], {
+        offset: index,
+        length: lendth,
+        type: ApiMessageEntityTypes.QuoteFocus,
+      });
+    }
+
+    return entities;
+  }, [text, entities, focusedQuote, focusedQuoteOffset]);
+
+  const containerId = useUniqueId();
+
+  useSyncEffect(() => {
+    textCacheBusterRef.current += 1;
+  }, [text, entitiesWithFocusedQuote]);
+
+  const withSharedCanvas = useMemo(() => {
+    const hasSpoilers = entitiesWithFocusedQuote?.some((e) => e.type === ApiMessageEntityTypes.Spoiler);
+    if (hasSpoilers) {
+      return false;
+    }
+
+    const customEmojisCount = entitiesWithFocusedQuote
+      ?.filter((e) => e.type === ApiMessageEntityTypes.CustomEmoji).length || 0;
+    return customEmojisCount >= MIN_CUSTOM_EMOJIS_FOR_SHARED_CANVAS;
+  }, [entitiesWithFocusedQuote]) || false;
+
+  const renderText = useLastCallback((t: ApiFormattedText) => {
+    return renderTextWithEntities({
+      text: t.text,
+      entities: t.entities,
+      highlight,
+      emojiSize,
+      shouldRenderAsHtml,
+      containerId,
+      asPreview,
+      isProtected,
+      observeIntersectionForLoading,
+      observeIntersectionForPlaying,
+      withTranslucentThumbs,
+      sharedCanvasRef,
+      sharedCanvasHqRef,
+      cacheBuster: textCacheBusterRef.current.toString(),
+      forcePlayback,
+      isInSelectMode,
+      maxTimestamp,
+      chatId: 'chatId' in messageOrStory ? messageOrStory.chatId : undefined,
+      messageId: messageOrStory.id,
+      threadId,
+    });
+  });
+
+  if (!text && !canBeEmpty) {
+    return <span className="content-unsupported">{lang('MessageUnsupported')}</span>;
+  }
+
+  const textToRender: ApiFormattedText = {
+    text: trimText(text || '', truncateLength),
+    entities: entitiesWithFocusedQuote,
+  };
+  const shouldRenderTypingPlaceholder = !('previousLocalId' in messageOrStory) || !messageOrStory.previousLocalId;
+  const originalText = !asPreview && !inChatList && 'clashgramOriginalText' in messageOrStory
+    ? messageOrStory.clashgramOriginalText
+    : undefined;
+
+  return (
+    <>
+      {withSharedCanvas && <canvas ref={sharedCanvasRef} className="shared-canvas" />}
+      {withSharedCanvas && <canvas ref={sharedCanvasHqRef} className="shared-canvas" />}
+      {shouldAnimateTyping ? (
+        <TypingWrapper
+          key="typing-wrapper"
+          formattedText={textToRender}
+          renderText={renderText}
+          shouldAnimateMask={canAnimateTextStreaming}
+          shouldRenderPlaceholder={shouldRenderTypingPlaceholder}
+          onCompleted={onTypingAnimationEnd}
+          completionKey={messageOrStory.id}
+        />
+      ) : renderText(textToRender)}
+      {originalText && (
+        <span key="clashgram-original" className="clashgram-original-text">
+          Original: {originalText}
+        </span>
+      )}
+    </>
+  );
+}
+
+export default memo(MessageText);

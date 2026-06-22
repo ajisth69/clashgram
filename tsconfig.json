@@ -1,0 +1,47 @@
+{
+  "compilerOptions": {
+    // We don't care about this since Webpack runs Babel after TypeScript
+    "target": "esnext",
+    "lib": [
+      "dom",
+      "webworker",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowImportingTsExtensions": true,
+    "noImplicitReturns": true,
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "@teact",
+    "paths": {
+      "@teact": ["./src/lib/teact/teact.ts"],
+      "@teact/*": ["./src/lib/teact/*"],
+      "@gili/*": ["./src/components/gili/*"]
+    },
+    "types": [
+      "dom-chromium-ai",
+      "dom-view-transitions"
+    ],
+    "incremental": true,
+    "tsBuildInfoFile": ".cache/.tsconfig.tsbuildinfo"
+  },
+  "include": [
+    "src",
+    "tests",
+    "plugins",
+    "dev",
+    "*.config.ts",
+    "*.config.js",
+    ".github/workflows/*.js",
+    "deploy/*.js"
+  ]
+}

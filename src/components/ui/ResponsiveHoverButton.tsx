@@ -1,0 +1,69 @@
+import type { FC } from '../../lib/teact/teact';
+import type React from '../../lib/teact/teact';
+import { useRef } from '../../lib/teact/teact';
+
+import type { OwnProps as ButtonProps } from './Button';
+
+import { IS_TOUCH_ENV } from '../../util/browser/windowEnvironment';
+
+import useLastCallback from '../../hooks/useLastCallback';
+
+import Button from './Button';
+
+type OwnProps = {
+  onActivate: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  noClickActivation?: boolean;
+} & Omit<ButtonProps, (
+  'onClick' | 'onMouseDown' |
+  'onMouseEnter' | 'onMouseLeave' |
+  'onFocus'
+)>;
+
+const BUTTON_ACTIVATE_DELAY = 200;
+let openTimeout: number | undefined;
+let isFirstTimeActivation = true;
+
+const ResponsiveHoverButton: FC<OwnProps> = ({ onActivate, noClickActivation, ...buttonProps }) => {
+  const isMouseInsideRef = useRef(false);
+
+  const handleMouseEnter = useLastCallback((e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    isMouseInsideRef.current = true;
+
+    // This is used to counter additional delay caused by asynchronous module loading
+    if (isFirstTimeActivation) {
+      isFirstTimeActivation = false;
+      onActivate(e);
+      return;
+    }
+
+    if (openTimeout) {
+      clearTimeout(openTimeout);
+      openTimeout = undefined;
+    }
+    openTimeout = window.setTimeout(() => {
+      if (isMouseInsideRef.current) {
+        onActivate(e);
+      }
+    }, BUTTON_ACTIVATE_DELAY);
+  });
+
+  const handleMouseLeave = useLastCallback(() => {
+    isMouseInsideRef.current = false;
+  });
+
+  const handleClick = useLastCallback((e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    isMouseInsideRef.current = true;
+    onActivate(e);
+  });
+
+  return (
+    <Button
+      {...buttonProps}
+      onMouseEnter={!IS_TOUCH_ENV ? handleMouseEnter : undefined}
+      onMouseLeave={!IS_TOUCH_ENV ? handleMouseLeave : undefined}
+      onClick={!IS_TOUCH_ENV ? (noClickActivation ? undefined : onActivate) : handleClick}
+    />
+  );
+};
+
+export default ResponsiveHoverButton;

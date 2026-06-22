@@ -1,0 +1,158 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: min(92vh, 38rem) !important;
+}
+
+.title {
+  margin-top: 1.25rem;
+  margin-bottom: 0;
+  font-size: 1.5rem;
+}
+
+.slider {
+  flex-shrink: 0;
+  margin-top: 2rem;
+}
+
+.description {
+  margin-bottom: 1.5rem;
+}
+
+.title, .description {
+  text-align: center;
+}
+
+.itemInfo {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+
+  height: auto;
+  margin-left: 0.5rem;
+}
+
+.itemTitle {
+  margin-bottom: 0.125rem;
+  line-height: 1rem;
+}
+
+.itemSubtitle {
+  font-size: 0.9375rem;
+  line-height: 1rem;
+  color: var(--color-text-secondary);
+}
+
+.itemIcon {
+  margin-right: 0 !important;
+  margin-left: 0.5rem;
+}
+
+.sendAsPeerButtonAvatar {
+  pointer-events: none;
+}
+
+.sendAsPeerMenuButton {
+  width: auto;
+  height: auto !important;
+  margin-right: 0.25rem;
+  padding: 0.25rem !important;
+  border-radius: 1.5rem;
+
+  background-color: var(--color-background-secondary) !important;
+
+  transition: background-color 0.15s;
+
+  &:global(.active),
+  &:active,
+  &:hover {
+    background-color: rgba(var(--color-text-secondary-rgb), 0.15) !important;
+  }
+}
+
+.buttonDownIcon {
+  margin-right: 0.125rem;
+  margin-left: 0.25rem;
+}
+
+.sendAsPeerMenuBubble {
+  right: auto !important;
+  left: 50%;
+  transform-origin: center !important;
+  transform: translateX(-50%) scale(0.85) !important;
+
+  overflow-y: auto !important;
+
+  max-width: 16rem;
+  max-height: 15rem;
+
+  &:global(.open) {
+    transform: translateX(-50%) scale(1) !important;
+  }
+}
+
+.sendAsPeerMenu {
+  margin-right: 0.25rem;
+}
+
+.sendAsPeersMenuContainer {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  transform: translateX(-50%);
+
+  display: flex;
+}
+
+.headerControlPanel {
+  position: absolute;
+  z-index: 3;
+  top: 0.75rem;
+  right: 1.25rem;
+
+  display: flex;
+  align-items: center;
+}
+
+.separator {
+  margin-top: 1rem;
+}
+
+.checkBox {
+  margin-block: 0.25rem !important;
+}
+
+.topLabel {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  color: var(--color-white);
+  background-image: var(--stars-gradient);
+}
+
+.top {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1rem;
+}
+
+.topBadge {
+  background-image: var(--stars-gradient);
+}
+
+.topPeer {
+  overflow: hidden;
+  flex-basis: 0;
+  flex-grow: 1;
+}
+
+.disclaimer {
+  align-self: center;
+
+  margin-top: 0.5rem;
+  margin-bottom: 0.125rem;
+
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}

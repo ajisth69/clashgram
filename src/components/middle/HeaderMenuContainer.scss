@@ -1,0 +1,32 @@
+.HeaderMenuContainer {
+  position: fixed;
+  z-index: var(--z-header-menu);
+  top: 0;
+  right: 0;
+  left: 0;
+
+  height: 100vh;
+
+  .Menu {
+    position: absolute;
+    font-size: 1rem;
+
+    .backdrop {
+      z-index: var(--z-header-menu-backdrop);
+    }
+
+    .bubble {
+      --offset-y: calc(100% + 1rem);
+
+      z-index: var(--z-header-menu);
+    }
+  }
+}
+
+.translation-tone-menu .bubble {
+  min-width: 0;
+
+  .icon {
+    margin-inline: 0.25rem;
+  }
+}

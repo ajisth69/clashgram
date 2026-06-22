@@ -1,0 +1,27 @@
+.primaryLink {
+  position: relative;
+}
+
+.input {
+  cursor: var(--custom-cursor, pointer);
+  margin-bottom: 1rem;
+  padding-right: 3.5rem;
+  text-overflow: ellipsis;
+}
+
+.moreMenu, .copy {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  right: 0.5rem;
+  transform: translate(0, -50%);
+}
+
+.title {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+.share {
+  font-weight: var(--font-weight-semibold);
+}

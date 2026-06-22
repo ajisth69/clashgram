@@ -1,0 +1,89 @@
+@use "../../styles/mixins";
+
+.RightHeader {
+  pointer-events: auto;
+
+  display: flex;
+  align-items: center;
+
+  height: var(--header-height);
+  padding: 0.5rem 0.8125rem;
+
+  background-color: var(--color-background);
+
+  transition: background-color 150ms;
+
+  &.secondary {
+    background-color: var(--color-background-secondary);
+  }
+
+  @include mixins.with-vt-type('rightColumn');
+
+  .close-button {
+    flex-shrink: 0;
+  }
+
+  > .Transition {
+    flex: 1;
+    height: 100%;
+
+    > .Transition_slide {
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  .title {
+    margin-bottom: 0;
+    margin-left: 1.1875rem;
+    font-size: 1.25rem;
+    font-weight: var(--font-weight-medium);
+  }
+
+  .header {
+    margin-left: 1.375rem;
+
+    .title {
+      margin-left: 0;
+      font-size: 1rem;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+    }
+  }
+
+  .tools {
+    display: flex;
+    margin-left: auto;
+  }
+
+  .SearchInput {
+    margin-left: 1rem;
+
+    @media (min-width: 600px) {
+      margin-right: 1rem;
+    }
+  }
+
+  .DropdownMenu {
+    margin-left: auto;
+  }
+
+  body.is-tauri.is-macos #Main:not(.is-fullscreen) & {
+    @media (max-width: 600px) {
+      padding-left: var(--window-controls-width);
+    }
+  }
+
+  @media (max-width: 600px) {
+    padding: 0.5rem;
+  }
+}
+
+@include mixins.on-active-vt('rightColumn') {
+  &::view-transition-group(.rightHeader) {
+    z-index: 10;
+  }
+}

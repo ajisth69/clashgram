@@ -1,0 +1,60 @@
+.slide { // Do not remove .slide, identifier used in JS
+  overflow-x: hidden;
+}
+
+.root {
+  :global(.modal-dialog) {
+    max-width: 23rem;
+  }
+}
+
+.modalTitle {
+  display: flex;
+  flex-direction: column;
+}
+
+.optionText {
+  overflow: hidden;
+  width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.option {
+  margin-bottom: 0rem !important;
+}
+
+.optionButton {
+  padding-block: 0 !important;
+}
+
+.sectionTitle {
+  padding-inline: 1rem;
+  color: var(--color-primary);
+}
+
+.description {
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+  padding-inline: 1rem;
+  color: var(--color-text-secondary);
+}
+
+.title {
+  margin-bottom: 0;
+}
+
+.titleMultiline > .title {
+  font-size: 1rem;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.transition {
+  overflow: hidden;
+  /* stylelint-disable-next-line plugin/no-low-performance-animation-properties */
+  transition: height 0.25s ease-in-out;
+}

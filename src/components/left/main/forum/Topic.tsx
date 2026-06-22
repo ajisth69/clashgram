@@ -1,0 +1,307 @@
+import { memo } from '../../../../lib/teact/teact';
+import { getActions, withGlobal } from '../../../../global';
+
+import type {
+  ApiChat, ApiDraft, ApiMessage, ApiMessageOutgoingStatus,
+  ApiPeer, ApiTopic, ApiTypeStory, ApiTypingStatus,
+} from '../../../../api/types';
+import type { ObserveFn } from '../../../../hooks/useIntersectionObserver';
+import type { ChatAnimationTypes } from '../hooks';
+
+import { UNMUTE_TIMESTAMP } from '../../../../config';
+import { groupStatefulContent } from '../../../../global/helpers';
+import { getIsChatMuted } from '../../../../global/helpers/notifications';
+import {
+  selectCanAnimateInterface,
+  selectCanDeleteTopic,
+  selectChat,
+  selectChatMessage,
+  selectCurrentMessageList,
+  selectNotifyDefaults,
+  selectNotifyException,
+  selectOutgoingStatus,
+  selectPeerStory,
+  selectSender,
+  selectTopicsInfo,
+} from '../../../../global/selectors';
+import {
+  selectDraft,
+  selectThreadInfo,
+  selectThreadLocalStateParam,
+  selectThreadReadState,
+} from '../../../../global/selectors/threads';
+import { IS_OPEN_IN_NEW_TAB_SUPPORTED } from '../../../../util/browser/windowEnvironment';
+import buildClassName from '../../../../util/buildClassName';
+import { createLocationHash } from '../../../../util/routing';
+import renderText from '../../../common/helpers/renderText';
+
+import useFlag from '../../../../hooks/useFlag';
+import useLastCallback from '../../../../hooks/useLastCallback';
+import useOldLang from '../../../../hooks/useOldLang';
+import useChatListEntry from '../hooks/useChatListEntry';
+import useTopicContextActions from '../hooks/useTopicContextActions';
+
+import Icon from '../../../common/icons/Icon';
+import LastMessageMeta from '../../../common/LastMessageMeta';
+import TopicIcon from '../../../common/TopicIcon';
+import ConfirmDialog from '../../../ui/ConfirmDialog';
+import ListItem from '../../../ui/ListItem';
+import MuteChatModal from '../../MuteChatModal.async';
+import ChatBadge from '../ChatBadge';
+
+import styles from './Topic.module.scss';
+
+type OwnProps = {
+  chatId: string;
+  topic: ApiTopic;
+  isSelected: boolean;
+  style: string;
+  observeIntersection?: ObserveFn;
+  shiftDiff: number;
+  orderDiff: number;
+  animationType: ChatAnimationTypes;
+  onReorderAnimationEnd?: NoneToVoidFunction;
+};
+
+type StateProps = {
+  chat: ApiChat;
+  isChatMuted?: boolean;
+  canDelete?: boolean;
+  lastMessage?: ApiMessage;
+  lastMessageStory?: ApiTypeStory;
+  lastMessageOutgoingStatus?: ApiMessageOutgoingStatus;
+  lastMessageSender?: ApiPeer;
+  typingStatusByPeerId?: Record<string, ApiTypingStatus>;
+  draft?: ApiDraft;
+  canScrollDown?: boolean;
+  wasTopicOpened?: boolean;
+  withInterfaceAnimations?: boolean;
+  topicIds?: number[];
+  unreadCount?: number;
+};
+
+const Topic = ({
+  topic,
+  isSelected,
+  chatId,
+  chat,
+  isChatMuted,
+  style,
+  lastMessage,
+  lastMessageStory,
+  canScrollDown,
+  lastMessageOutgoingStatus,
+  observeIntersection,
+  canDelete,
+  lastMessageSender,
+  animationType,
+  withInterfaceAnimations,
+  orderDiff,
+  shiftDiff,
+  typingStatusByPeerId,
+  draft,
+  wasTopicOpened,
+  topicIds,
+  unreadCount,
+  onReorderAnimationEnd,
+}: OwnProps & StateProps) => {
+  const {
+    openThread,
+    deleteTopic,
+    scrollMessageListToBottom,
+    setViewForumAsMessages,
+    updateTopicMutedState,
+    openQuickPreview,
+  } = getActions();
+
+  const lang = useOldLang();
+
+  const [isDeleteModalOpen, openDeleteModal, closeDeleteModal] = useFlag();
+  const [isMuteModalOpen, openMuteModal, closeMuteModal] = useFlag();
+  const [shouldRenderDeleteModal, markRenderDeleteModal, unmarkRenderDeleteModal] = useFlag();
+  const [shouldRenderMuteModal, markRenderMuteModal, unmarkRenderMuteModal] = useFlag();
+
+  const {
+    isPinned, isClosed, notifySettings,
+  } = topic;
+  const isMuted = Boolean(notifySettings.mutedUntil || (notifySettings.mutedUntil === undefined && isChatMuted));
+
+  const handleOpenDeleteModal = useLastCallback(() => {
+    markRenderDeleteModal();
+    openDeleteModal();
+  });
+
+  const handleDelete = useLastCallback(() => {
+    deleteTopic({ chatId: chat.id, topicId: topic.id });
+  });
+
+  const handleMute = useLastCallback(() => {
+    markRenderMuteModal();
+    openMuteModal();
+  });
+
+  const handleUnmute = useLastCallback(() => {
+    updateTopicMutedState({ chatId, topicId: topic.id, mutedUntil: UNMUTE_TIMESTAMP });
+  });
+
+  const { renderSubtitle, ref } = useChatListEntry({
+    chat,
+    chatId,
+    lastMessage,
+    draft,
+    lastMessageSender,
+    lastMessageTopic: topic,
+    observeIntersection,
+    isTopic: true,
+    typingStatusByPeerId,
+    topicIds,
+    statefulMediaContent: groupStatefulContent({ story: lastMessageStory }),
+
+    animationType,
+    withInterfaceAnimations,
+    orderDiff,
+    shiftDiff,
+    onReorderAnimationEnd,
+  });
+
+  const handleOpenTopic = useLastCallback((e: React.MouseEvent) => {
+    if (e.altKey) {
+      e.preventDefault();
+      openQuickPreview({ id: chatId, threadId: topic.id });
+      return;
+    }
+
+    openThread({ chatId, threadId: topic.id, shouldReplaceHistory: true });
+    if (!chat.isBotForum && !chat.isMonoforum) setViewForumAsMessages({ chatId, isEnabled: false });
+
+    if (canScrollDown) {
+      scrollMessageListToBottom();
+    }
+  });
+
+  const contextActions = useTopicContextActions({
+    topic,
+    chat,
+    isChatMuted,
+    wasOpened: wasTopicOpened,
+    canDelete,
+    unreadCount,
+    handleDelete: handleOpenDeleteModal,
+    handleMute,
+    handleUnmute,
+  });
+
+  return (
+    <ListItem
+      className={buildClassName(
+        styles.root,
+        'Chat',
+        isSelected && 'selected',
+        'chat-item-clickable',
+      )}
+      onClick={handleOpenTopic}
+      style={style}
+      href={IS_OPEN_IN_NEW_TAB_SUPPORTED ? `#${createLocationHash(chatId, 'thread', topic.id)}` : undefined}
+      contextActions={contextActions}
+      withPortalForMenu
+      ref={ref}
+    >
+      <div className="info">
+        <div className="info-row">
+          <div className={buildClassName('title')}>
+            <TopicIcon topic={topic} className={styles.topicIcon} observeIntersection={observeIntersection} />
+            <h3 dir="auto" className="fullName">{renderText(topic.title)}</h3>
+          </div>
+          {Boolean(notifySettings.mutedUntil) && <Icon name="muted" />}
+          <div className="separator" />
+          {isClosed && (
+            <Icon name="lock-badge" className={styles.closedIcon} />
+          )}
+          {lastMessage && (
+            <LastMessageMeta
+              message={lastMessage}
+              outgoingStatus={lastMessageOutgoingStatus}
+            />
+          )}
+        </div>
+        <div className="subtitle">
+          {renderSubtitle()}
+          <ChatBadge
+            chat={chat}
+            isPinned={isPinned}
+            isMuted={isMuted}
+            topic={topic}
+            wasTopicOpened={wasTopicOpened}
+            isSelected={isSelected}
+          />
+        </div>
+      </div>
+      {shouldRenderDeleteModal && (
+        <ConfirmDialog
+          isOpen={isDeleteModalOpen}
+          onClose={closeDeleteModal}
+          onCloseAnimationEnd={unmarkRenderDeleteModal}
+          confirmIsDestructive
+          confirmHandler={handleDelete}
+          text={lang('lng_forum_topic_delete_sure')}
+          confirmLabel={lang('Delete')}
+        />
+      )}
+      {shouldRenderMuteModal && (
+        <MuteChatModal
+          isOpen={isMuteModalOpen}
+          onClose={closeMuteModal}
+          onCloseAnimationEnd={unmarkRenderMuteModal}
+          chatId={chatId}
+          topicId={topic.id}
+        />
+      )}
+    </ListItem>
+  );
+};
+
+export default memo(withGlobal<OwnProps>(
+  (global, { chatId, topic, isSelected }) => {
+    const chat = selectChat(global, chatId);
+
+    const threadInfo = selectThreadInfo(global, chatId, topic.id);
+    const lastMessage = threadInfo?.lastMessageId
+      ? selectChatMessage(global, chatId, threadInfo.lastMessageId) : undefined;
+    const { isOutgoing } = lastMessage || {};
+    const lastMessageSender = lastMessage && selectSender(global, lastMessage);
+    const typingStatusByPeerId = selectThreadLocalStateParam(global, chatId, topic.id, 'typingStatusByPeerId');
+    const draft = selectDraft(global, chatId, topic.id);
+
+    const readState = selectThreadReadState(global, chatId, topic.id);
+    const wasTopicOpened = chat?.isBotForum || Boolean(readState?.lastReadInboxMessageId);
+    const topicIds = selectTopicsInfo(global, chatId)?.listedTopicIds;
+
+    const { chatId: currentChatId, threadId: currentThreadId } = selectCurrentMessageList(global) || {};
+
+    const storyData = lastMessage?.content.storyData;
+    const lastMessageStory = storyData && selectPeerStory(global, storyData.peerId, storyData.id);
+
+    const isChatMuted = chat && getIsChatMuted(
+      chat, selectNotifyDefaults(global), selectNotifyException(global, chat.id),
+    );
+
+    return {
+      chat,
+      lastMessage,
+      lastMessageSender,
+      typingStatusByPeerId,
+      isChatMuted,
+      canDelete: selectCanDeleteTopic(global, chatId, topic.id),
+      withInterfaceAnimations: selectCanAnimateInterface(global),
+      draft,
+      ...(isOutgoing && lastMessage && {
+        lastMessageOutgoingStatus: selectOutgoingStatus(global, chatId, topic.id, lastMessage.id, 'thread'),
+      }),
+      canScrollDown: isSelected && chat?.id === currentChatId && currentThreadId === topic.id,
+      wasTopicOpened,
+      topicIds,
+      lastMessageStory,
+      unreadCount: readState?.unreadCount,
+    };
+  },
+)(Topic));

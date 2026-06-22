@@ -1,0 +1,76 @@
+.main {
+  max-height: 90vh;
+}
+
+.root {
+  :global(.modal-dialog) {
+    max-width: 22.5rem;
+  }
+}
+
+.container {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-left: -0.5rem;
+}
+
+.title {
+  margin: 0;
+}
+
+.singleTitle {
+  margin-bottom: 1rem;
+}
+
+.actionTitle {
+  margin-top: 1.5rem;
+  font-size: 1rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-links);
+}
+
+.restrictionTitle {
+  margin: 1rem 0 0.5rem 1rem;
+}
+
+.button {
+  padding: 0 !important;
+  color: var(--color-links) !important;
+  &:hover {
+    background: none !important;
+  }
+}
+
+.options {
+  margin: 0 -1rem;
+}
+
+.dropdownList {
+  padding: 0 1rem 0 4rem;
+}
+
+.dialogButtons {
+  padding-bottom: 1rem;
+}
+
+.proceedButtons {
+  margin-top: 0.5rem;
+}
+
+.restrictionContainer,
+.dropdownList {
+  overflow: hidden;
+  max-height: 0;
+  margin: 0 -1rem;
+  /* stylelint-disable-next-line plugin/no-low-performance-animation-properties */
+  transition: max-height 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.restrictionContainerOpen,
+.dropdownListOpen {
+  max-height: 100vh;
+  margin: 0 -1rem;
+  /* stylelint-disable-next-line plugin/no-low-performance-animation-properties */
+  transition: max-height 0.3s ease-in-out;
+}

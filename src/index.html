@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" translate="no" class="notranslate">
+
+<head>
+  <meta charset="UTF-8">
+
+  <title>
+    <%= htmlWebpackPlugin.options.appTitle %>
+  </title>
+
+  <meta name="title" content="<%= htmlWebpackPlugin.options.appTitle %> - Private and Custom Telegram Client">
+  <meta name="description"
+    content="Clashgram is a highly optimized, privacy-focused Telegram client. Secure your messaging with selective read receipts, client-side message retention, offline Whisper AI transcription, and a custom glassmorphism UI.">
+  <meta name="keywords" content="clashgram, private telegram client, telegram web client, ghost mode telegram, anti-delete messages, whisper ai voice transcription, offline telegram translation, custom glassmorphism, secure messenger">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-title" content="<%= htmlWebpackPlugin.options.appTitle %>">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="<%= htmlWebpackPlugin.options.appTitle %>">
+  <meta name="application-name" content="<%= htmlWebpackPlugin.options.appTitle %>">
+  <meta name="msapplication-TileColor" content="#2b5797">
+  <meta name="msapplication-config" content="./browserconfig.xml">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="google" content="notranslate">
+
+  <meta http-equiv="Content-Security-Policy" content="<%= htmlWebpackPlugin.options.csp %>">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="<%= htmlWebpackPlugin.options.baseUrl %>">
+  <meta property="og:title" content="<%= htmlWebpackPlugin.options.appTitle %>">
+  <meta property="og:description"
+        content="Clashgram is a highly optimized, privacy-focused Telegram client. Secure your messaging with selective read receipts, client-side message retention, offline Whisper AI transcription, and a custom glassmorphism UI.">
+  <meta property="og:image" content="./<%= htmlWebpackPlugin.options.mainIcon %>.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="<%= htmlWebpackPlugin.options.baseUrl %>">
+  <meta property="twitter:title" content="<%= htmlWebpackPlugin.options.appTitle %>">
+  <meta property="twitter:description"
+    content="Clashgram is a highly optimized, privacy-focused Telegram client. Secure your messaging with selective read receipts, client-side message retention, offline Whisper AI transcription, and a custom glassmorphism UI.">
+  <meta property="twitter:image" content="./<%= htmlWebpackPlugin.options.mainIcon %>.png">
+
+  <link rel="canonical" href="https://web.telegram.org/">
+  <link rel="apple-touch-icon" sizes="180x180" href="./<%= htmlWebpackPlugin.options.appleIcon %>.png">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./<%= htmlWebpackPlugin.options.mainIcon %>.png">
+  <link rel="alternate icon" href="./favicon.ico" type="image/x-icon">
+  <link rel="manifest" id="the-manifest-placeholder" href="./<%= htmlWebpackPlugin.options.manifest %>">
+
+  <script src="./redirect.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    @layer reset, variables, ui, components;
+    @layer ui {
+      @layer tablist, spinner, button, input, layout;
+    }
+  </style>
+</head>
+
+<body id="root">
+  <noscript>
+    <video src="./nojs.mp4" class="nojs-video" muted loop autoplay playsinline disablePictureInPicture></video>
+    <h1>Clashgram Web</h1>
+    <p>Please, enable JavaScript to open the app.</p>
+  </noscript>
+  <div id="portals"></div>
+  <script src="./compatTest.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,90 @@
+import type {
+  ApiUser, ApiUserCommonChats,
+  ApiUserFullInfo, ApiUserStatus,
+} from '../../api/types';
+import type { BotAppPermissions } from '../../types';
+import type { GlobalState } from '../types';
+
+import { isUserBot } from '../helpers';
+
+export function selectUser<T extends GlobalState>(global: T, userId: string): ApiUser | undefined {
+  const user = global.users.byId[userId];
+  if (user && userId === global.currentUserId && global.sharedState.settings.clashgramLocalPremium) {
+    return { ...user, isPremium: true };
+  }
+  return user;
+}
+
+export function selectUserStatus<T extends GlobalState>(global: T, userId: string): ApiUserStatus | undefined {
+  const status = global.users.statusesById[userId];
+  if (status && global.sharedState.settings.clashgramLocalPremium) {
+    return { ...status, isReadDateRestrictedByMe: false };
+  }
+  return status;
+}
+
+export function selectUserFullInfo<T extends GlobalState>(global: T, userId: string): ApiUserFullInfo | undefined {
+  return global.users.fullInfoById[userId];
+}
+
+export function selectUserCommonChats<T extends GlobalState>(
+  global: T, userId: string,
+): ApiUserCommonChats | undefined {
+  return global.users.commonChatsById[userId];
+}
+
+export function selectIsUserBlocked<T extends GlobalState>(global: T, userId: string) {
+  return selectUserFullInfo(global, userId)?.isBlocked;
+}
+
+export function selectIsUserChatProtected<T extends GlobalState>(global: T, userId: string) {
+  const fullInfo = selectUserFullInfo(global, userId);
+  if (!fullInfo) return undefined;
+
+  return Boolean(fullInfo.noForwardsMyEnabled || fullInfo.noForwardsPeerEnabled);
+}
+
+export function selectIsCurrentUserPremium<T extends GlobalState>(global: T) {
+  if (global.sharedState.settings.clashgramLocalPremium) {
+    return true;
+  }
+  if (!global.currentUserId) return false;
+
+  return Boolean(global.users.byId[global.currentUserId].isPremium);
+}
+
+export function selectIsCurrentUserFrozen<T extends GlobalState>(global: T) {
+  return Boolean(global.appConfig.freezeUntilDate);
+}
+
+export function selectIsPremiumPurchaseBlocked<T extends GlobalState>(global: T) {
+  return global.appConfig.isPremiumPurchaseBlocked ?? true;
+}
+
+export function selectIsGiveawayGiftsPurchaseAvailable<T extends GlobalState>(global: T) {
+  return global.appConfig.isGiveawayGiftsPurchaseAvailable ?? true;
+}
+
+/**
+ * Slow, not to be used in `withGlobal`
+ */
+export function selectUserByPhoneNumber<T extends GlobalState>(global: T, phoneNumber: string) {
+  const phoneNumberCleaned = phoneNumber.replace(/[^0-9]/g, '');
+
+  return Object.values(global.users.byId).find((user) => user?.phoneNumber === phoneNumberCleaned);
+}
+
+export function selectBot<T extends GlobalState>(global: T, userId: string): ApiUser | undefined {
+  const user = selectUser(global, userId);
+  if (!user || !isUserBot(user)) {
+    return undefined;
+  }
+
+  return user;
+}
+
+export function selectBotAppPermissions<T extends GlobalState>(
+  global: T, userId: string,
+): BotAppPermissions | undefined {
+  return global.users.botAppPermissionsById[userId];
+}

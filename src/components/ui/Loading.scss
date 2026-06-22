@@ -1,0 +1,14 @@
+.Loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+
+  &.interactive {
+    cursor: var(--custom-cursor, pointer);
+  }
+
+  .Spinner {
+    --spinner-size: 2.75rem;
+  }
+}

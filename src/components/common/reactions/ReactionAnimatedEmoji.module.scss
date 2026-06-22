@@ -1,0 +1,39 @@
+.root {
+  --custom-emoji-border-radius: 0.25rem;
+
+  position: relative;
+  z-index: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: var(--custom-emoji-size);
+  height: var(--custom-emoji-size);
+}
+
+.animated-icon, .effect {
+  pointer-events: none;
+
+  &:not(:global(.open)) {
+    opacity: 1 !important;
+  }
+
+  &:global(.closing) {
+    opacity: 0 !important;
+  }
+}
+
+.animating {
+  // Fix for redundant scroll on iOS
+  transform: translateZ(0);
+  // Fix for redundant scroll in Firefox
+  contain: layout;
+}
+
+.withEffectOnly, .animated-icon, .effect {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

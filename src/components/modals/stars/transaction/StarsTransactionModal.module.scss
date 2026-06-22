@@ -1,0 +1,139 @@
+@use "../../../../styles/mixins";
+
+.modal {
+  z-index: calc(var(--z-modal-low-priority) + 1);
+
+  :global(.modal-dialog) {
+    overflow: hidden;
+  }
+}
+
+.positive {
+  color: var(--color-success);
+}
+
+.negative {
+  color: var(--color-error);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: center;
+
+  margin-block: 1rem;
+}
+
+.uniqueGift {
+  margin-block: 0;
+}
+
+.amount {
+  font-size: 1rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.325;
+}
+
+.title, .description, .amount {
+  margin-bottom: 0;
+}
+
+.title {
+  margin-top: 1rem;
+
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.25;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.tid {
+  cursor: pointer;
+
+  overflow: hidden;
+
+  font-family: var(--font-family-monospace);
+  font-size: 0.875rem;
+  white-space: nowrap;
+
+  @include mixins.gradient-border-right(3rem, 1rem);
+}
+
+.description {
+  text-align: center;
+}
+
+.refunded {
+  margin-bottom: 0;
+  margin-inline-start: 0.125rem;
+  padding: 0.25em 0.5em;
+  border-radius: var(--border-radius-messages-small);
+
+  font-size: 0.8125rem;
+  line-height: 1;
+  color: var(--color-success);
+
+  background-color: rgba(var(--color-text-green-rgb), 0.2);
+}
+
+.starIcon {
+  margin-inline-start: 0 !important;
+  line-height: 1 !important;
+}
+
+.footer {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.starsBackground {
+  position: absolute;
+  z-index: -1;
+  top: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+
+  height: 7rem;
+}
+
+.copyIcon {
+  pointer-events: none;
+
+  position: absolute;
+  top: 50%;
+  right: 0.25rem;
+  transform: translateY(-50%);
+
+  margin-inline-start: 0.25rem;
+
+  color: var(--color-primary);
+}
+
+.mediaPreview {
+  cursor: var(--custom-cursor, pointer);
+  margin-block: 1.5rem 1rem;
+}
+
+.subtitle {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.starGiftSticker {
+  position: relative;
+  width: 150px;
+  height: 150px;
+}
+
+.avatar {
+  z-index: 2;
+  transition: transform 0.25s ease-out;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}

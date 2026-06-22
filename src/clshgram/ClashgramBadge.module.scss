@@ -1,0 +1,74 @@
+.container {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  vertical-align: middle;
+  margin-left: 0.25rem;
+  flex-shrink: 0;
+}
+
+.badgeWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  // Tooltip trigger
+  &:hover {
+    .tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+}
+
+.badgeIcon {
+  display: inline-block;
+  width: 1.125rem; // Sized perfectly to match typography scale (18px)
+  height: 1.125rem;
+  vertical-align: middle;
+  flex-shrink: 0;
+  
+  // Strict clip-path rule to isolate inner graphic layer and guarantee transparency
+  clip-path: circle(41% at 50% 50%);
+  
+  // Smooth transitions for hover effects
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+// Lightweight CSS-only premium tooltip using glassmorphism effects
+.tooltip {
+  position: absolute;
+  bottom: 140%;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  
+  // Premium dark-mode glassmorphic aesthetics
+  background: rgba(18, 18, 18, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fbfbfb;
+  
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  
+  // Drop shadow for a floating elevation effect
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  
+  // Transition state
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.18s ease-out, transform 0.18s ease-out, visibility 0.18s ease-out;
+  z-index: 100;
+}

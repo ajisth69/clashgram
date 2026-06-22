@@ -1,0 +1,29 @@
+.content {
+  display: flex;
+  flex-direction: column;
+}
+
+.fixedHeight .content {
+  height: 90vh;
+}
+
+.withSearch {
+  .content {
+    padding: 0;
+  }
+
+  .header {
+    margin-bottom: -0.75rem; // Pull search closer to the header
+  }
+}
+
+.header {
+  padding: 0.25rem !important;
+}
+
+.buttonWrapper {
+  position: relative;
+  padding-top: 0.25rem;
+  padding-bottom: 1rem;
+  padding-inline: 1rem;
+}

@@ -1,0 +1,970 @@
+import type { TabState } from '../../global/types';
+import type {
+  GroupCallConnectionData,
+  GroupCallConnectionState,
+  GroupCallParticipant,
+  VideoRotation,
+  VideoState,
+} from '../../lib/vibecalls';
+import type { ThreadId, ThreadReadState, TranslationTone } from '../../types';
+import type { RegularLangFnParameters } from '../../util/localization';
+import type { ApiBotCommand, ApiBotMenuButton } from './bots';
+import type {
+  ApiGroupCall, ApiPhoneCall,
+} from './calls';
+import type {
+  ApiChat,
+  ApiChatFolder,
+  ApiChatFullInfo,
+  ApiChatMember,
+  ApiDraft,
+  ApiTypingStatus,
+} from './chats';
+import type {
+  ApiFormattedText,
+  ApiMediaExtendedPreview,
+  ApiMessage,
+  ApiMessagePoll,
+  ApiPaidReactionPrivacyType,
+  ApiPhoto,
+  ApiQuickReply,
+  ApiReaction,
+  ApiReactions,
+  ApiStickerSet,
+  ApiThreadInfo,
+  ApiWebPage,
+  BoughtPaidMedia,
+} from './messages';
+import type {
+  ApiEmojiInteraction,
+  ApiError,
+  ApiNotifyPeerType,
+  ApiPasskeyOption,
+  ApiPeerNotifySettings,
+  ApiSessionData,
+} from './misc';
+import type { ApiEmojiStatusType, ApiPeerSettings } from './peers';
+import type { ApiPrivacyKey, LangPackStringValue, PrivacyVisibility } from './settings';
+import type { ApiStarGiftAuctionUserState, ApiTypeCurrencyAmount, ApiTypeStarGiftAuctionState } from './stars';
+import type { ApiStealthMode, ApiStory, ApiStorySkipped } from './stories';
+import type {
+  ApiUser, ApiUserFullInfo, ApiUserStatus,
+} from './users';
+
+export type ApiUpdateReady = {
+  '@type': 'updateApiReady';
+};
+
+export type ApiUpdateAuthorizationStateType = (
+  'authorizationStateLoggingOut' |
+  'authorizationStateWaitPhoneNumber' |
+  'authorizationStateWaitCode' |
+  'authorizationStateWaitPassword' |
+  'authorizationStateWaitRegistration' |
+  'authorizationStateReady' |
+  'authorizationStateClosing' |
+  'authorizationStateClosed' |
+  'authorizationStateWaitQrCode'
+);
+
+export type ApiUpdateConnectionStateType = (
+  'connectionStateConnecting' |
+  'connectionStateReady' |
+  'connectionStateBroken'
+);
+
+export type ApiUpdateAuthorizationState = {
+  '@type': 'updateAuthorizationState';
+  authorizationState: ApiUpdateAuthorizationStateType;
+  isCodeViaApp?: boolean;
+  hint?: string;
+  noReset?: boolean;
+  qrCode?: { token: string; expires: number };
+};
+
+export type ApiUpdateWebAuthTokenFailed = {
+  '@type': 'updateWebAuthTokenFailed';
+};
+
+export type ApiUpdatePasskeyOption = {
+  '@type': 'updatePasskeyOption';
+  option: ApiPasskeyOption;
+};
+
+export type ApiUpdateSession = {
+  '@type': 'updateSession';
+  sessionData?: ApiSessionData;
+};
+
+export type ApiUpdateAuthorizationError = {
+  '@type': 'updateAuthorizationError';
+  errorKey: RegularLangFnParameters;
+  errorCode?: string;
+};
+
+export type ApiUpdateUserAlreadyAuthorized = {
+  '@type': 'updateUserAlreadyAuthorized';
+  userId: string;
+};
+
+export type ApiUpdateConnectionState = {
+  '@type': 'updateConnectionState';
+  connectionState: ApiUpdateConnectionStateType;
+  isTerminal?: boolean;
+};
+
+export type ApiUpdateCurrentUser = {
+  '@type': 'updateCurrentUser';
+  currentUser: ApiUser;
+  currentUserFullInfo: ApiUserFullInfo;
+};
+
+export type ApiUpdateChat = {
+  '@type': 'updateChat';
+  id: string;
+  chat: Partial<ApiChat>;
+  readState?: Partial<ThreadReadState>;
+  noTopChatsRequest?: boolean;
+};
+
+export type ApiUpdateChatLastMessage = {
+  '@type': 'updateChatLastMessage';
+  id: string;
+  lastMessage: ApiMessage;
+};
+
+export type ApiUpdateChatJoin = {
+  '@type': 'updateChatJoin';
+  id: string;
+};
+
+export type ApiUpdateChatLeave = {
+  '@type': 'updateChatLeave';
+  id: string;
+};
+
+export type ApiUpdateChatTypingStatus = {
+  '@type': 'updateChatTypingStatus';
+  id: string;
+  peerId: string;
+  threadId?: ThreadId;
+  typingStatus: ApiTypingStatus | undefined;
+};
+
+export type ApiUpdateChatTypingDraft = {
+  '@type': 'updateChatTypingDraft';
+  chatId: string;
+  id: string;
+  threadId?: ThreadId;
+  text: ApiFormattedText;
+};
+
+export type ApiUpdateStartEmojiInteraction = {
+  '@type': 'updateStartEmojiInteraction';
+  id: string;
+  emoji: string;
+  messageId: number;
+  interaction: ApiEmojiInteraction;
+};
+
+export type ApiUpdateChatFullInfo = {
+  '@type': 'updateChatFullInfo';
+  id: string;
+  fullInfo: Partial<ApiChatFullInfo>;
+};
+
+export type ApiUpdateChatMembers = {
+  '@type': 'updateChatMembers';
+  id: string;
+  replacedMembers?: ApiChatMember[];
+  addedMember?: ApiChatMember;
+  deletedMemberId?: string;
+};
+
+export type ApiUpdateChatParticipantRank = {
+  '@type': 'updateChatParticipantRank';
+  id: string;
+  userId: string;
+  rank: string;
+};
+
+export type ApiUpdatePinnedChatIds = {
+  '@type': 'updatePinnedChatIds';
+  ids?: string[];
+  folderId?: number;
+};
+
+export type ApiUpdateChatListType = {
+  '@type': 'updateChatListType';
+  id: string;
+  folderId: number;
+};
+
+export type ApiUpdateChatPinned = {
+  '@type': 'updateChatPinned';
+  id: string;
+  isPinned: boolean;
+};
+
+export type ApiUpdatePinnedSavedDialogIds = {
+  '@type': 'updatePinnedSavedDialogIds';
+  ids: string[];
+};
+
+export type ApiUpdateSavedDialogPinned = {
+  '@type': 'updateSavedDialogPinned';
+  id: string;
+  isPinned: boolean;
+};
+
+export type ApiUpdateChatFolder = {
+  '@type': 'updateChatFolder';
+  id: number;
+  folder: ApiChatFolder | undefined;
+};
+
+export type ApiUpdateChatFoldersOrder = {
+  '@type': 'updateChatFoldersOrder';
+  orderedIds: number[];
+};
+
+export type ApiUpdateRecommendedChatFolders = {
+  '@type': 'updateRecommendedChatFolders';
+  folders: ApiChatFolder[];
+};
+
+export type ApiUpdateNewScheduledMessage = {
+  '@type': 'newScheduledMessage';
+  chatId: string;
+  id: number;
+  message: ApiMessage;
+  wasDrafted?: boolean;
+  poll?: ApiMessagePoll;
+  webPage?: ApiWebPage;
+};
+
+export type ApiUpdateNewMessage = {
+  '@type': 'newMessage';
+  chatId: string;
+  id: number;
+  message: ApiMessage;
+  shouldForceReply?: boolean;
+  wasDrafted?: boolean;
+  poll?: ApiMessagePoll;
+  webPage?: ApiWebPage;
+};
+
+export type ApiUpdateMessage = {
+  '@type': 'updateMessage';
+  chatId: string;
+  id: number;
+  poll?: ApiMessagePoll;
+  webPage?: ApiWebPage;
+  shouldForceReply?: boolean;
+  isFromNew?: true;
+} & (
+  {
+    isFull: true;
+    message: ApiMessage;
+  } | {
+    isFull?: false;
+    message: Partial<ApiMessage>;
+  }
+);
+
+export type ApiUpdateScheduledMessage = {
+  '@type': 'updateScheduledMessage';
+  chatId: string;
+  id: number;
+  poll?: ApiMessagePoll;
+  webPage?: ApiWebPage;
+  isFromNew?: true;
+} & (
+  {
+    isFull: true;
+    message: ApiMessage;
+  } | {
+    isFull?: false;
+    message: Partial<ApiMessage>;
+  }
+);
+
+export type ApiUpdateQuickReplyMessage = {
+  '@type': 'updateQuickReplyMessage';
+  id: number;
+  message: Partial<ApiMessage>;
+  poll?: ApiMessagePoll;
+  webPage?: ApiWebPage;
+};
+
+export type ApiUpdateDeleteQuickReplyMessages = {
+  '@type': 'deleteQuickReplyMessages';
+  quickReplyId: number;
+  messageIds: number[];
+};
+
+export type ApiUpdateQuickReplies = {
+  '@type': 'updateQuickReplies';
+  quickReplies: ApiQuickReply[];
+};
+
+export type ApiDeleteQuickReply = {
+  '@type': 'deleteQuickReply';
+  quickReplyId: number;
+};
+
+export type ApiUpdatePinnedMessageIds = {
+  '@type': 'updatePinnedIds';
+  chatId: string;
+  isPinned?: boolean;
+  messageIds: number[];
+};
+
+export type ApiUpdateThreadInfo = {
+  '@type': 'updateThreadInfo';
+  threadInfo: ApiThreadInfo;
+};
+
+export type ApiUpdateThreadReadState = {
+  '@type': 'updateThreadReadState';
+  chatId: string;
+  threadId: ThreadId;
+  readState: Partial<ThreadReadState>;
+};
+
+export type ApiUpdateScheduledMessageSendSucceeded = {
+  '@type': 'updateScheduledMessageSendSucceeded';
+  chatId: string;
+  localId: number;
+  message: ApiMessage;
+  poll?: ApiMessagePoll;
+  webPage?: ApiWebPage;
+};
+
+export type ApiUpdateMessageSendSucceeded = {
+  '@type': 'updateMessageSendSucceeded';
+  chatId: string;
+  localId: number;
+  message: ApiMessage;
+  poll?: ApiMessagePoll;
+  webPage?: ApiWebPage;
+};
+
+export type ApiUpdateVideoProcessingPending = {
+  '@type': 'updateVideoProcessingPending';
+  chatId: string;
+  localId: number;
+  newScheduledMessageId: number;
+};
+
+export type ApiUpdateMessageSendFailed = {
+  '@type': 'updateMessageSendFailed';
+  chatId: string;
+  localId: number;
+  error: string;
+};
+
+export type ApiUpdateScheduledMessageSendFailed = {
+  '@type': 'updateScheduledMessageSendFailed';
+  chatId: string;
+  localId: number;
+  error: string;
+};
+
+export type ApiUpdateCommonBoxMessages = {
+  '@type': 'updateCommonBoxMessages';
+  ids: number[];
+  messageUpdate: Partial<ApiMessage>;
+};
+
+export type ApiUpdateChannelMessages = {
+  '@type': 'updateChannelMessages';
+  channelId: string;
+  ids: number[];
+  messageUpdate: Partial<ApiMessage>;
+};
+
+export type ApiUpdateMessagePoll = {
+  '@type': 'updateMessagePoll';
+  pollId: string;
+  pollUpdate: Partial<ApiMessagePoll>;
+};
+
+export type ApiUpdateMessagePollVote = {
+  '@type': 'updateMessagePollVote';
+  pollId: string;
+  peerId: string;
+  options: string[];
+};
+
+export type ApiUpdateServiceNotification = {
+  '@type': 'updateServiceNotification';
+  message: ApiMessage;
+};
+
+export type ApiUpdateDeleteMessages = {
+  '@type': 'deleteMessages';
+  ids: number[];
+  chatId?: string;
+};
+
+export type ApiUpdateDeleteScheduledMessages = {
+  '@type': 'deleteScheduledMessages';
+  ids: number[];
+  newIds?: number[];
+  chatId: string;
+};
+
+export type ApiUpdateDeleteHistory = {
+  '@type': 'deleteHistory';
+  chatId: string;
+};
+
+export type ApiDeleteParticipantHistory = {
+  '@type': 'deleteParticipantHistory';
+  chatId: string;
+  peerId: string;
+};
+
+export type ApiUpdateDeleteSavedHistory = {
+  '@type': 'deleteSavedHistory';
+  chatId: string;
+};
+
+export type ApiUpdateResetMessages = {
+  '@type': 'resetMessages';
+  id: string;
+};
+
+export type ApiUpdateDraftMessage = {
+  '@type': 'draftMessage';
+  chatId: string;
+  threadId?: ThreadId;
+  draft?: ApiDraft;
+};
+
+export type ApiUpdateMessageReactions = {
+  '@type': 'updateMessageReactions';
+  id: number;
+  chatId: string;
+  threadId?: ThreadId;
+  reactions: ApiReactions;
+};
+
+export type ApiUpdateMessageExtendedMedia = {
+  '@type': 'updateMessageExtendedMedia';
+  id: number;
+  chatId: string;
+} & ({
+  isBought?: true;
+  extendedMedia: BoughtPaidMedia[];
+} | {
+  isBought?: undefined;
+  extendedMedia: ApiMediaExtendedPreview[];
+});
+
+export type ApiDeleteContact = {
+  '@type': 'deleteContact';
+  id: string;
+};
+
+export type ApiUpdatePeerSettings = {
+  '@type': 'updatePeerSettings';
+  id: string;
+  settings: ApiPeerSettings;
+};
+
+export type ApiUpdateUser = {
+  '@type': 'updateUser';
+  id: string;
+  user: Partial<ApiUser>;
+  fullInfo?: ApiUserFullInfo;
+};
+
+export type ApiUpdateRequestUserUpdate = {
+  '@type': 'updateRequestUserUpdate';
+  id: string;
+};
+
+export type ApiUpdateUserStatus = {
+  '@type': 'updateUserStatus';
+  userId: string;
+  status: ApiUserStatus;
+};
+
+export type ApiUpdateUserEmojiStatus = {
+  '@type': 'updateUserEmojiStatus';
+  userId: string;
+  emojiStatus?: ApiEmojiStatusType;
+};
+
+export type ApiUpdateRecentEmojiStatuses = {
+  '@type': 'updateRecentEmojiStatuses';
+};
+
+export type ApiUpdateUserFullInfo = {
+  '@type': 'updateUserFullInfo';
+  id: string;
+  fullInfo: Partial<ApiUserFullInfo>;
+};
+
+export type ApiUpdateAvatar = {
+  '@type': 'updateAvatar';
+  chatId: string;
+  dataUri: string;
+};
+
+export type ApiUpdateMessageImage = {
+  '@type': 'updateMessageImage';
+  messageId: number;
+  dataUri: string;
+};
+
+export type ApiUpdateError = {
+  '@type': 'error';
+  error: ApiError;
+};
+
+export type ApiUpdateNotSupportedInFrozenAccountError = {
+  '@type': 'notSupportedInFrozenAccount';
+  error: ApiError;
+};
+
+export type ApiUpdateConfig = {
+  '@type': 'updateConfig';
+};
+
+export type ApiUpdateResetContacts = {
+  '@type': 'updateResetContactList';
+};
+
+export type ApiUpdateFavoriteStickers = {
+  '@type': 'updateFavoriteStickers';
+};
+
+export type ApiUpdateRecentStickers = {
+  '@type': 'updateRecentStickers';
+};
+
+export type ApiUpdateRecentReactions = {
+  '@type': 'updateRecentReactions';
+};
+
+export type ApiUpdateMoveStickerSetToTop = {
+  '@type': 'updateMoveStickerSetToTop';
+  isCustomEmoji?: boolean;
+  id: string;
+};
+
+export type ApiUpdateStickerSets = {
+  '@type': 'updateStickerSets';
+};
+
+export type ApiUpdateStickerSetsOrder = {
+  '@type': 'updateStickerSetsOrder';
+  order: string[];
+  isCustomEmoji?: boolean;
+};
+
+export type ApiUpdateStickerSet = {
+  '@type': 'updateStickerSet';
+  id: string;
+  stickerSet: Partial<ApiStickerSet>;
+};
+
+export type ApiUpdateSavedGifs = {
+  '@type': 'updateSavedGifs';
+};
+
+export type ApiUpdateTwoFaError = {
+  '@type': 'updateTwoFaError';
+  messageKey: RegularLangFnParameters;
+};
+
+export type ApiUpdateDefaultNotifySettings = {
+  '@type': 'updateDefaultNotifySettings';
+  peerType: ApiNotifyPeerType;
+  settings: Partial<ApiPeerNotifySettings>;
+};
+
+export type ApiUpdatePeerNotifySettings = {
+  '@type': 'updateChatNotifySettings';
+  chatId: string;
+  settings: Partial<ApiPeerNotifySettings>;
+};
+
+export type ApiUpdateTopicNotifySettings = {
+  '@type': 'updateTopicNotifySettings';
+  chatId: string;
+  topicId: number;
+  settings: Partial<ApiPeerNotifySettings>;
+};
+
+export type ApiUpdateTwoFaStateWaitCode = {
+  '@type': 'updateTwoFaStateWaitCode';
+  length: number;
+};
+
+export type ApiUpdatePeerBlocked = {
+  '@type': 'updatePeerBlocked';
+  id: string;
+  isBlocked?: boolean;
+  isBlockedFromStories?: boolean;
+};
+
+export type ApiUpdatePaymentStateCompleted = {
+  '@type': 'updatePaymentStateCompleted';
+  paymentState: TabState['payment'];
+  tabId: number;
+};
+
+export type ApiUpdateStarPaymentStateCompleted = {
+  '@type': 'updateStarPaymentStateCompleted';
+  paymentState: TabState['starsPayment'];
+  tabId: number;
+};
+
+export type ApiUpdatePrivacy = {
+  '@type': 'updatePrivacy';
+  key: ApiPrivacyKey;
+  rules: {
+    visibility: PrivacyVisibility;
+    allowUserIds: string[];
+    allowChatIds: string[];
+    blockUserIds: string[];
+    blockChatIds: string[];
+  };
+};
+
+export type ApiUpdateServerTimeOffset = {
+  '@type': 'updateServerTimeOffset';
+  serverTimeOffset: number;
+};
+
+export type ApiUpdateGroupCall = {
+  '@type': 'updateGroupCall';
+  call: ApiGroupCall;
+};
+
+export type ApiUpdateGroupCallChatId = {
+  '@type': 'updateGroupCallChatId';
+  call: Partial<ApiGroupCall>;
+  chatId: string;
+};
+
+export type ApiUpdateGroupCallLeavePresentation = {
+  '@type': 'updateGroupCallLeavePresentation';
+};
+
+export type ApiUpdateGroupCallParticipants = {
+  '@type': 'updateGroupCallParticipants';
+  groupCallId: string;
+  participants: GroupCallParticipant[];
+  nextOffset?: string;
+};
+
+export type ApiUpdatePendingJoinRequests = {
+  '@type': 'updatePendingJoinRequests';
+  chatId: string;
+  recentRequesterIds: string[];
+  requestsPending: number;
+};
+
+export type ApiUpdateGroupCallConnection = {
+  '@type': 'updateGroupCallConnection';
+  data: GroupCallConnectionData;
+  presentation: boolean;
+};
+
+export type ApiUpdateGroupCallStreams = {
+  '@type': 'updateGroupCallStreams';
+  userId: string;
+  hasAudioStream: boolean;
+  hasVideoStream: boolean;
+  hasPresentationStream: boolean;
+};
+
+export type ApiUpdateGroupCallConnectionState = {
+  '@type': 'updateGroupCallConnectionState';
+  connectionState: GroupCallConnectionState;
+  isSpeakerDisabled?: boolean;
+};
+
+export type ApiUpdatePhoneCall = {
+  '@type': 'updatePhoneCall';
+  call: ApiPhoneCall;
+};
+
+export type ApiUpdatePhoneCallSignalingData = {
+  '@type': 'updatePhoneCallSignalingData';
+  callId: string;
+  data: number[];
+};
+
+export type ApiUpdatePhoneCallMediaState = {
+  '@type': 'updatePhoneCallMediaState';
+  isMuted: boolean;
+  videoState: VideoState;
+  videoRotation: VideoRotation;
+  screencastState: VideoState;
+  isBatteryLow: boolean;
+};
+
+export type ApiUpdatePhoneCallConnectionState = {
+  '@type': 'updatePhoneCallConnectionState';
+  connectionState: RTCPeerConnectionState;
+};
+
+export type ApiUpdateWebViewResultSent = {
+  '@type': 'updateWebViewResultSent';
+  queryId: string;
+};
+
+export type ApiUpdateBotMenuButton = {
+  '@type': 'updateBotMenuButton';
+  botId: string;
+  button: ApiBotMenuButton;
+};
+
+export type ApiUpdateTranscribedAudio = {
+  '@type': 'updateTranscribedAudio';
+  transcriptionId: string;
+  text: string;
+  isPending?: boolean;
+};
+
+export type ApiUpdatePinnedTopic = {
+  '@type': 'updatePinnedTopic';
+  topicId: number;
+  chatId: string;
+  isPinned: boolean;
+};
+
+export type ApiUpdatePinnedTopicsOrder = {
+  '@type': 'updatePinnedTopicsOrder';
+  chatId: string;
+  order: number[];
+};
+
+export type ApiUpdateTopic = {
+  '@type': 'updateTopic';
+  chatId: string;
+  topicId: number;
+};
+
+export type ApiUpdateTopics = {
+  '@type': 'updateTopics';
+  chatId: string;
+};
+
+export type ApiUpdateDiscussion = {
+  '@type': 'updateDiscussion';
+  chatId: string;
+  threadId: number;
+};
+
+export type ApiUpdateViewForumAsMessages = {
+  '@type': 'updateViewForumAsMessages';
+  chatId: string;
+  isEnabled?: true;
+};
+
+export type ApiUpdateMessageTranslations = {
+  '@type': 'updateMessageTranslations';
+  chatId: string;
+  messageIds: number[];
+  translations: ApiFormattedText[];
+  toLanguageCode: string;
+  tone?: TranslationTone;
+};
+
+export type ApiUpdateFailedMessageTranslations = {
+  '@type': 'failedMessageTranslations';
+  chatId: string;
+  messageIds: number[];
+  toLanguageCode: string;
+  tone?: TranslationTone;
+};
+
+export type ApiUpdateFetchingDifference = {
+  '@type': 'updateFetchingDifference';
+  isFetching: boolean;
+};
+
+export type ApiRequestReconnectApi = {
+  '@type': 'requestReconnectApi';
+};
+
+export type ApiUpdateStory = {
+  '@type': 'updateStory';
+  peerId: string;
+  story: ApiStory | ApiStorySkipped;
+};
+
+export type ApiUpdateDeleteStory = {
+  '@type': 'deleteStory';
+  peerId: string;
+  storyId: number;
+};
+
+export type ApiUpdateReadStories = {
+  '@type': 'updateReadStories';
+  peerId: string;
+  lastReadId: number;
+};
+
+export type ApiUpdateSentStoryReaction = {
+  '@type': 'updateSentStoryReaction';
+  peerId: string;
+  storyId: number;
+  reaction?: ApiReaction;
+};
+
+export type ApiUpdateStealthMode = {
+  '@type': 'updateStealthMode';
+  stealthMode: ApiStealthMode;
+};
+
+export type ApiRequestSync = {
+  '@type': 'requestSync';
+};
+
+export type ApiUpdateAttachMenuBots = {
+  '@type': 'updateAttachMenuBots';
+};
+
+export type ApiUpdateNewAuthorization = {
+  '@type': 'updateNewAuthorization';
+  hash: string;
+  isUnconfirmed?: true;
+  date?: number;
+  device?: string;
+  location?: string;
+};
+
+export type ApiUpdateGroupInvitePrivacyForbidden = {
+  '@type': 'updateGroupInvitePrivacyForbidden';
+  userId: string;
+};
+
+export type ApiUpdateSavedReactionTags = {
+  '@type': 'updateSavedReactionTags';
+};
+
+export type ApiUpdatePremiumFloodWait = {
+  '@type': 'updatePremiumFloodWait';
+  isUpload?: boolean;
+};
+
+export type ApiUpdateStarsBalance = {
+  '@type': 'updateStarsBalance';
+  balance: ApiTypeCurrencyAmount;
+};
+
+export type ApiUpdateStarGiftAuctionState = {
+  '@type': 'updateStarGiftAuctionState';
+  giftId: string;
+  state: ApiTypeStarGiftAuctionState;
+};
+
+export type ApiUpdateStarGiftAuctionUserState = {
+  '@type': 'updateStarGiftAuctionUserState';
+  giftId: string;
+  userState: ApiStarGiftAuctionUserState;
+};
+
+export type ApiUpdateStarGiftCraftFail = {
+  '@type': 'updateStarGiftCraftFail';
+};
+
+export type ApiUpdateDeleteProfilePhoto = {
+  '@type': 'updateDeleteProfilePhoto';
+  peerId: string;
+  photoId?: string;
+};
+
+export type ApiUpdateNewProfilePhoto = {
+  '@type': 'updateNewProfilePhoto';
+  peerId: string;
+  photo: ApiPhoto;
+};
+
+export type ApiUpdateEntities = {
+  '@type': 'updateEntities';
+  users?: Record<string, ApiUser>;
+  chats?: Record<string, ApiChat>;
+  threadInfos?: ApiThreadInfo[];
+  polls?: ApiMessagePoll[];
+  webPages?: ApiWebPage[];
+};
+
+export type ApiUpdatePaidReactionPrivacy = {
+  '@type': 'updatePaidReactionPrivacy';
+  private: ApiPaidReactionPrivacyType;
+};
+
+export type ApiUpdateLangPackTooLong = {
+  '@type': 'updateLangPackTooLong';
+  langCode: string;
+};
+
+export type ApiUpdateLangPack = {
+  '@type': 'updateLangPack';
+  version: number;
+  strings: Record<string, LangPackStringValue>;
+  keysToRemove: string[];
+};
+
+export type ApiUpdateBotCommands = {
+  '@type': 'updateBotCommands';
+  botId: string;
+  commands?: ApiBotCommand[];
+};
+
+export type ApiUpdateWebPage = {
+  '@type': 'updateWebPage';
+  webPage: ApiWebPage;
+};
+
+export type ApiUpdate = (
+  ApiUpdateReady | ApiUpdateSession | ApiUpdateWebAuthTokenFailed | ApiUpdateRequestUserUpdate |
+  ApiUpdateAuthorizationState | ApiUpdateAuthorizationError | ApiUpdateConnectionState | ApiUpdateCurrentUser |
+  ApiUpdateChat | ApiUpdateChatTypingStatus | ApiUpdateChatFullInfo | ApiUpdatePinnedChatIds |
+  ApiUpdateChatMembers | ApiUpdateChatParticipantRank | ApiUpdateChatJoin | ApiUpdateChatLeave
+  | ApiUpdateChatPinned | ApiUpdatePinnedMessageIds |
+  ApiUpdateChatListType | ApiUpdateChatFolder | ApiUpdateChatFoldersOrder | ApiUpdateRecommendedChatFolders |
+  ApiUpdateNewMessage | ApiUpdateMessage | ApiUpdateThreadInfo | ApiUpdateCommonBoxMessages | ApiUpdatePasskeyOption |
+  ApiUpdateDeleteMessages | ApiUpdateMessagePoll | ApiUpdateMessagePollVote | ApiUpdateDeleteHistory |
+  ApiDeleteParticipantHistory | ApiUpdateMessageSendSucceeded | ApiUpdateMessageSendFailed |
+  ApiUpdateServiceNotification | ApiDeleteContact | ApiUpdateUser | ApiUpdateUserStatus |
+  ApiUpdateUserFullInfo | ApiUpdateVideoProcessingPending | ApiUpdatePeerSettings | ApiUpdateUserAlreadyAuthorized |
+  ApiUpdateAvatar | ApiUpdateMessageImage | ApiUpdateDraftMessage | ApiUpdateScheduledMessageSendFailed |
+  ApiUpdateError | ApiUpdateResetContacts | ApiUpdateStartEmojiInteraction | ApiUpdateThreadReadState |
+  ApiUpdateFavoriteStickers | ApiUpdateStickerSet | ApiUpdateStickerSets | ApiUpdateStickerSetsOrder |
+  ApiUpdateRecentStickers | ApiUpdateSavedGifs | ApiUpdateNewScheduledMessage | ApiUpdateMoveStickerSetToTop |
+  ApiUpdateScheduledMessageSendSucceeded | ApiUpdateScheduledMessage | ApiUpdateStarPaymentStateCompleted |
+  ApiUpdateDeleteScheduledMessages | ApiUpdateResetMessages | ApiUpdateMessageTranslations |
+  ApiUpdateFailedMessageTranslations | ApiUpdateWebPage | ApiUpdateChatTypingDraft | ApiUpdateDiscussion |
+  ApiUpdateTwoFaError | ApiUpdateTwoFaStateWaitCode | ApiUpdateWebViewResultSent |
+  ApiUpdateDefaultNotifySettings | ApiUpdatePeerNotifySettings | ApiUpdatePeerBlocked | ApiUpdatePrivacy |
+  ApiUpdateServerTimeOffset | ApiUpdateMessageReactions | ApiUpdateSavedReactionTags |
+  ApiUpdateGroupCallParticipants | ApiUpdateGroupCallConnection | ApiUpdateGroupCall | ApiUpdateGroupCallStreams |
+  ApiUpdateGroupCallConnectionState | ApiUpdateGroupCallLeavePresentation | ApiUpdateGroupCallChatId |
+  ApiUpdatePendingJoinRequests | ApiUpdatePaymentStateCompleted |
+  ApiUpdatePhoneCall | ApiUpdatePhoneCallSignalingData | ApiUpdatePhoneCallMediaState |
+  ApiUpdatePhoneCallConnectionState | ApiUpdateBotMenuButton | ApiUpdateTranscribedAudio | ApiUpdateUserEmojiStatus |
+  ApiUpdateMessageExtendedMedia | ApiUpdateConfig | ApiUpdateTopicNotifySettings | ApiUpdatePinnedTopic |
+  ApiUpdatePinnedTopicsOrder | ApiUpdateTopic | ApiUpdateTopics | ApiUpdateRecentEmojiStatuses |
+  ApiUpdateRecentReactions | ApiUpdateStory | ApiUpdateReadStories | ApiUpdateDeleteStory | ApiUpdateSentStoryReaction |
+  ApiRequestReconnectApi | ApiRequestSync | ApiUpdateFetchingDifference | ApiUpdateChannelMessages |
+  ApiUpdateStealthMode | ApiUpdateAttachMenuBots | ApiUpdateNewAuthorization | ApiUpdateGroupInvitePrivacyForbidden |
+  ApiUpdateViewForumAsMessages | ApiUpdateSavedDialogPinned | ApiUpdatePinnedSavedDialogIds | ApiUpdateChatLastMessage |
+  ApiUpdateDeleteSavedHistory | ApiUpdatePremiumFloodWait | ApiUpdateStarsBalance | ApiUpdateStarGiftAuctionState
+  | ApiUpdateStarGiftAuctionUserState | ApiUpdateStarGiftCraftFail | ApiUpdateBotCommands
+  | ApiUpdateQuickReplyMessage | ApiUpdateQuickReplies
+  | ApiDeleteQuickReply | ApiUpdateDeleteQuickReplyMessages | ApiUpdateDeleteProfilePhoto | ApiUpdateNewProfilePhoto
+  | ApiUpdateEntities | ApiUpdatePaidReactionPrivacy | ApiUpdateLangPackTooLong | ApiUpdateLangPack
+  | ApiUpdateNotSupportedInFrozenAccountError
+);
+
+export type OnApiUpdate = (update: ApiUpdate) => void;

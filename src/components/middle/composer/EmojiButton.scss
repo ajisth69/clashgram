@@ -1,0 +1,41 @@
+.EmojiButton {
+  cursor: var(--custom-cursor, pointer);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 2.25rem;
+  height: 2.25rem;
+  margin: 0.3125rem;
+  border-radius: var(--border-radius-messages-small);
+
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+
+  background-color: transparent;
+
+  transition: background-color 0.15s ease;
+
+  .mac-os-fix & {
+    line-height: inherit;
+  }
+
+  &.focus,
+  &:hover {
+    background-color: var(--color-background-selected);
+  }
+
+  & > img {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  & > .custom-emoji {
+    --custom-emoji-size: 2rem;
+  }
+
+  @media (max-width: 600px) {
+    margin: 0.25rem;
+  }
+}

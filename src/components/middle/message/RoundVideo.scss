@@ -1,0 +1,120 @@
+.RoundVideo {
+  cursor: var(--custom-cursor, pointer);
+  position: relative;
+  width: 15rem;
+  height: 15rem;
+
+  &.non-interactive {
+    pointer-events: none;
+  }
+
+  .video-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+  }
+
+  .thumbnail {
+    border-radius: 50%;
+  }
+
+  .progress {
+    pointer-events: none;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+  }
+
+  .progress-circle {
+    fill: transparent;
+    stroke: white;
+    stroke-linecap: round;
+    stroke-opacity: 0.35;
+    stroke-width: 4;
+  }
+
+  video::-internal-media-controls-cast-button,
+  video::-webkit-media-controls,
+  video::-webkit-media-controls-start-playback-button {
+    display: none;
+  }
+
+  .play-wrapper {
+    position: absolute;
+
+    .icon-play {
+      margin: 0 auto;
+    }
+
+    .icon-view-once {
+      position: absolute;
+      z-index: var(--z-badge);
+      bottom: 0;
+      left: 1.625rem;
+
+      padding: 0.125rem;
+      border-radius: 50%;
+
+      font-size: 1rem;
+      color: var(--color-white);
+
+      background-color: rgba(0, 0, 0, 0.75);
+    }
+  }
+
+  .loading-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 1.875rem;
+    height: 1.3125rem;
+    border-radius: 0.5rem;
+  }
+
+  .loading-rect {
+    animation: 1s linear loader-rectangle infinite;
+  }
+
+  .transcribe-button {
+    position: absolute;
+    top: 1.6875rem;
+    left: 0.1875rem;
+
+    width: 1.875rem;
+    height: 1.3125rem;
+    border-radius: 0.5rem;
+
+    background: var(--action-message-bg);
+    &:hover {
+      opacity: 0.8;
+      background: var(--action-message-bg) !important;
+    }
+  }
+
+  .unread::after {
+    content: "";
+
+    display: inline-block;
+
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-inline-start: 0.125rem;
+    border-radius: 50%;
+
+    background-color: currentColor;
+  }
+}

@@ -1,0 +1,116 @@
+.WebLink {
+  position: relative;
+
+  min-height: 3rem;
+  padding: 0.25rem 0 0 3.75rem;
+
+  font-size: 0.875rem;
+  line-height: 1.125rem;
+
+  & + & {
+    margin-top: 1.5rem;
+  }
+
+  &.has-menu-open {
+    border-radius: var(--border-radius-default);
+    background-color: var(--color-chat-hover);
+    box-shadow: 0 0 0 0.5rem var(--color-chat-hover);
+  }
+
+  &.without-media::before {
+    content: attr(data-initial);
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--border-radius-messages-small);
+
+    font-size: 1.5rem;
+    font-weight: var(--font-weight-medium);
+    color: #fff;
+    text-transform: uppercase;
+
+    background-color: var(--color-webpage-initial-background);
+  }
+
+  .Media {
+    cursor: var(--custom-cursor, default) !important;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 3rem;
+    height: 3rem;
+    padding-bottom: unset !important;
+    border-radius: var(--border-radius-messages-small) !important;
+  }
+
+  .site-name,
+  .site-description,
+  .site-title {
+    text-align: initial;
+    overflow-wrap: anywhere;
+  }
+
+  .site-name {
+    overflow: hidden;
+    display: block;
+
+    font-weight: var(--font-weight-normal);
+    color: var(--color-links);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .site-title {
+    margin-bottom: 0.0625rem;
+    font-size: 1rem;
+    font-weight: var(--font-weight-medium);
+    line-height: 1.3125rem;
+  }
+
+  .sender-name,
+  .site-description {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+
+    max-height: 2.25rem;
+    margin-bottom: 0;
+
+    line-height: 1.125rem;
+    color: var(--color-text-secondary);
+  }
+
+  .sender-name {
+    margin-top: 0.25rem;
+  }
+
+  .site-description .emoji {
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+
+  &[dir="rtl"] {
+    padding: 0.25rem 3.75rem 0 0;
+
+    .Media,
+    &.without-media::before {
+      right: 0;
+      left: auto;
+    }
+
+    .content {
+      text-align: right;
+    }
+  }
+}

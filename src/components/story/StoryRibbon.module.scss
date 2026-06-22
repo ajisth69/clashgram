@@ -1,0 +1,89 @@
+.root {
+  position: relative;
+  z-index: var(--z-story-ribbon);
+
+  overflow-x: auto;
+  display: flex;
+  flex-shrink: 0;
+  column-gap: 0.625rem;
+  justify-content: space-between;
+
+  max-height: 5.5rem;
+  padding: 0.25rem 0.5rem 0.5rem 1rem;
+
+  white-space: nowrap;
+
+  transition: opacity 0.2s ease-in-out;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.closing {
+  opacity: 0;
+}
+
+.peer {
+  cursor: var(--custom-cursor, pointer);
+
+  display: flex;
+  flex: 0 0 3.75rem;
+  flex-direction: column;
+  align-items: center;
+
+  width: 3.75rem;
+  margin-inline: auto;
+  padding: 0;
+  border: none;
+
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+
+  background: none;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:global(.animating) {
+    opacity: 0;
+  }
+}
+
+.name {
+  unicode-bidi: plaintext;
+  overflow: hidden;
+
+  max-width: 110%;
+  margin-top: 0.25rem;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &_hasUnreadStory {
+    color: var(--color-text);
+  }
+}
+
+.hidden {
+  display: none;
+}
+
+.contextMenu {
+  position: absolute;
+
+  :global(.bubble) {
+    --offset-y: 0;
+
+    width: auto;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}

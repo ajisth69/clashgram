@@ -1,0 +1,26 @@
+.BotCommandMenu {
+  .menu-container {
+    overflow: auto;
+    flex-direction: column;
+
+    width: calc(100% - 4rem);
+    max-width: 20rem;
+    max-height: 40vh;
+
+    @media (max-width: 600px) {
+      width: calc(100% - 3rem);
+    }
+  }
+
+  .is-pointer-env & {
+    > .backdrop {
+      position: absolute;
+      top: -1rem;
+      right: auto;
+      left: 0;
+
+      width: 3.5rem;
+      height: 4.5rem;
+    }
+  }
+}

@@ -1,0 +1,39 @@
+.header {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 1rem;
+}
+
+.giftPreview {
+  position: relative;
+
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+
+  width: 5.625rem;
+  height: 5.625rem;
+  border-radius: 0.625rem;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+}
+
+.description {
+  margin-bottom: 1.5rem;
+  text-wrap: pretty;
+}
+
+.arrow {
+  font-size: 3rem;
+  color: var(--color-text-secondary);
+}
+
+.noPassword {
+  font-weight: var(--font-weight-semibold);
+}

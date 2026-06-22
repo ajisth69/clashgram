@@ -1,0 +1,9 @@
+.root, .item {
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  overflow: hidden;
+  min-height: 25rem;
+}

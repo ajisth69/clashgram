@@ -1,0 +1,140 @@
+@use '../../../styles/mixins';
+
+.root {
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.noResults {
+  padding: 0.75rem 0 0 0;
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.section-header {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+.section {
+  padding: 1.5rem;
+  padding-inline-end: calc(1.5rem - var(--scrollbar-width));
+
+  @include mixins.side-panel-section;
+}
+
+.user :global(.status) {
+  overflow: hidden;
+}
+
+.stats {
+  margin-bottom: 0;
+  padding: 0.75rem 0 0 0;
+  border: none;
+}
+
+.down {
+  margin-right: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.loadMoreSpinner {
+  margin-inline-end: 1rem;
+}
+
+.status {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+}
+
+.info {
+  flex-grow: 1;
+}
+
+.month {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.quantity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.floatingBadge {
+  position: relative;
+  z-index: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--color-links);
+}
+
+.floatingBadgeButtonColor {
+  margin-left: 0.5rem;
+  padding: 0 0.5rem 0 0.375rem;
+  border-radius: 1rem;
+  background-color: var(--color-primary-opacity);
+}
+
+.floatingBadgeWarning {
+  color: var(--color-orange);
+  background: var(--color-light-coral);
+}
+
+.floatingBadgeButton {
+  padding: 0.125rem 0.75rem 0.125rem 0.5625rem;
+}
+
+.floatingBadgeIcon {
+  margin-right: 0.125rem;
+  font-size: 0.875rem;
+}
+
+.floatingBadgeValue {
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+}
+
+.content {
+  padding: 0.5rem 0;
+}
+
+.boostSection {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.giveawayButton {
+  margin: 0 -1rem 0.5rem;
+}
+
+.giveawayIcon {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.primaryLink {
+  position: relative;
+  margin: 0 1rem 0.5rem;
+}
+
+.copy {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  right: 0.5rem;
+  transform: translate(0, -50%);
+}
+
+.boostInfo {
+  margin: 0 -1rem;
+}

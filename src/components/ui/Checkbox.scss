@@ -1,0 +1,366 @@
+@use "sass:map";
+@use "../../styles/icons";
+
+.Checkbox {
+  cursor: var(--custom-cursor, pointer);
+
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  min-height: 3rem;
+  margin-bottom: 0;
+  padding-inline-start: 4rem;
+
+  text-align: left;
+
+  &:hover,
+  &:focus-visible {
+    border-radius: var(--border-radius-default);
+    background-color: var(--color-chat-hover);
+  }
+
+  &.disabled {
+    cursor: var(--custom-cursor, default);
+    opacity: 0.5;
+
+    &:hover {
+      background: none !important;
+    }
+  }
+
+  .user-avatar {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    opacity: 0;
+
+    transition: opacity 0.15s ease;
+  }
+
+  &.round {
+    .Checkbox-main {
+      &::before, &::after {
+        border-radius: 50%;
+      }
+
+      &::before {
+        background-color: transparent;
+        transition: border-color 0.15s ease, background-color 0.15s ease;
+      }
+
+      &::after {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+      }
+    }
+  }
+
+  &.withIcon {
+    padding-inline-start: 1rem;
+
+    .Checkbox-main {
+      &::before,
+      &::after {
+        right: 1.1875rem;
+        left: auto;
+      }
+    }
+  }
+
+  &.loading {
+    .Checkbox-main::before,
+    .Checkbox-main::after {
+      opacity: 0 !important;
+    }
+
+    .Spinner {
+      --spinner-size: 1.25rem;
+
+      position: absolute;
+      top: 0.125rem;
+      left: 0.375rem;
+
+      opacity: 0;
+
+      animation: fade-in 0.2s ease forwards;
+    }
+  }
+
+  &.blocking {
+    .Checkbox-main {
+      &::before,
+      &::after {
+        transition: none;
+      }
+    }
+
+    input:not(:checked) ~ .Checkbox-main {
+      &::before {
+        border-color: var(--color-error);
+      }
+
+      &::after {
+        content: map.get(icons.$icons-map, "remove");
+        border-radius: 0.25rem;
+        opacity: 1;
+        background-color: var(--color-error);
+      }
+    }
+  }
+
+  input {
+    position: absolute;
+    z-index: var(--z-below);
+    opacity: 0;
+  }
+
+  .Checkbox-main {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    flex-grow: 1;
+    align-items: center;
+
+    &::before,
+    &::after {
+      pointer-events: none;
+      content: "";
+
+      display: block;
+
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    &::before {
+      border: 0.125rem solid var(--color-borders-input);
+      border-radius: 0.25rem;
+      background-color: var(--color-background);
+      transition: border-color 0.1s ease, background-color 0.1s ease;
+    }
+
+    &::after {
+      @include icons.icon;
+
+      content: map.get(icons.$icons-map, "check");
+
+      position: absolute;
+
+      font-size: 1.25rem;
+      color: var(--color-white);
+
+      opacity: 0;
+
+      transition: opacity 0.1s ease;
+    }
+
+    .user-avatar,
+    &::before,
+    &::after {
+      position: absolute;
+      top: 50%;
+      left: 1.125rem; // 1 + ((1.5 - 1.25) / 2)
+      transform: translateY(-50%);
+    }
+
+    .label {
+      unicode-bidi: plaintext;
+      line-height: 1.25rem;
+      text-align: left;
+      overflow-wrap: anywhere;
+    }
+
+    .right-icon {
+      grid-column: 2;
+      grid-row: span 2;
+      align-self: center;
+
+      margin-inline-start: auto;
+      margin-inline-end: 0.5rem;
+
+      font-size: 1.25rem;
+      color: var(--color-text-secondary);
+    }
+
+    .subLabel {
+      unicode-bidi: plaintext;
+      grid-column: 1;
+      grid-row: 2;
+
+      margin-top: 0.25rem;
+
+      font-size: 0.875rem;
+      line-height: 1rem;
+      color: var(--color-text-secondary);
+    }
+  }
+
+  &.withSubLabel {
+    &:hover,
+    &:focus-visible {
+      border-radius: var(--border-radius-default);
+      background-color: var(--color-chat-hover);
+    }
+
+    .Checkbox-main {
+      padding: 0.4375rem 0 0.5625rem 0;
+    }
+  }
+
+  .Nested-avatar-list {
+    &::before,
+    &::after {
+      pointer-events: none;
+      content: "";
+
+      position: absolute;
+      left: 1.125rem;
+
+      display: block;
+
+      width: 1.125rem;
+      height: 1.125rem;
+    }
+
+    .label {
+      display: flex;
+      column-gap: 0.6875rem;
+      align-items: center;
+    }
+  }
+
+  input:checked ~ .Checkbox-main {
+    &::before {
+      border-color: var(--color-primary);
+      background-color: var(--color-primary);
+    }
+
+    &::after {
+      opacity: 1;
+    }
+    .user-avatar {
+      &.user-avatar-visible {
+        opacity: 1;
+      }
+    }
+  }
+
+  &[dir="rtl"] {
+    &.loading {
+      .Spinner {
+        right: 0.375rem;
+        left: auto;
+      }
+    }
+
+    .label,
+    .subLabel {
+      text-align: right;
+    }
+
+    .Checkbox-main {
+      .user-avatar,
+      &::before,
+      &::after {
+        right: 1rem;
+        left: auto;
+      }
+    }
+  }
+
+  &.nested {
+    display: flex;
+    gap: 0.3125rem;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-block: 0;
+    padding: 0 0 0 4.1875rem;
+
+    &:hover,
+    &:focus-visible {
+      border-radius: var(--border-radius-default);
+      background-color: var(--color-chat-hover);
+    }
+  }
+
+  &.withNestedList {
+    margin: 0;
+    background-color: var(--color-background);
+
+    &:hover,
+    &:focus-visible {
+      border-radius: var(--border-radius-default);
+      background-color: var(--color-chat-hover);
+    }
+  }
+
+  &.permission-group {
+    padding-inline-start: 3.625rem;
+
+    .Checkbox-main {
+      &::before,
+      &::after {
+        left: 1rem;
+      }
+    }
+  }
+
+  &.permission-group.withNestedList {
+    margin-bottom: 1rem;
+  }
+
+  &.avatar {
+    margin-inline-start: 3.125rem;
+    padding-inline-start: 3.5rem;
+  }
+
+  .button {
+    display: flex;
+    gap: 0.1875rem;
+    color: var(--color-text);
+  }
+
+  .group-icon {
+    font-size: 0.75rem;
+  }
+
+  &.nested-checkbox-group &.Checkbox-main::before,
+  &.nested-checkbox-group &.Checkbox-main::after {
+    top: 1.875rem;
+    left: 2.875rem;
+  }
+
+  &.onlyInput {
+    position: relative;
+    min-height: auto;
+    padding-inline-start: 0.8125rem;
+
+    .Checkbox-main {
+      &::before,
+      &::after {
+        top: 0;
+        right: 0;
+        left: 0;
+      }
+    }
+  }
+}
+
+.nested-checkbox-group {
+  overflow: hidden;
+  max-height: 0;
+  /* stylelint-disable-next-line plugin/no-low-performance-animation-properties */
+  transition: max-height 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.nested-checkbox-group-open {
+  max-height: 100vh;
+  /* stylelint-disable-next-line plugin/no-low-performance-animation-properties */
+  transition: max-height 0.6s ease-in-out;
+}

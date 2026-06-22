@@ -1,0 +1,16 @@
+.content {
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  padding-inline: 1rem !important;
+}
+
+.noFooter {
+  margin-top: 1.5rem;
+}
+
+.avatar {
+  align-self: center;
+}

@@ -1,0 +1,79 @@
+/* stylelint-disable-next-line */
+@value name from "./StoryRibbon.module.scss";
+
+.root {
+  cursor: var(--custom-cursor, pointer);
+
+  position: absolute;
+  top: 50%;
+  right: 0.25rem;
+  transform: translateY(-50%);
+
+  display: flex;
+  flex-direction: row-reverse;
+
+  margin: 0;
+  padding: 0;
+  border: none;
+
+  background: none;
+  outline: none !important;
+
+  &[dir="rtl"] {
+    right: auto;
+    left: 0.125rem;
+  }
+}
+
+.avatar {
+  --_gradient-rotation: 90deg;
+
+  z-index: 1;
+
+  :dir(rtl) & {
+    --_gradient-rotation: -90deg;
+  }
+
+  &:not(:first-child):before {
+    mask-image: linear-gradient(var(--_gradient-rotation), #fff 75%, transparent 0);
+    mask-composite: exclude;
+  }
+
+  &:global(.animating) {
+    opacity: 0;
+  }
+}
+
+.avatarHidden {
+  display: none;
+}
+
+.avatar + .avatar {
+  margin-inline-end: -0.875rem;
+}
+
+.ghost {
+  --transform-transition: transform 250ms ease;
+  --opacity-transition: opacity 250ms ease;
+
+  position: absolute;
+  transform-origin: top left;
+  transition: var(--transform-transition), var(--opacity-transition);
+}
+
+.ghostAnimateName {
+  :global(.name) {
+    opacity: 0;
+    transition: var(--opacity-transition);
+  }
+}
+
+.ghostRevealName {
+  :global(.name) {
+    opacity: 1;
+  }
+}
+
+.ghostLast:before {
+  mask: none !important;
+}

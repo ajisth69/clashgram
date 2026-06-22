@@ -1,0 +1,27 @@
+.root {
+  :global(.modal-content) {
+    display: flex;
+    flex-direction: column;
+    min-height: min(75vh, 32rem);
+  }
+
+  :global(.matching-text-highlight) {
+    color: var(--color-primary);
+  }
+}
+
+.list-item {
+  text-align: left;
+
+  &[dir="rtl"] {
+    text-align: right;
+  }
+}
+
+.title, .subtitle {
+  text-align: inherit !important;
+}
+
+.languages {
+  overflow-y: auto;
+}

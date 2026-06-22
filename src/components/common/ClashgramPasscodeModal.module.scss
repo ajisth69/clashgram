@@ -1,0 +1,259 @@
+.modal {
+  :global(.modal-dialog) {
+    max-width: 340px;
+    border-radius: 24px;
+    background: rgba(var(--color-background-rgbo), 0.75);
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+    border: 1px solid rgba(var(--color-text-rgbo), 0.08);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+  }
+
+  :global(.modal-content) {
+    padding: 24px 20px 20px 20px !important;
+    overflow: hidden !important;
+  }
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  justify-content: center;
+  margin-top: 24px;
+
+  button {
+    flex: 1;
+    min-width: 100px;
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.lockHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.iconContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 16px;
+
+  &.error {
+    .lockIcon {
+      color: var(--color-error);
+      filter: drop-shadow(0 0 8px rgba(var(--color-error-rgb), 0.6));
+    }
+    .iconRing {
+      border-color: rgba(var(--color-error-rgb), 0.3);
+      background: rgba(var(--color-error-rgb), 0.03);
+      animation: shake 0.5s ease;
+    }
+  }
+
+  &.shake {
+    animation: shake 0.5s ease;
+  }
+}
+
+.iconRing {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(var(--color-primary-rgb), 0.15);
+  background: rgba(var(--color-primary-rgb), 0.02);
+  animation: pulseRing 3s infinite ease-in-out;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.lockIcon {
+  width: 32px;
+  height: 32px;
+  color: var(--color-primary);
+  filter: drop-shadow(0 0 10px rgba(var(--color-primary-rgb), 0.4));
+  z-index: 2;
+  transition: color 0.3s ease, filter 0.3s ease;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 6px 0;
+  text-align: center;
+}
+
+.description {
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  margin: 0;
+  line-height: 1.4;
+  max-width: 240px;
+}
+
+.inputWrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+  cursor: text;
+}
+
+.passcodeInput {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: default;
+  caret-color: transparent;
+  border: none;
+  background: transparent;
+  outline: none;
+  z-index: 5;
+}
+
+.dotsContainer {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+
+  &.error {
+    animation: shake 0.5s ease;
+    .dotFilled {
+      background: var(--color-error);
+      box-shadow: 0 0 10px rgba(var(--color-error-rgb), 0.8);
+    }
+  }
+
+  &.shake {
+    animation: shake 0.5s ease;
+  }
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(var(--color-text-rgbo), 0.25);
+  background: transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.dotFilled {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 8px var(--color-primary), 0 0 16px rgba(var(--color-primary-rgb), 0.5);
+    transform: scale(1.15);
+  }
+
+  &.dotActive {
+    border-color: var(--color-primary);
+    animation: pulseCursor 1s infinite alternate;
+  }
+}
+
+.errorText {
+  color: var(--color-error);
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: -4px;
+  margin-bottom: 12px;
+  animation: fadeIn 0.3s ease;
+}
+
+.forgotBtn {
+  background: transparent;
+  border: none;
+  color: var(--color-primary);
+  font-size: 0.825rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 6px 12px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  transition: background-color 0.2s, opacity 0.2s;
+  outline: none;
+
+  &:hover {
+    background: rgba(var(--color-primary-rgb), 0.08);
+  }
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+.warningIcon {
+  .lockIcon {
+    color: var(--color-warning);
+    filter: drop-shadow(0 0 10px rgba(var(--color-warning-rgb), 0.5));
+  }
+  .iconRing {
+    border-color: rgba(var(--color-warning-rgb), 0.2);
+    background: rgba(var(--color-warning-rgb), 0.02);
+    animation: pulseRing 3s infinite ease-in-out;
+  }
+}
+
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseRing {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.4;
+    box-shadow: inset 0 0 10px rgba(var(--color-primary-rgb), 0.1);
+  }
+}
+
+@keyframes pulseCursor {
+  0% {
+    opacity: 0.4;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.1);
+    box-shadow: 0 0 6px rgba(var(--color-primary-rgb), 0.3);
+  }
+}

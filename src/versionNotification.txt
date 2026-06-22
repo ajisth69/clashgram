@@ -1,0 +1,52 @@
+**Clashgram Web A Digest**
+
+Clashgram Web A is packed with premium, custom-tailored stealth and utility features:
+
+🕵️ **Ghost Mode**
+• **Hide Read Receipts:** Prevent sending read receipts when reading messages.
+• **Hide Typing Status:** Prevent sending typing or other actions in chats.
+• **Hide Online Status:** Block your online updates to remain permanently offline while still seeing everyone's last seen time.
+• **Hide Story Views (Ghost Story):** Stealthily view other users' stories in complete anonymity.
+
+🛡️ **Message Retention**
+• **Anti-Delete:** Automatically keep and view messages that other users delete.
+• **Anti-Edit:** Show the original original text beneath edited messages to know what changed.
+
+🔓 **Bypass Restrictions**
+• Allow saving, copying, and forwarding restricted content from protected groups/channels.
+
+💎 **Premium Options**
+• **Local Telegram Premium:** Emulate Telegram Premium state locally to unlock premium badges, stealth mode, and custom emojis.
+
+🔒 **Passcode Lock**
+• **Configure Passcode Settings:** Fully secure your client by setting up primary & recovery passcodes and managing locked chats/folders.
+
+📞 **Web Calling**
+• Make and receive high-fidelity, secure voice and video calls directly from your browser.
+
+👁️ **Self-Destructing Media**
+• View self-destructing photos and videos directly inside the web client.
+
+🚀 **100+ Multi-Account Support**
+• Log in and seamlessly switch between up to 100 accounts concurrently.
+
+💾 **Premium Chat Export**
+• Package chat history into a ZIP archive with standalone interactive index.html, styled CSS, local search filtering engine, and all media.
+
+⚡ **Utility Actions**
+• Quickly clean your inbox with the "Mark All Chats Read" utility action.
+
+🎙️ **Native Voice Changer**
+• Native Voice Changer for your voice notes (go troll your friends lmao).
+
+♾️ **Unlimited Favorites**
+• Unlimited favorite GIFs & stickers.
+
+🎨 **Animated Themes & Fonts**
+• Animated chat themes + Custom fonts.
+
+⚡ **8 Premium Emojis**
+• 8 Premium Emojis unlocked (via insane WebM asset spoofing).
+
+🛠️ **Zero Lag**
+• Fixed UI bugs, rendering issues, and tab throttling. It’s buttery smooth now.

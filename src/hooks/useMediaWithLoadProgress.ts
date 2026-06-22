@@ -1,0 +1,111 @@
+import {
+  useEffect, useRef, useState,
+} from '../lib/teact/teact';
+
+import { ApiMediaFormat } from '../api/types';
+
+import { selectIsSynced } from '../global/selectors';
+import { IS_PROGRESSIVE_SUPPORTED } from '../util/browser/windowEnvironment';
+import * as mediaLoader from '../util/mediaLoader';
+import useSelector from './data/useSelector';
+import useForceUpdate from './useForceUpdate';
+import useThrottledCallback from './useThrottledCallback';
+import useUniqueId from './useUniqueId';
+
+const STREAMING_PROGRESS = 0.75;
+const STREAMING_TIMEOUT = 1500;
+const PROGRESS_THROTTLE = 500;
+
+export default function useMediaWithLoadProgress(
+  mediaHash: string | undefined,
+  noLoad = false,
+  mediaFormat = ApiMediaFormat.BlobUrl,
+  delay?: number | false,
+  isHtmlAllowed = false,
+) {
+  const isStreaming = IS_PROGRESSIVE_SUPPORTED && mediaFormat === ApiMediaFormat.Progressive;
+  const mediaData = mediaHash
+    ? (isStreaming && !noLoad ? mediaLoader.getProgressiveUrl(mediaHash)
+      : mediaLoader.getFromMemory(mediaHash)) : undefined;
+
+  const forceUpdate = useForceUpdate();
+  const isSynced = useSelector(selectIsSynced);
+  const id = useUniqueId();
+  const [loadProgress, setLoadProgress] = useState(mediaData && !isStreaming ? 1 : 0);
+  const startedAtRef = useRef<number>();
+  const delayTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>();
+  const streamingTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>();
+
+  const handleProgress = useThrottledCallback((progress: number) => {
+    if (startedAtRef.current && id && (!delay || (Date.now() - startedAtRef.current > delay))) {
+      setLoadProgress(progress);
+    }
+  }, [delay, id], PROGRESS_THROTTLE, true);
+
+  useEffect(() => {
+    if (!noLoad && mediaHash) {
+      if (!mediaData) {
+        setLoadProgress(0);
+
+        if (startedAtRef.current) {
+          mediaLoader.cancelProgress(handleProgress);
+        }
+
+        startedAtRef.current = Date.now();
+
+        mediaLoader.fetch(mediaHash, mediaFormat, isHtmlAllowed, handleProgress, id).then(() => {
+          const spentTime = Date.now() - startedAtRef.current!;
+          startedAtRef.current = undefined;
+
+          if (!delay || spentTime >= delay) {
+            forceUpdate();
+          } else {
+            if (delayTimerRef.current) {
+              clearTimeout(delayTimerRef.current);
+            }
+            delayTimerRef.current = setTimeout(forceUpdate, delay - spentTime);
+          }
+        });
+      } else if (isStreaming) {
+        if (streamingTimerRef.current) {
+          clearTimeout(streamingTimerRef.current);
+        }
+        streamingTimerRef.current = setTimeout(() => {
+          setLoadProgress(STREAMING_PROGRESS);
+          streamingTimerRef.current = undefined;
+        }, STREAMING_TIMEOUT);
+      }
+    }
+
+    return () => {
+      if (delayTimerRef.current) {
+        clearTimeout(delayTimerRef.current);
+        delayTimerRef.current = undefined;
+      }
+      if (streamingTimerRef.current) {
+        clearTimeout(streamingTimerRef.current);
+        streamingTimerRef.current = undefined;
+      }
+    };
+  }, [
+    noLoad, mediaHash, mediaData, mediaFormat, isStreaming, delay, handleProgress, isHtmlAllowed, id, isSynced,
+  ]);
+
+  useEffect(() => {
+    if (noLoad && startedAtRef.current) {
+      mediaLoader.cancelProgress(handleProgress);
+      setLoadProgress(0);
+      startedAtRef.current = undefined;
+    }
+  }, [handleProgress, noLoad]);
+
+  useEffect(() => {
+    return () => {
+      if (mediaHash) {
+        mediaLoader.removeCallback(mediaHash, id);
+      }
+    };
+  }, [id, mediaHash]);
+
+  return { mediaData, loadProgress };
+}

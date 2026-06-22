@@ -1,0 +1,56 @@
+.root {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  line-height: 1;
+}
+
+.progress {
+  --_progress: 0;
+
+  z-index: 0;
+  overflow: hidden;
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.button {
+  font-size: 0.5rem;
+}
+
+.symbol {
+  --_duration-shift: 0s;
+  --_shift-x: 0;
+  --_shift-y: 0;
+
+  position: absolute;
+
+  width: 0.5rem;
+  height: 0.5rem;
+
+  animation: sparkle 5s infinite;
+  animation-delay: var(--_duration-shift);
+
+  .noAnimation & {
+    opacity: 0.5;
+    animation: none;
+  }
+
+  :global(body.in-background) & {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes sparkle {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--_shift-x), var(--_shift-y));
+    opacity: 0;
+  }
+}

@@ -1,0 +1,44 @@
+.SenderInfo {
+  cursor: var(--custom-cursor, pointer);
+
+  display: flex;
+  align-content: center;
+
+  color: rgba(255, 255, 255, 0.5);
+
+  transition: 0.15s color;
+
+  &:hover {
+    color: white;
+  }
+
+  .Avatar {
+    margin-inline-end: 1rem;
+
+    @media (max-width: 600px) {
+      display: none;
+    }
+  }
+
+  .meta {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: calc(100% - 3.75rem);
+  }
+
+  .title {
+    overflow: hidden;
+
+    font-weight: var(--font-weight-medium);
+    line-height: 1.4375rem;
+    text-overflow: ellipsis;
+    white-space: pre;
+  }
+
+  .date {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    letter-spacing: -0.01rem;
+  }
+}

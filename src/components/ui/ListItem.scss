@@ -1,0 +1,468 @@
+.ListItem {
+  position: relative;
+
+  body.is-ios &,
+  body.is-android & {
+    &::after {
+      content: "";
+
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 4.5rem;
+
+      height: 0.0625rem;
+
+      /* stylelint-disable-next-line plugin/whole-pixel */
+      box-shadow: inset 0 -0.03125rem 0 0 var(--color-dividers);
+    }
+
+    &.selected::after,
+    &:last-of-type::after {
+      display: none;
+    }
+
+    // Conceal above item divider
+    &.selected::before {
+      content: "";
+
+      position: absolute;
+      top: -0.0625rem;
+      right: 0;
+      left: 4.5rem;
+
+      height: 0.0625rem;
+      /* stylelint-disable-next-line plugin/whole-pixel */
+      box-shadow: inset 0 -0.03125rem 0 0 var(--color-background);
+    }
+
+    &:last-of-type::after {
+      display: none;
+    }
+
+    &.small-icon::after {
+      left: 3.875rem;
+    }
+
+    &.smaller-icon::after {
+      left: 3.25rem;
+    }
+
+    &.narrow::after {
+      left: 4.1875rem;
+    }
+
+    &.no-icon::after {
+      left: 1rem;
+    }
+  }
+
+  body.is-android &::after {
+    /* stylelint-disable-next-line plugin/whole-pixel */
+    box-shadow: inset 0 -0.03125rem 0 0 var(--color-dividers-android);
+  }
+
+  .ListItem-button {
+    --ripple-color: rgba(0, 0, 0, 0.08);
+
+    position: relative;
+
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+
+    min-height: 3rem;
+    padding: 0 1rem;
+    border: none !important;
+    border-radius: var(--border-radius-default);
+
+    color: var(--color-text);
+    text-decoration: none;
+    white-space: nowrap;
+
+    background-color: var(--background-color);
+    outline: none !important;
+    box-shadow: none !important;
+
+    body.is-ios &,
+    body.is-android & {
+      border-radius: 0;
+    }
+
+    > .ListItem-main-icon {
+      margin-inline-end: 1.75rem;
+      font-size: 1.5rem;
+      color: var(--color-text-secondary);
+    }
+
+    > .Switcher {
+      margin-inline-start: auto;
+    }
+
+    @media (max-width: 600px) {
+      border-radius: 0;
+    }
+  }
+
+  &.with-color-transition {
+    .ListItem-button {
+      transition: background-color 150ms ease-in-out;
+    }
+  }
+
+  .title,
+  .other-usernames,
+  .subtitle {
+    unicode-bidi: plaintext;
+    text-align: initial;
+    text-overflow: ellipsis;
+  }
+
+  .other-usernames {
+    display: block;
+    line-height: 1.25rem;
+    white-space: normal;
+  }
+
+  .username-link {
+    position: relative;
+    z-index: 2;
+  }
+
+  &.multiline {
+    .ListItem-button > .ListItem-main-icon {
+      position: relative;
+    }
+  }
+
+  &.disabled:not(.click-allowed) {
+    pointer-events: none;
+  }
+
+  &.disabled .ListItem-button {
+    opacity: 0.5;
+  }
+
+  &:not(.disabled):not(.is-static) {
+    .ListItem-button {
+      cursor: var(--custom-cursor, pointer);
+
+      body.cursor-ew-resize & {
+        cursor: var(--custom-cursor, ew-resize) !important;
+      }
+
+      @media (hover: hover) {
+        &:hover,
+        &:focus-visible {
+          --background-color: var(--color-chat-hover);
+        }
+      }
+
+      @media (max-width: 600px) {
+        &.active {
+          --background-color: var(--color-chat-hover);
+        }
+      }
+    }
+  }
+
+  &.has-menu-open .ListItem-button {
+    --background-color: var(--color-chat-hover);
+  }
+
+  &.inactive {
+    pointer-events: none;
+  }
+
+  &.focus {
+    --background-color: var(--color-chat-hover);
+  }
+
+  &.destructive {
+    .ListItem-button {
+      color: var(--color-error);
+
+      .ListItem-main-icon {
+        color: inherit;
+      }
+    }
+  }
+
+  &.primary {
+    .ListItem-button {
+      color: var(--color-primary);
+
+      .ListItem-main-icon {
+        color: inherit;
+      }
+    }
+  }
+
+  &-context-menu {
+    position: absolute;
+
+    .bubble {
+      width: auto;
+
+      .MenuItem button {
+        padding-right: 2rem !important;
+        padding-left: 1rem !important;
+      }
+    }
+  }
+
+  &.chat-item-clickable {
+    body.is-ios &,
+    body.is-macos & {
+      --color-text-secondary: var(--color-text-secondary-apple);
+    }
+
+    .ListItem-button {
+      padding: 0.5625rem;
+    }
+
+    &.contact-list-item {
+      .ListItem-button {
+        padding: 0.5rem;
+      }
+
+      .ChatInfo {
+        padding: 0.0625rem;
+      }
+    }
+
+    .Avatar {
+      margin-inline-end: 0.5rem;
+    }
+
+    .info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .info-name-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .info-row,
+    .title,
+    .subtitle {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      min-width: 0;
+    }
+
+    .separator {
+      flex-grow: 1;
+      min-width: 0.5rem;
+    }
+
+    h3,
+    .last-message,
+    .status,
+    .typing-status {
+      overflow: hidden;
+
+      margin: 0;
+
+      font-size: 1rem;
+      text-align: initial;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    h3,
+    .last-message,
+    .typing-status {
+      overflow: hidden;
+    }
+
+    .title {
+      h3 {
+        font-weight: var(--font-weight-semibold);
+      }
+    }
+
+    .status-icon {
+      margin-inline-end: 0.125rem;
+      vertical-align: text-bottom;
+    }
+
+    .contact-phone,
+    .contact-username {
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+      color: var(--color-text-secondary);
+    }
+
+    .ChatInfo {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      min-width: 0;
+
+      .info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .custom-title {
+        overflow: hidden;
+        flex-shrink: 0;
+
+        margin-inline-start: auto;
+        padding-inline-start: 1rem;
+
+        font-size: 0.875rem;
+        color: var(--color-text-secondary);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .status {
+        color: var(--color-text-secondary);
+        &.online {
+          color: var(--color-primary);
+        }
+      }
+
+      .status,
+      .typing-status {
+        display: inline-block;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+
+        &[dir="rtl"],
+        &[dir="auto"] {
+          width: 100%;
+          text-align: initial;
+        }
+      }
+    }
+
+    .contact-phone,
+    .contact-username,
+    h3,
+    .last-message,
+    .status,
+    .typing-status {
+      unicode-bidi: plaintext;
+      text-align: initial;
+    }
+
+    .last-message,
+    .status,
+    .typing-status {
+      body.is-ios &,
+      body.is-macos & {
+        font-size: 0.9375rem;
+      }
+    }
+
+    &[dir="rtl"] {
+      .info > .status {
+        width: 100%;
+      }
+    }
+  }
+
+  &.picker-list-item {
+    margin: 0;
+
+    .ListItem-button {
+      display: flex;
+      align-items: center;
+      padding-left: 0;
+    }
+
+    .Avatar {
+      width: 3rem;
+      height: 3rem;
+    }
+
+    .Checkbox {
+      flex-shrink: 0;
+      height: 1.5rem;
+      margin: 0;
+      padding-left: 4rem;
+    }
+
+    .withSubLabel {
+      height: 2.5rem;
+    }
+
+    &[dir="rtl"] {
+      .Checkbox {
+        padding-right: 4rem;
+        padding-left: 0;
+      }
+    }
+  }
+
+  &.chat-item {
+    .ListItem-button {
+      padding: 0.5rem;
+    }
+
+    .Checkbox {
+      padding-left: 3rem;
+    }
+  }
+
+  .multiline-item {
+    overflow: hidden;
+    flex-grow: 1;
+    padding: 0.4375rem 0 0.5625rem 0;
+    white-space: initial;
+
+    .word-break {
+      overflow-wrap: break-word;
+    }
+
+    .title,
+    .subtitle {
+      display: block;
+      text-align: initial;
+
+      &[dir="rtl"] {
+        text-align: right;
+      }
+    }
+
+    .title {
+      overflow: hidden;
+      line-height: 1.25rem;
+      text-overflow: ellipsis;
+    }
+
+    .subtitle {
+      margin-top: 0.25rem;
+      font-size: 0.875rem;
+      line-height: 1rem;
+      color: var(--color-text-secondary);
+
+      &.black {
+        color: var(--color-text);
+      }
+    }
+  }
+
+  @media (min-width: 600px) {
+    &:not(.has-ripple):not(.is-static),
+    body.no-page-transitions & {
+      .ListItem-button:active {
+        --background-color: var(--color-item-active) !important;
+      }
+    }
+  }
+}
+
+.list-item-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

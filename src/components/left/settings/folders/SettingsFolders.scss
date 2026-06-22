@@ -1,0 +1,264 @@
+.settings-folders-recommended-item {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+}
+
+.settings-folders-blocked-icon {
+  margin-left: 0.25rem;
+  color: var(--color-text-secondary);
+}
+
+.settings-folders-list-item {
+  .ListItem-main-icon {
+    margin-inline-end: 1.875rem !important;
+  }
+
+  .ChatInfo {
+    display: flex;
+    align-items: center;
+    width: 100%;
+
+    .Avatar {
+      margin-right: 1.5rem;
+      margin-left: -0.25rem;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+
+      h3 {
+        overflow: hidden;
+
+        margin: 0;
+
+        font-size: 1rem;
+        font-weight: var(--font-weight-medium);
+        line-height: 1.3125;
+        text-align: left;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
+    .info {
+      overflow: hidden;
+    }
+
+    .status {
+      display: none;
+    }
+
+    &[dir="rtl"] {
+      .title h3 {
+        text-align: right;
+      }
+    }
+  }
+
+  .ListItem-button {
+    .icon {
+      opacity: 0.9;
+    }
+  }
+
+  &.color-primary .ListItem-button {
+    color: var(--color-primary);
+
+    .icon {
+      color: inherit;
+      opacity: 1;
+    }
+  }
+
+  &[dir="rtl"] {
+    .Avatar {
+      margin-right: -0.25rem;
+      margin-left: 1.5rem;
+    }
+  }
+}
+
+.settings-item .ShowMoreButton {
+  width: calc(100% + 2rem);
+  margin: 0 -1rem;
+  padding-left: 1rem !important;
+}
+
+.settings-sortable-container {
+  position: relative;
+}
+
+.settings-sortable-item .multiline-item {
+  padding-inline-end: 3rem;
+}
+
+.settings-sortable-item .Button {
+  margin-inline-end: -1rem;
+  &:hover,
+  &:active {
+    background-color: transparent !important;
+  }
+}
+
+.picker-category-title {
+  padding-top: 0.75rem;
+}
+
+.Picker {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.color-picker {
+  overflow-x: auto;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+
+  margin-inline: 1rem;
+  padding: 0.125rem;
+}
+
+.color-picker-header {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+
+  padding-inline-end: 1rem;
+}
+
+.color-picker-title-text,
+.color-picker-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.color-picker-title {
+  flex-shrink: 0;
+}
+
+.color-picker-item {
+  cursor: var(--custom-cursor, pointer);
+
+  flex-shrink: 0;
+
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 0.125rem solid transparent;
+  border-radius: 50%;
+
+  color: var(--accent-color);
+
+  background-color: currentColor;
+  box-shadow: none;
+
+  /* stylelint-disable-next-line plugin/no-low-performance-animation-properties */
+  transition: border 100ms ease-in-out, box-shadow 100ms ease-in-out;
+}
+
+.color-picker-item-disabled {
+  --accent-color: var(--color-topic-grey);
+}
+
+.color-picker-selected-color {
+  color: var(--accent-color);
+}
+
+.color-picker-item-none {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-topic-grey);
+
+  .color-picker-item-none-icon {
+    color: var(--color-background);
+  }
+}
+
+.color-picker-item:not(.color-picker-item-hover-disabled) {
+  &.color-picker-item-active,
+  &:focus,
+  &:hover,
+  &:active {
+    border: 0.125rem solid var(--color-background);
+    outline: none;
+    box-shadow: 0 0 0 0.125rem currentColor;
+  }
+}
+
+.settings-item-relative {
+  position: relative;
+}
+
+.settings-folders-lock-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+
+  padding: 1.3125rem;
+
+  font-size: 0.875rem;
+  color: var(--color-gray);
+}
+
+.settings-folders-color-circle {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: 2.5rem;
+  transform: translateY(-50%);
+
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+
+  background-color: var(--accent-color);
+}
+
+.settings-folders-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+}
+
+.settings-folders-input-with-icon .form-control {
+  padding-inline-end: 3rem;
+}
+
+.settings-folders-icon-picker {
+  --custom-emoji-size: 2rem;
+
+  position: absolute;
+  inset-inline-end: 0.5rem;
+  font-size: 2rem;
+  color: var(--color-text-secondary);
+}
+
+.settings-folders-icon-picker-button {
+  cursor: var(--custom-cursor, pointer);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-folders-icon-picker-menu .bubble {
+  --offset-y: 16rem !important;
+  --offset-x: 6rem;
+}
+
+.settings-folders-icon-picker-menu-folders {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-borders);
+  color: var(--color-text-secondary);
+}

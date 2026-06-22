@@ -1,0 +1,140 @@
+{
+  "extends": [
+    "stylelint-config-recommended-scss",
+    "@stylistic/stylelint-config",
+    "stylelint-config-clean-order/error"
+  ],
+  "ignoreFiles": [
+    "dist/*.css",
+    "src/styles/icons.{scss,css}"
+  ],
+  "plugins": [
+    "@stylistic/stylelint-plugin",
+    "stylelint-declaration-block-no-ignored-properties",
+    "stylelint-high-performance-animation",
+    "stylelint-group-selectors",
+    "stylelint-plugin-use-baseline",
+    "@mytonwallet/stylelint-whole-pixel"
+  ],
+  "rules": {
+    "property-no-unknown": [
+      true,
+      {
+        "ignoreProperties": [
+          "composes",
+          "compose-with"
+        ]
+      }
+    ],
+    "selector-max-type": [0, {
+      "ignoreTypes": ["html", "body"],
+      "severity": "warning"
+    }],
+    "selector-attribute-quotes": "always",
+    "scss/operator-no-unspaced": null,
+    "no-descending-specificity": null,
+    "plugin/declaration-block-no-ignored-properties": true,
+    "plugin/no-low-performance-animation-properties": [
+      true,
+      {
+        "ignore": "paint-properties"
+      }
+    ],
+    "plugin/stylelint-group-selectors": [
+      true,
+      {
+        "severity": "warning"
+      }
+    ],
+    "plugin/whole-pixel": [
+      true,
+      {
+        "ignoreList": [
+          "letter-spacing"
+        ]
+      }
+    ],
+    "selector-pseudo-class-no-unknown": [
+      true,
+      {
+        "ignorePseudoClasses": [
+          "global",
+          "local"
+        ]
+      }
+    ],
+    "no-invalid-position-declaration": [
+      true,
+      { "ignoreAtRules": ["mixin"] }
+    ],
+      "nesting-selector-no-missing-scoping-root": [
+      true,
+      { "ignoreAtRules": ["include", "mixin"] }
+    ],
+    "plugin/use-baseline": [
+      true,
+      {
+        "severity": "warning",
+        "ignoreSelectors": [
+          "nesting",
+          "dir",
+          "selection",
+          "view-transition",
+          "view-transition-group",
+          "view-transition-image-pair",
+          "view-transition-old",
+          "view-transition-new"
+        ],
+        "ignoreProperties": {
+          "property-name": [
+            "text-wrap",
+            "outline",
+            "backdrop-filter",
+            "user-select",
+            "scrollbar-gutter",
+            "scrollbar-width",
+            "scrollbar-color",
+            "box-decoration-break",
+            "offset-anchor"
+          ]
+        }
+      }
+    ],
+    "@stylistic/number-leading-zero": "always",
+    "@stylistic/string-quotes": null,
+    "@stylistic/color-hex-case": null,
+    "@stylistic/selector-list-comma-newline-after": null,
+    "@stylistic/block-closing-brace-newline-after": null,
+    "@stylistic/indentation": [
+      2,
+      {
+        "ignore": [
+          "value"
+        ]
+      }
+    ],
+    "at-rule-empty-line-before": [
+      "always",
+      {
+        "ignore": [
+          "first-nested",
+          "after-comment",
+          "blockless-after-blockless"
+        ]
+      }
+    ],
+    "rule-empty-line-before": [
+      "always",
+      {
+        "except": [
+          "after-single-line-comment",
+          "first-nested"
+        ],
+        "ignore": [
+          "after-comment",
+          "inside-block"
+        ]
+      }
+    ]
+  }
+}

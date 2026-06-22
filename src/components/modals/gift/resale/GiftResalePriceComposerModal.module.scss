@@ -1,0 +1,28 @@
+.checkBoxDescription,
+.inputPriceDescription {
+  display: flex;
+  margin-bottom: 2rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.checkBox {
+  margin-inline: -1rem;
+}
+
+.inputPriceDescription {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.descriptionPrice {
+  margin-left: auto;
+}
+
+.inputPrice {
+  margin-top: 0.5rem;
+
+  :global(.input-group) {
+    margin-bottom: 0.25rem;
+  }
+}

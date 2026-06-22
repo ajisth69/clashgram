@@ -1,0 +1,152 @@
+.root {
+  padding: 0.75rem 0 0.5rem;
+}
+
+.description {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  margin: 0 1rem;
+}
+
+.checkout-picture {
+  width: 100%;
+  min-width: 0;
+  max-width: 8rem;
+  height: auto;
+  margin: 0.25rem 0.75rem 0 0;
+  border-radius: 0.5rem;
+}
+
+.text {
+  min-width: 0;
+}
+
+.checkout-title {
+  font-size: 1.125rem;
+  line-height: 1.25;
+}
+
+.checkout-description {
+  margin-bottom: 0.25rem;
+
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  color: var(--color-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.price-info {
+  margin: 1rem;
+}
+
+.price-info-item {
+  display: flex;
+  flex-direction: row;
+  align-content: space-between;
+
+  margin: 1rem 0.5rem;
+
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+
+  &-main {
+    color: var(--color-text);
+  }
+
+  &-title {
+    display: flex;
+    flex: 1 auto;
+  }
+}
+
+.tipsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: space-between;
+}
+
+.tipsItem {
+  cursor: var(--custom-cursor, pointer);
+
+  min-width: 5rem;
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  border-radius: 1.375rem;
+
+  font-weight: var(--font-weight-medium);
+  line-height: 2.5rem;
+  color: var(--color-primary);
+  text-align: center;
+
+  background: var(--color-primary-opacity);
+
+  transition: background-color 200ms, color 200ms;
+
+  &:hover,
+  &:focus {
+    background: var(--color-primary-opacity-hover);
+  }
+
+  &_active {
+    color: var(--color-white);
+    background: var(--color-primary) !important;
+  }
+
+  :global(.theme-dark) & {
+    color: var(--color-white);
+  }
+}
+
+.invoice-info {
+  padding: 0.5rem;
+  border-top: 0.0625rem var(--color-borders) solid;
+}
+
+.provider {
+  float: left;
+
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-inline-end: 1.125rem;
+  border-radius: 1rem;
+
+  background: no-repeat center;
+  background-size: 2rem;
+}
+
+.provider.stripe {
+  background-image: url("../../assets/stripe-logo.png");
+}
+
+.provider.smartglocal {
+  background-image: url("../../assets/smartglocal-logo.png");
+}
+
+.checkout-info-item-info {
+  &-title {
+    margin-bottom: 0;
+
+    font-size: 1rem;
+    font-weight: var(--font-weight-normal);
+    line-height: 1.4375rem;
+    color: var(--color-text);
+    text-transform: capitalize;
+    overflow-wrap: anywhere;
+  }
+
+  &-data {
+    margin-bottom: 0;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+  }
+}
+
+.tos-checkbox {
+  padding-left: 3.625rem;
+}
+
+.list {
+  margin-bottom: 0 !important;
+}

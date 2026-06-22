@@ -1,0 +1,38 @@
+.Game {
+  .title {
+    font-weight: var(--font-weight-medium);
+  }
+
+  .description {
+    margin-bottom: 0.75rem;
+    line-height: 1.2;
+  }
+
+  .preview {
+    cursor: var(--custom-cursor, pointer);
+
+    position: relative;
+
+    max-width: 100%;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .preview-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    overflow: hidden;
+
+    width: 100%;
+    height: 100%;
+    border-radius: 0.5rem;
+
+    object-fit: cover;
+  }
+
+  .skeleton {
+    aspect-ratio: 16 / 9;
+  }
+}

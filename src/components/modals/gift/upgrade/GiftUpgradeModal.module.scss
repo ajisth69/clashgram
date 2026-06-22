@@ -1,0 +1,35 @@
+.header {
+  --_height: 17.5rem;
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-self: stretch;
+}
+
+.footerButton {
+  margin-top: 0.5rem;
+}
+
+.link {
+  align-self: center;
+}
+
+.priceDecreaseTimer {
+  font-size: 0.875rem;
+  text-transform: none;
+  opacity: 0.6;
+}
+
+.subtitle {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.viewAllText {
+  margin-inline-start: 0.125rem;
+}
