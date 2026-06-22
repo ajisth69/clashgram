@@ -18,13 +18,6 @@ export function initApi(_onUpdate: OnApiUpdate, initialArgs: ApiInitialArgs, ini
 
   if (initialLocalDb) updateFullLocalDb(initialLocalDb);
 
-  if (initialArgs.clashgramProxyEnabled !== undefined) {
-    PromisedWebSockets.proxyEnabled = initialArgs.clashgramProxyEnabled;
-  }
-  if (initialArgs.clashgramProxyUrl !== undefined) {
-    PromisedWebSockets.proxyUrl = initialArgs.clashgramProxyUrl;
-  }
-
   const connectDeferred = new Deferred<void>();
   initClient(initialArgs, () => connectDeferred.resolve());
   return connectDeferred.promise;

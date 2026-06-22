@@ -59,6 +59,4 @@ export interface SharedSettings {
   clashgramConfirmMsg?: boolean;
   clashgramHideBlockedInGroups?: boolean;
   clashgramHideAllChats?: boolean;
-  clashgramProxyEnabled?: boolean;
-  clashgramProxyUrl?: string;
 }

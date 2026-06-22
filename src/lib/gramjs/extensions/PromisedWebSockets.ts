@@ -1,7 +1,7 @@
 import { Mutex } from 'async-mutex';
 
 const closeError = new Error('WebSocket was closed');
-const CONNECTION_TIMEOUT = 3000;
+const CONNECTION_TIMEOUT = 10000;
 const MAX_TIMEOUT = 30000;
 
 const IP_TO_DOMAIN_MAP: Record<string, string> = {
@@ -41,9 +41,6 @@ const getTelegramDomain = (ip: string) => {
 };
 
 export default class PromisedWebSockets {
-  static proxyEnabled = false;
-  static proxyUrl = '';
-
   private readonly mutex = new Mutex();
 
   private closed: boolean;
@@ -116,23 +113,6 @@ export default class PromisedWebSockets {
   }
 
   getWebSocketLink(ip: string, port: number, isTestServer?: boolean, isPremium?: boolean) {
-    if (PromisedWebSockets.proxyEnabled) {
-      let wsUrl = (PromisedWebSockets.proxyUrl || 'https://freenet.clashgram.workers.dev/').trim();
-      if (!/^wss?:\/\//i.test(wsUrl)) {
-        if (/^https?:\/\//i.test(wsUrl)) {
-          wsUrl = wsUrl.replace(/^https/i, 'wss').replace(/^http/i, 'ws');
-        } else {
-          wsUrl = `wss://${wsUrl}`;
-        }
-      }
-      if (!wsUrl.endsWith('/')) {
-        wsUrl += '/';
-      }
-      const domain = getTelegramDomain(ip);
-      const suffix = `apiws${isTestServer ? '_test' : ''}${isPremium ? '_premium' : ''}`;
-      return `${wsUrl}${domain}/${suffix}?ip=${ip}&port=${port}`;
-    }
-
     if (port === 443) {
       return `wss://${ip}:${port}/apiws${isTestServer ? '_test' : ''}${isPremium ? '_premium' : ''}`;
     } else {
@@ -146,7 +126,7 @@ export default class PromisedWebSockets {
       this.resolveRead = resolve;
     });
     this.closed = false;
-    this.timeout = PromisedWebSockets.proxyEnabled ? 30000 : CONNECTION_TIMEOUT;
+    this.timeout = CONNECTION_TIMEOUT;
     this.website = this.getWebSocketLink(ip, port, isTestServer, isPremium);
     this.client = new WebSocket(this.website, 'binary');
     this.client.binaryType = 'arraybuffer';

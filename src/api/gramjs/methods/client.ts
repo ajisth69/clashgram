@@ -285,15 +285,6 @@ export function disconnect() {
   client.disconnect();
 }
 
-export function updateProxySettings(params: { enabled: boolean; url: string }) {
-  PromisedWebSockets.proxyEnabled = params.enabled;
-  PromisedWebSockets.proxyUrl = params.url;
-
-  if (client) {
-    client.disconnect();
-  }
-}
-
 export function getClient() {
   return client;
 }

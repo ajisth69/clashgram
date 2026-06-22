@@ -32,8 +32,6 @@ export interface ApiInitialArgs {
   isTestServerRequested?: boolean;
   accountIds?: string[];
   hasPasskeySupport?: boolean;
-  clashgramProxyEnabled?: boolean;
-  clashgramProxyUrl?: string;
 }
 
 export type ApiPasskeyOption = {
