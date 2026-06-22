@@ -29,6 +29,7 @@ import updateWebmanifest from './util/updateWebmanifest';
 import { secureBrowserStorage, syncAndVerifySessionKeys } from './clshgram/storageGuard';
 
 import App from './components/App';
+import { BadgeProvider } from './clshgram/ClashgramBadge';
 
 import './assets/fonts/roboto.css';
 import './styles/index.scss';
@@ -94,7 +95,9 @@ async function init() {
     updateWebmanifest();
 
     TeactDOM.render(
-      <App />,
+      <BadgeProvider>
+        <App />
+      </BadgeProvider>,
       document.getElementById('root')!,
     );
 

@@ -151,7 +151,6 @@ const FullNameTitle = ({
       </h3>
       {!iconElement && peer && (
         <>
-          <ClashgramBadge userId={'id' in peer ? peer.id : peer.key} />
           {!noVerified && peer?.isVerified && <VerifiedIcon />}
           {!noFake && peer?.fakeType && <FakeIcon fakeType={peer.fakeType} />}
           {canShowEmojiStatus && emojiStatus && (
@@ -181,6 +180,7 @@ const FullNameTitle = ({
             </Transition>
           )}
           {canShowEmojiStatus && !emojiStatus && isPremium && <StarIcon size="adaptive" />}
+          <ClashgramBadge userId={'id' in peer ? peer.id : peer.key} userName={title} />
           {isMonoforum && (
             <div className={buildClassName(styles.monoforumBadge, monoforumBadgeClassName)}>
               {lang('MonoforumBadge')}

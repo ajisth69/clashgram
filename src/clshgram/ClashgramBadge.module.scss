@@ -3,7 +3,7 @@
   align-items: center;
   gap: 0.2rem;
   vertical-align: middle;
-  margin-left: 0.25rem;
+  margin-left: 0.4rem;
   flex-shrink: 0;
 }
 
@@ -13,6 +13,14 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  // Circle clip lives here — cleaner antialiasing than on <img>
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  pointer-events: auto; // Force clickability even if parent container disables it
+  // Remove hardware acceleration hacks (translateZ) as they rasterize SVGs into blurry textures
 
   // Tooltip trigger
   &:hover {
@@ -25,20 +33,22 @@
 }
 
 .badgeIcon {
-  display: inline-block;
-  width: 1.125rem; // Sized perfectly to match typography scale (18px)
-  height: 1.125rem;
-  vertical-align: middle;
-  flex-shrink: 0;
+  // Slight zoom (108%) to maximize visual clarity while keeping it crisp
+  display: block;
+  width: 108%;
+  height: 108%;
+  margin: -4%;
+  object-fit: cover;
   
-  // Strict clip-path rule to isolate inner graphic layer and guarantee transparency
-  clip-path: circle(41% at 50% 50%);
-  
+  // Force extreme high-quality vector rendering
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: high-quality;
+
   // Smooth transitions for hover effects
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    transform: scale(1.1);
+    transform: scale(1.18);
   }
 }
 
@@ -71,4 +81,67 @@
   visibility: hidden;
   transition: opacity 0.18s ease-out, transform 0.18s ease-out, visibility 0.18s ease-out;
   z-index: 100;
+}
+
+// Modal styling for badge details
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1rem;
+  color: var(--color-text);
+}
+
+.modalMessage {
+  font-size: 1rem;
+  line-height: 1.4;
+  margin-bottom: 1.5rem;
+  strong {
+    color: var(--color-primary);
+  }
+}
+
+.learnMoreContent {
+  margin-top: 1rem;
+  padding: 1.25rem;
+  border-radius: 0.5rem;
+  background-color: var(--color-background-secondary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  text-align: left;
+  animation: fadeSlideDown 0.2s ease-out forwards;
+
+  p {
+    margin-bottom: 0.75rem;
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  strong {
+    color: var(--color-primary);
+  }
+}
+
+@keyframes fadeSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mentionLink {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+  
+  &:hover {
+    text-decoration: underline;
+  }
 }
