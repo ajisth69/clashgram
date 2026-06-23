@@ -1,5 +1,5 @@
 import type { FC } from '../../../lib/teact/teact';
-import { memo, useEffect, useRef } from '../../../lib/teact/teact';
+import { memo, useEffect, useRef, useMemo } from '../../../lib/teact/teact';
 import { getActions, getGlobal } from '../../../global';
 
 import type { ApiSendAsPeerId } from '../../../api/types';
@@ -47,6 +47,33 @@ const SendAsMenu: FC<OwnProps> = ({
   const lang = useOldLang();
   const containerRef = useRef<HTMLDivElement>();
 
+  const combinedSendAsPeerIds = useMemo(() => {
+    if (!sendAsPeerIds) return undefined;
+
+    const ids = new Set(sendAsPeerIds.map((p) => p.id));
+    const result = [...sendAsPeerIds];
+
+    if (chatsById) {
+      Object.values(chatsById).forEach((chat) => {
+        if (
+          chat &&
+          chat.isCreator &&
+          (chat.type === 'chatTypeChannel' || chat.type === 'chatTypeSuperGroup') &&
+          (chat.hasUsername || (chat.usernames && chat.usernames.some((u) => u.isActive))) &&
+          !ids.has(chat.id)
+        ) {
+          result.push({
+            id: chat.id,
+            isPremium: true,
+          });
+          ids.add(chat.id);
+        }
+      });
+    }
+
+    return result;
+  }, [sendAsPeerIds, chatsById]);
+
   const [handleMouseEnter, handleMouseLeave, markMouseInside] = useMouseInside(isOpen, onClose, undefined);
 
   useEffect(() => {
@@ -62,7 +89,7 @@ const SendAsMenu: FC<OwnProps> = ({
 
   const selectedSendAsIndex = useKeyboardNavigation({
     isActive: isOpen,
-    items: sendAsPeerIds,
+    items: combinedSendAsPeerIds,
     onSelect: handleUserSelect,
     shouldSelectOnTab: true,
     shouldSaveSelectionOnUpdateItems: true,
@@ -74,10 +101,10 @@ const SendAsMenu: FC<OwnProps> = ({
   }, [selectedSendAsIndex]);
 
   useEffect(() => {
-    if (sendAsPeerIds && !sendAsPeerIds.length) {
+    if (combinedSendAsPeerIds && !combinedSendAsPeerIds.length) {
       onClose();
     }
-  }, [sendAsPeerIds, onClose]);
+  }, [combinedSendAsPeerIds, onClose]);
 
   return (
     <Menu
@@ -93,7 +120,7 @@ const SendAsMenu: FC<OwnProps> = ({
       noCompact
     >
       <div className="send-as-title" dir="auto">{lang('SendMessageAsTitle')}</div>
-      {usersById && chatsById && sendAsPeerIds?.map(({ id, isPremium }, index) => {
+      {usersById && chatsById && combinedSendAsPeerIds?.map(({ id, isPremium }, index) => {
         const user = usersById[id];
         const chat = chatsById[id];
         const peer = user || chat;
