@@ -58,7 +58,7 @@ const SendAsMenu: FC<OwnProps> = ({
         if (
           chat &&
           chat.isCreator &&
-          (chat.type === 'chatTypeChannel' || chat.type === 'chatTypeSuperGroup') &&
+          chat.type === 'chatTypeChannel' &&
           (chat.hasUsername || (chat.usernames && chat.usernames.some((u) => u.isActive))) &&
           !ids.has(chat.id)
         ) {
