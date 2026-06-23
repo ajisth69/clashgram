@@ -520,7 +520,7 @@ export default function TranslationDashboard() {
             </div>
             
             <a 
-              href="file:///C:/Users/Ajisth/.gemini/antigravity/brain/cb7cc999-2742-4312-aa41-c88319cb9e46/walkthrough.md"
+              href="#"
               className="text-[12px] bg-slate-800 hover:bg-slate-700 font-semibold px-4 py-2 rounded-xl border border-slate-700/60 hover:border-slate-600 transition-all duration-200"
             >
               View Docs

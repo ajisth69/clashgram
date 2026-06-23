@@ -1,5 +1,5 @@
-$filePath = "c:\Users\Ajisth\.gemini\antigravity-ide\scratch\clashgram\src\api\gramjs\methods\messages.ts"
-$bakPath = "c:\Users\Ajisth\.gemini\antigravity-ide\scratch\clashgram\src\api\gramjs\methods\messages.ts.bak"
+$filePath = Join-Path $PSScriptRoot "src/api/gramjs/methods/messages.ts"
+$bakPath = Join-Path $PSScriptRoot "src/api/gramjs/methods/messages.ts.bak"
 
 # 1. Backup original file
 if (Test-Path $filePath) {
