@@ -45,9 +45,3 @@ jobs:
         with:
           folder: dist
           branch: gh-pages
-
-      - name: Deploy Proxy Worker to Cloudflare ⛅
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          workingDirectory: 'clashgram-proxy-worker'
