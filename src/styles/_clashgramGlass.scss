@@ -7,7 +7,7 @@
   #RightColumn,
   .MiddleHeader,
   .Modal .modal-dialog,
-  .Menu.compact:not(.SymbolMenu):not(.AttachMenu--menu) > .bubble,
+  .Menu.compact:not(.SymbolMenu):not(.AttachMenu--menu):not(.translate-menu):not(.translation-tone-menu) > .bubble,
   .tg-structural-layer {
     will-change: backdrop-filter, background-color;
 
@@ -138,7 +138,7 @@
     }
   }
 
-  .Menu.compact:not(.SymbolMenu):not(.AttachMenu--menu) > .bubble,
+  .Menu.compact:not(.SymbolMenu):not(.AttachMenu--menu):not(.translate-menu):not(.translation-tone-menu) > .bubble,
   .Modal .modal-dialog {
     box-shadow:
       inset 0 0 0 1px var(--cg-glass-refraction),
@@ -163,6 +163,8 @@
   .GifPicker .bubble,
   .StickerPicker,
   .StickerPicker .bubble,
+  .translate-menu .bubble,
+  .translation-tone-menu .bubble,
   .BotKeyboardMenu .bubble,
   .media-inner,
   .media-inner *,
@@ -186,6 +188,8 @@
   .AttachMenu--menu .bubble,
   .GifPicker .bubble,
   .StickerPicker .bubble,
+  .translate-menu .bubble,
+  .translation-tone-menu .bubble,
   .BotKeyboardMenu .bubble {
     background: var(--color-background) !important;
   }
@@ -223,7 +227,7 @@
     #RightColumn,
     .MiddleHeader,
     .Modal .modal-dialog,
-    .Menu.compact:not(.SymbolMenu):not(.AttachMenu--menu) > .bubble,
+    .Menu.compact:not(.SymbolMenu):not(.AttachMenu--menu):not(.translate-menu):not(.translation-tone-menu) > .bubble,
     .tg-structural-layer {
       background: var(--color-background) !important;
     }

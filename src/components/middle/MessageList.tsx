@@ -1026,7 +1026,7 @@ export default memo(withGlobal<OwnProps>(
 
     const monoforumChannelId = selectMonoforumChannel(global, chatId)?.id;
     const canTranslate = selectCanTranslateChat(global, chatId) && !chatFullInfo?.isTranslationDisabled;
-    const shouldAutoTranslate = chat?.hasAutoTranslation;
+    const shouldAutoTranslate = false;
     const translationLanguage = selectTranslationLanguage(global);
 
     const currentMessageList = selectCurrentMessageList(global);
