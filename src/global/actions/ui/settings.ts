@@ -157,6 +157,45 @@ addActionHandler('setSharedSettingOption', (global, actions, payload): ActionRet
   return updateSharedSettings(global, payload);
 });
 
+addActionHandler('resetClashgramSettings', (global, actions): ActionReturnType => {
+  setTimeout(() => {
+    actions.showNotification({
+      message: 'All Clashgram settings have been reset to defaults.',
+      tabId: getCurrentTabId(),
+    });
+  }, 100);
+
+  return updateSharedSettings(global, {
+    clashgramGhostModeRead: false,
+    clashgramGhostModeTyping: false,
+    clashgramAntiDelete: false,
+    clashgramAntiEdit: false,
+    clashgramRetentionDays: 7,
+    clashgramBypassRestrictions: false,
+    clashgramLocalPremium: false,
+    clashgramGhostModeOnline: false,
+    clashgramGhostModeStories: false,
+    clashgramWhisperModel: 'base',
+    clashgramWhisperTask: 'transcribe',
+    clashgramNativeGlass: false,
+    clashgramNativeGlassColorValue: 50,
+    clashgramNativeGlassOpacityValue: 40,
+    clashgramBackgroundAnimation: 'none',
+    clashgramCustomFont: undefined,
+    clashgramVoiceChangerEnabled: false,
+    clashgramCustomAnimation: '{\n  "particleCount": 65,\n  "colors": ["#ff7b00", "#ff007b", "#7b00ff", "#00ffff"],\n  "minSpeed": 0.4,\n  "maxSpeed": 1.2,\n  "minSize": 1.5,\n  "maxSize": 4.5,\n  "glowEffect": true,\n  "spawnOnClick": true,\n  "gravity": 0.0,\n  "drift": 0.05\n}',
+    clashgramSendSilently: false,
+    clashgramNoQuoteForwarding: false,
+    clashgramRetainKickedChats: false,
+    clashgramConfirmMedia: false,
+    clashgramConfirmFile: false,
+    clashgramConfirmGifEmoji: false,
+    clashgramConfirmMsg: false,
+    clashgramHideBlockedInGroups: false,
+    clashgramHideAllChats: false,
+  });
+});
+
 addActionHandler('updatePerformanceSettings', (global, actions, payload): ActionReturnType => {
   const settings = selectSharedSettings(global);
   global = updateSharedSettings(global, {

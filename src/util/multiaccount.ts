@@ -20,19 +20,15 @@ import {
 import { MAIN_IDB_STORE } from './browser/idb';
 import { clearCacheForSlot } from './cacheApi';
 
-const WORKER_NAME = typeof WorkerGlobalScope !== 'undefined' && globalThis.self instanceof WorkerGlobalScope
-  ? globalThis.self.name : undefined;
-const WORKER_ACCOUNT_SLOT = WORKER_NAME ? Number(new URLSearchParams(WORKER_NAME).get(ACCOUNT_QUERY)) : undefined;
-
-export const ACCOUNT_SLOT = WORKER_ACCOUNT_SLOT || (
-  IS_MULTIACCOUNT_SUPPORTED ? getAccountSlot(globalThis.location.href) : undefined
-);
-
-export const DATA_BROADCAST_CHANNEL_NAME = `${DATA_BROADCAST_CHANNEL_PREFIX}_${ACCOUNT_SLOT || 1}`;
-export const ESTABLISH_BROADCAST_CHANNEL_NAME = `${ESTABLISH_BROADCAST_CHANNEL_PREFIX}_${ACCOUNT_SLOT || 1}`;
-export const MULTITAB_STORAGE_KEY = `${MULTITAB_LOCALSTORAGE_KEY_PREFIX}_${ACCOUNT_SLOT || 1}`;
-export const GLOBAL_STATE_CACHE_KEY = ACCOUNT_SLOT
-  ? `${GLOBAL_STATE_CACHE_PREFIX}_${ACCOUNT_SLOT}` : GLOBAL_STATE_CACHE_PREFIX;
+export function loadSlotSession(slot: number | undefined): SharedSessionData | undefined {
+  try {
+    const data = JSON.parse(localStorage.getItem(`${SESSION_ACCOUNT_PREFIX}${slot || 1}`) || '{}') as SharedSessionData;
+    if (!data.dcId) return undefined;
+    return data;
+  } catch (e) {
+    return undefined;
+  }
+}
 
 export function getAccountSlot(url: string) {
   const params = new URL(url).searchParams;
@@ -41,6 +37,52 @@ export function getAccountSlot(url: string) {
   if (!slotNumber || Number.isNaN(slotNumber) || slotNumber === 1) return undefined;
   return slotNumber;
 }
+
+const LAST_ACTIVE_SLOT_KEY = 'clashgram_last_active_account_slot';
+
+function determineAccountSlot() {
+  const workerName = typeof WorkerGlobalScope !== 'undefined' && globalThis.self instanceof WorkerGlobalScope
+    ? globalThis.self.name : undefined;
+  const workerAccountSlot = workerName ? Number(new URLSearchParams(workerName).get(ACCOUNT_QUERY)) : undefined;
+
+  if (workerAccountSlot) return workerAccountSlot;
+  if (!IS_MULTIACCOUNT_SUPPORTED) return undefined;
+
+  if (typeof window !== 'undefined' && window.location) {
+    const urlSlot = getAccountSlot(window.location.href);
+    if (urlSlot) {
+      if (loadSlotSession(urlSlot)) {
+        try {
+          localStorage.setItem(LAST_ACTIVE_SLOT_KEY, String(urlSlot));
+        } catch (e) {}
+      }
+      return urlSlot;
+    }
+
+    try {
+      const lastActiveSlotStr = localStorage.getItem(LAST_ACTIVE_SLOT_KEY);
+      if (lastActiveSlotStr) {
+        const lastActiveSlot = Number(lastActiveSlotStr);
+        if (lastActiveSlot && lastActiveSlot > 1 && loadSlotSession(lastActiveSlot)) {
+          const nextUrl = new URL(window.location.href);
+          nextUrl.searchParams.set(ACCOUNT_QUERY, String(lastActiveSlot));
+          window.location.replace(nextUrl.toString());
+          return lastActiveSlot;
+        }
+      }
+    } catch (e) {}
+  }
+
+  return undefined;
+}
+
+export const ACCOUNT_SLOT = determineAccountSlot();
+
+export const DATA_BROADCAST_CHANNEL_NAME = `${DATA_BROADCAST_CHANNEL_PREFIX}_${ACCOUNT_SLOT || 1}`;
+export const ESTABLISH_BROADCAST_CHANNEL_NAME = `${ESTABLISH_BROADCAST_CHANNEL_PREFIX}_${ACCOUNT_SLOT || 1}`;
+export const MULTITAB_STORAGE_KEY = `${MULTITAB_LOCALSTORAGE_KEY_PREFIX}_${ACCOUNT_SLOT || 1}`;
+export const GLOBAL_STATE_CACHE_KEY = ACCOUNT_SLOT
+  ? `${GLOBAL_STATE_CACHE_PREFIX}_${ACCOUNT_SLOT}` : GLOBAL_STATE_CACHE_PREFIX;
 
 export function getAccountsInfo() {
   if (!IS_MULTIACCOUNT_SUPPORTED) return {};
@@ -76,16 +118,6 @@ function getAccountInfo(slot: number): AccountInfo | undefined {
     isTest,
     phone,
   };
-}
-
-export function loadSlotSession(slot: number | undefined): SharedSessionData | undefined {
-  try {
-    const data = JSON.parse(localStorage.getItem(`${SESSION_ACCOUNT_PREFIX}${slot || 1}`) || '{}') as SharedSessionData;
-    if (!data.dcId) return undefined;
-    return data;
-  } catch (e) {
-    return undefined;
-  }
 }
 
 export function storeAccountData(slot: number | undefined, data: Partial<SessionUserInfo>) {

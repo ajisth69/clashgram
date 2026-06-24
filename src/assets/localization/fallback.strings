@@ -3125,3 +3125,7 @@
 "ClashgramPasscodeButtonCancel" = "Cancel";
 "ClashgramPasscodeButtonSaveUnlock" = "Save & Unlock";
 "ClashgramPasscodeButtonUnlock" = "Unlock";
+"ClashgramResetSettings" = "Reset to Default";
+"ClashgramResetSettingsSub" = "Reset all Clashgram settings to default values";
+"ClashgramResetSettingsConfirm" = "Are you sure you want to reset all Clashgram-specific settings? This cannot be undone.";
+"ClashgramResetSettingsSuccess" = "All Clashgram settings have been reset to defaults.";

@@ -1,10 +1,11 @@
-import { memo } from '../../../lib/teact/teact';
+import { memo, useState, useCallback } from '../../../lib/teact/teact';
 import { getActions } from '../../../global';
 import { SettingsScreens } from '../../../types';
 import useLang from '../../../hooks/useLang';
 
 import AnimatedIconWithPreview from '../../common/AnimatedIconWithPreview';
 import ListItem from '../../ui/ListItem';
+import ConfirmDialog from '../../ui/ConfirmDialog';
 import { LOCAL_TGS_URLS } from '../../common/helpers/animatedAssets';
 
 import './SettingsClashgram.scss';
@@ -15,8 +16,23 @@ type OwnProps = {
 };
 
 const SettingsClashgram = ({ isActive, onReset }: OwnProps) => {
-  const { openSettingsScreen } = getActions();
+  const { openSettingsScreen, resetClashgramSettings } = getActions();
   const lang = useLang();
+
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
+
+  const handleOpenResetConfirm = useCallback(() => {
+    setIsResetConfirmOpen(true);
+  }, []);
+
+  const handleCloseResetConfirm = useCallback(() => {
+    setIsResetConfirmOpen(false);
+  }, []);
+
+  const handleConfirmReset = useCallback(() => {
+    resetClashgramSettings();
+    setIsResetConfirmOpen(false);
+  }, [resetClashgramSettings]);
 
   return (
     <div className="settings-content custom-scroll clashgram-settings-dashboard">
@@ -103,8 +119,35 @@ const SettingsClashgram = ({ isActive, onReset }: OwnProps) => {
               </span>
             </div>
           </ListItem>
+
+          <ListItem icon="delete" narrow destructive onClick={handleOpenResetConfirm}>
+            <div className="multiline-item" style="min-width: 0; flex: 1; overflow: hidden;">
+              <span
+                className="title"
+                style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;"
+              >
+                {lang('ClashgramResetSettings')}
+              </span>
+              <span
+                className="subtitle"
+                style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;"
+              >
+                {lang('ClashgramResetSettingsSub')}
+              </span>
+            </div>
+          </ListItem>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={isResetConfirmOpen}
+        onClose={handleCloseResetConfirm}
+        confirmHandler={handleConfirmReset}
+        title={lang('ClashgramResetSettings')}
+        text={lang('ClashgramResetSettingsConfirm')}
+        confirmLabel={lang('ClashgramResetSettings')}
+        confirmIsDestructive
+      />
     </div>
   );
 };

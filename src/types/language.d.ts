@@ -2327,6 +2327,10 @@ export interface LangPair {
   'ClashgramPasscodeButtonCancel': undefined;
   'ClashgramPasscodeButtonSaveUnlock': undefined;
   'ClashgramPasscodeButtonUnlock': undefined;
+  'ClashgramResetSettings': undefined;
+  'ClashgramResetSettingsSub': undefined;
+  'ClashgramResetSettingsConfirm': undefined;
+  'ClashgramResetSettingsSuccess': undefined;
 }
 
 export interface LangPairWithVariables<V = LangVariable> {

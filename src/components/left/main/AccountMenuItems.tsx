@@ -45,11 +45,15 @@ const AccountMenuItems = ({
 
   const shouldShowLimit = currentCount >= maxCount;
 
-  const handleAccountClick = useLastCallback((account: AccountInfo) => {
+  const handleAccountClick = useLastCallback((account: AccountInfo, slot: string) => {
     if (account.userId === currentUser.id) {
       onSelectCurrent?.();
       return;
     }
+
+    try {
+      localStorage.setItem('clashgram_last_active_account_slot', slot);
+    } catch (e) {}
 
     // IDB locks up if we write large payload on navigation
     if (IS_SAFARI) temporarilySuspendCacheUpdate();
@@ -113,7 +117,7 @@ const AccountMenuItems = ({
                     previewUrl={account.avatarUri}
                   />
                 )}
-                onClick={() => handleAccountClick(account)}
+                onClick={() => handleAccountClick(account, slot)}
                 href={account.userId !== currentUser.id ? getAccountSlotUrl(Number(slot)) : undefined}
               >
                 {account.isTest && <span className="account-menu-item-test">T</span>}
