@@ -32,7 +32,8 @@ import {
 } from '../gramjsBuilders';
 import { addStoryToLocalDb } from '../helpers/localDb';
 import { deserializeBytes } from '../helpers/misc';
-import { invokeRequest } from './client';
+import { invokeRequest, uploadFile } from './client';
+import { generateRandomBigInt } from '../../../lib/gramjs/Helpers';
 
 export async function fetchAllStories({
   stateHash,
@@ -525,3 +526,63 @@ export async function fetchAlbumStories({
     count: result.count,
   };
 }
+
+export async function postStory({
+  peer,
+  file,
+  caption,
+  privacy,
+  pinned,
+  period,
+}: {
+  peer: ApiPeer;
+  file: File;
+  caption?: string;
+  privacy: 'everybody' | 'contacts' | 'nobody';
+  pinned?: boolean;
+  period?: number;
+}) {
+  const inputFile = await uploadFile(file);
+
+  const isVideo = file.type.startsWith('video/');
+  let media: GramJs.TypeInputMedia;
+
+  if (isVideo) {
+    media = new GramJs.InputMediaUploadedDocument({
+      file: inputFile,
+      mimeType: file.type,
+      attributes: [new GramJs.DocumentAttributeVideo({
+        duration: 0,
+        w: 0,
+        h: 0,
+        supportsStreaming: true,
+      }), new GramJs.DocumentAttributeFilename({ fileName: file.name })],
+    });
+  } else {
+    media = new GramJs.InputMediaUploadedPhoto({
+      file: inputFile,
+    });
+  }
+
+  const privacyRules: GramJs.TypeInputPrivacyRule[] = [];
+  if (privacy === 'contacts') {
+    privacyRules.push(new GramJs.InputPrivacyValueAllowContacts());
+  } else if (privacy === 'nobody') {
+    privacyRules.push(new GramJs.InputPrivacyValueDisallowAll());
+  } else {
+    privacyRules.push(new GramJs.InputPrivacyValueAllowAll());
+  }
+
+  const randomId = generateRandomBigInt();
+
+  return invokeRequest(new GramJs.stories.SendStory({
+    peer: buildInputPeer(peer.id, peer.accessHash),
+    media,
+    privacyRules,
+    randomId,
+    caption,
+    pinned: pinned || undefined,
+    period: period || undefined,
+  }));
+}
+

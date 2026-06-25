@@ -432,3 +432,13 @@ addActionHandler('closeBoostStatistics', (global, actions, payload): ActionRetur
     boostStatistics: undefined,
   }, tabId);
 });
+
+addActionHandler('openStoryCreateModal', (global, actions, payload): ActionReturnType => {
+  const { tabId = getCurrentTabId(), ...rest } = payload;
+
+  return updateTabState(global, {
+    storyCreateModal: rest,
+  }, tabId);
+});
+
+addTabStateResetterAction('closeStoryCreateModal', 'storyCreateModal');

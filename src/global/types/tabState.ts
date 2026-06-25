@@ -435,6 +435,10 @@ export type TabState = {
     offsets?: Record<string, string>;
   };
 
+  storyCreateModal?: {
+    peerId: string;
+  };
+
   isPaymentFormLoading?: boolean;
   payment: {
     inputInvoice?: ApiInputInvoice;

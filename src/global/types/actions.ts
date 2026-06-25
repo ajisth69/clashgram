@@ -1799,6 +1799,18 @@ export interface ActionPayloads {
     reaction?: ApiReaction;
     shouldAddToRecent?: boolean;
   } & WithTabId;
+  openStoryCreateModal: {
+    peerId: string;
+  } & WithTabId;
+  closeStoryCreateModal: WithTabId | undefined;
+  postStory: {
+    peerId: string;
+    file: File;
+    caption?: string;
+    privacy: 'everybody' | 'contacts' | 'nobody';
+    pinned?: boolean;
+    period?: number;
+  } & WithTabId;
   openStealthModal: ({
     targetPeerId: string;
   } | Record<string, never>) & WithTabId;

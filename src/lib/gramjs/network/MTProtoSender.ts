@@ -734,6 +734,11 @@ export default class MTProtoSender {
           // A step while decoding had the incorrect data. This message
           // should not be considered safe and it should be ignored.
           this._log.warn(`Security error while unpacking a received message: ${e.message}`);
+          if (e.message === 'Server replied with a wrong session ID') {
+            this.reconnect();
+            this._recvLoopHandle = undefined;
+            return;
+          }
           continue;
         } else if (e instanceof InvalidBufferError) {
           // 404 means that the server has "forgotten" our auth key and we need to create a new one.

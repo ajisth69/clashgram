@@ -9,8 +9,6 @@
   .Modal .modal-dialog,
   .Menu.compact:not(.SymbolMenu):not(.AttachMenu--menu):not(.translate-menu):not(.translation-tone-menu) > .bubble,
   .tg-structural-layer {
-    will-change: backdrop-filter, background-color;
-
     transform: translateZ(0);
 
     background:

@@ -88,6 +88,7 @@ const LeftSideMenuItems = ({
     openChatWithInfo,
     showNotification,
     markChatMessagesRead,
+    openStoryCreateModal,
   } = getActions();
   const lang = useLang();
 
@@ -190,6 +191,12 @@ const LeftSideMenuItems = ({
         onClick={handleSelectMyProfile}
       >
         {lang('MenuMyProfile')}
+      </MenuItem>
+      <MenuItem
+        icon="add"
+        onClick={() => openStoryCreateModal({ peerId: currentUserId! })}
+      >
+        Post Story
       </MenuItem>
       <MenuItem
         icon="saved-messages"

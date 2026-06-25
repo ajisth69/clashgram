@@ -11,7 +11,7 @@ import { ManagementScreens, ProfileState, SettingsScreens } from '../../types';
 
 import { ANIMATION_END_DELAY, SAVED_FOLDER_ID } from '../../config';
 import {
-  getCanAddContact, getCanManageTopic, isChatChannel, isUserBot,
+  getCanAddContact, getCanManageTopic, isChatChannel, isUserBot, getHasAdminRight,
 } from '../../global/helpers';
 import {
   selectCanManage,
@@ -95,6 +95,7 @@ type StateProps = {
   canEditTopic?: boolean;
   isSavedMessages?: boolean;
   isOwnProfile?: boolean;
+  canPostStories?: boolean;
 };
 
 const COLUMN_ANIMATION_DURATION = 450 + ANIMATION_END_DELAY;
@@ -182,6 +183,7 @@ const RightHeader: FC<OwnProps & StateProps> = ({
   canUseGiftFilter,
   canUseGiftAdminFilter,
   isOwnProfile,
+  canPostStories,
   onClose,
   onScreenSelect,
 }) => {
@@ -196,9 +198,16 @@ const RightHeader: FC<OwnProps & StateProps> = ({
     openEditTopicPanel,
     updateGiftProfileFilter,
     openSettingsScreen,
+    openStoryCreateModal,
   } = getActions();
 
   const [isDeleteDialogOpen, openDeleteDialog, closeDeleteDialog] = useFlag();
+
+  const handleOpenStoryCreateModal = useLastCallback(() => {
+    if (chatId) {
+      openStoryCreateModal({ peerId: chatId });
+    }
+  });
   const { isMobile } = useAppLayout();
   const { createVtnStyle } = useVtn();
 
@@ -680,6 +689,16 @@ const RightHeader: FC<OwnProps & StateProps> = ({
                   iconName="edit"
                 />
               )}
+              {canPostStories && (
+                <Button
+                  round
+                  color="translucent"
+                  size="smaller"
+                  ariaLabel="Add Story"
+                  onClick={handleOpenStoryCreateModal}
+                  iconName="add"
+                />
+              )}
             </section>
           </>
         );
@@ -763,6 +782,8 @@ export default withGlobal<OwnProps>(
     const canUseGiftFilter = chatId ? selectCanUseGiftProfileFilter(global, chatId) : false;
     const canUseGiftAdminFilter = chatId ? selectCanUseGiftProfileAdminFilter(global, chatId) : false;
 
+    const canPostStories = isOwnProfile || (chat && (chat.isCreator || getHasAdminRight(chat, 'postStories')));
+
     return {
       canManage,
       canAddContact,
@@ -784,6 +805,7 @@ export default withGlobal<OwnProps>(
       canUseGiftFilter,
       canUseGiftAdminFilter,
       isOwnProfile,
+      canPostStories,
     };
   },
 )(RightHeader);

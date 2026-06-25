@@ -1,0 +1,115 @@
+.root {
+  max-width: 480px;
+  width: 90vw;
+  border-radius: 12px;
+}
+
+.content {
+  padding: 24px;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.uploadArea {
+  border: 2px dashed rgba(var(--color-text-rgb), 0.25);
+  border-radius: 8px;
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: rgba(var(--color-background-rgb), 0.05);
+  transition: background 0.2s, border-color 0.2s;
+
+  &:hover {
+    background: rgba(var(--color-background-rgb), 0.08);
+    border-color: var(--color-primary);
+  }
+}
+
+.uploadIcon {
+  font-size: 48px;
+  color: var(--color-text-secondary);
+}
+
+.previewContainer {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  max-height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #000;
+}
+
+.preview {
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+}
+
+.removeMediaBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.6) !important;
+  color: #fff !important;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(4px);
+  padding: 0;
+  min-width: 0;
+
+  &:hover {
+    background: rgba(255, 59, 48, 0.8) !important;
+  }
+}
+
+.changeMediaBtn {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.6) !important;
+  color: #fff !important;
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 13px;
+  backdrop-filter: blur(4px);
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.8) !important;
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(var(--color-text-rgb), 0.03);
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}

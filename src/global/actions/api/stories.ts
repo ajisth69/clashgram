@@ -722,3 +722,50 @@ addActionHandler('resetSelectedStoryAlbum', (global, actions, payload): ActionRe
     selectedStoryAlbumId: undefined,
   }, tabId);
 });
+
+addActionHandler('postStory', async (global, actions, payload): Promise<void> => {
+  const {
+    peerId,
+    file,
+    caption,
+    privacy,
+    pinned,
+    period,
+    tabId = getCurrentTabId(),
+  } = payload;
+
+  const peer = selectPeer(global, peerId);
+  if (!peer) return;
+
+  try {
+    const result = await callApi('postStory', {
+      peer,
+      file,
+      caption,
+      privacy,
+      pinned,
+      period,
+    });
+
+    if (!result) {
+      actions.showNotification({
+        message: "Failed to post story. Please check connection.",
+        tabId,
+      });
+      return;
+    }
+
+    actions.loadPeerStories({ peerId });
+    actions.showNotification({
+      message: "Story posted successfully!",
+      tabId,
+    });
+  } catch (err: any) {
+    // eslint-disable-next-line no-console
+    console.error(err);
+    actions.showNotification({
+      message: err.message || "Failed to post story. Premium or channel boosts may be required.",
+      tabId,
+    });
+  }
+});

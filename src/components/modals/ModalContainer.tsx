@@ -83,6 +83,7 @@ import SuggestMessageModal from './suggestMessage/SuggestMessageModal.async';
 import TwoFaCheckModal from './twoFaCheck/TwoFaCheckModal.async';
 import UrlAuthModal from './urlAuth/UrlAuthModal.async';
 import WebAppModal from './webApp/WebAppModal.async';
+import StoryCreateModal from './storyCreate/StoryCreateModal';
 
 // `Pick` used only to provide tab completion
 type ModalKey = keyof Pick<TabState,
@@ -159,7 +160,8 @@ type ModalKey = keyof Pick<TabState,
   'isQuickChatPickerOpen' |
   'isCocoonModalOpen' |
   'editRankModal' |
-  'rankModal'
+  'rankModal' |
+  'storyCreateModal'
 >;
 type WrappedModalKey = 'pollModal';
 type LegacyModalKey = Exclude<ModalKey, WrappedModalKey>;
@@ -296,6 +298,7 @@ const LEGACY_MODALS: LegacyModalRegistry = {
   isCocoonModalOpen: CocoonModal,
   editRankModal: EditRankModal,
   rankModal: RankModal,
+  storyCreateModal: StoryCreateModal,
 };
 const WRAPPED_MODALS: WrappedModalRegistry = {
   pollModal: PollModal,

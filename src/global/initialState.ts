@@ -19,7 +19,7 @@ import { IS_IOS, IS_MAC_OS } from '../util/browser/windowEnvironment';
 import { DEFAULT_APP_CONFIG } from '../limits';
 
 export const INITIAL_PERFORMANCE_STATE_MAX: PerformanceType = {
-  messageBlur: true,
+  messageBlur: false,
   animatedEmoji: true,
   autoplayGifs: true,
   autoplayVideos: true,

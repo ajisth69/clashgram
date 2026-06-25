@@ -329,6 +329,7 @@ const Profile = ({
     changeProfileTab,
     setMainProfileTab,
     openEditRankModal,
+    openStoryCreateModal,
   } = getActions();
 
   const containerRef = useRef<HTMLDivElement>();
@@ -348,6 +349,12 @@ const Profile = ({
   const profileId = isSavedDialog ? String(threadId) : chatId;
   const isGeneralSavedMessages = isSavedMessages && !isSavedDialog;
   const [isProfileExpanded, expandProfile, collapseProfile] = useFlag();
+
+  const chat = chatsById[chatId];
+  const canPostStories = isOwnProfile || (chat && (chat.isCreator || getHasAdminRight(chat, 'postStories')));
+  const handleOpenStoryCreateModal = useLastCallback(() => {
+    openStoryCreateModal({ peerId: profileId });
+  });
 
   useEffect(() => {
     onProfileExpandedChange?.(isProfileExpanded);
@@ -1365,6 +1372,16 @@ const Profile = ({
           onClick={handleNewMemberDialogOpen}
           ariaLabel={oldLang('lng_channel_add_users')}
           iconName="add-user-filled"
+        />
+      )}
+      {profileTab === 'stories' && canPostStories && (
+        <FloatingActionButton
+          className={buildClassName(!isActive && styles.hidden)}
+          style={createVtnStyle('profileFab')}
+          isShown={canRenderContent}
+          onClick={handleOpenStoryCreateModal}
+          ariaLabel="Add Story"
+          iconName="add"
         />
       )}
       {canDeleteMembers && (
