@@ -19,8 +19,6 @@ let masterToken: number | undefined;
 let isWaitingForMaster = false;
 let reestablishToken: number | undefined;
 let isChannelClosed = false;
-let masterReestablishTimeout: number | undefined;
-let handleFocus: VoidFunction | undefined;
 
 type EstablishMessage = {
   collectedTokens: Set<number>;
@@ -40,18 +38,10 @@ const handleMessage = ({ data }: { data: EstablishMessage }) => {
   }
 
   if (data.hasGaveUpMaster && isWaitingForMaster) {
-    if (masterReestablishTimeout) {
-      clearTimeout(masterReestablishTimeout);
-      masterReestablishTimeout = undefined;
-    }
     masterToken = token;
     isWaitingForMaster = false;
     initialEstablishment.resolve();
     runCallbacks(true);
-    channel.postMessage({
-      collectedTokens,
-      masterToken: token,
-    });
     return;
   }
 
@@ -137,18 +127,12 @@ const handleMessage = ({ data }: { data: EstablishMessage }) => {
         initialEstablishment.resolve();
         isEstablished = true;
       }
-    } else {
-      if (data.masterToken && data.masterToken !== masterToken) {
-        masterToken = data.masterToken;
-        runCallbacks(masterToken === token);
-      }
-      if (!data.masterToken) {
-        channel.postMessage({
-          collectedTokens,
-          masterToken,
-          reestablishToken,
-        });
-      }
+    } else if (!data.masterToken) {
+      channel.postMessage({
+        collectedTokens,
+        masterToken,
+        reestablishToken,
+      });
     }
   }
 };
@@ -171,14 +155,6 @@ export function establishMultitabRole(shouldReestablishMasterToSelf?: boolean) {
     }
   }, ESTABLISH_TIMEOUT);
 
-  handleFocus = () => {
-    if (document.visibilityState === 'visible' && !isCurrentTabMaster()) {
-      reestablishMasterToSelf();
-    }
-  };
-  document.addEventListener('visibilitychange', handleFocus);
-  window.addEventListener('focus', handleFocus);
-
   window.addEventListener('beforeunload', signalTokenDead);
   if (IS_TAURI) window.addEventListener('unload', signalTokenDead);
 }
@@ -187,10 +163,6 @@ export function signalTokenDead() {
   if (isChannelClosed) return;
   runCallbacksTokenDied(token);
   channel.removeEventListener('message', handleMessage);
-  if (handleFocus) {
-    document.removeEventListener('visibilitychange', handleFocus);
-    window.removeEventListener('focus', handleFocus);
-  }
   channel.postMessage({ tokenDied: token, currentPasscodeHash: getPasscodeHash() });
   channel.close();
   isChannelClosed = true;
@@ -213,22 +185,6 @@ export function reestablishMasterToSelf() {
   channel.postMessage({
     collectedTokens, masterToken: token, shouldGiveUpMaster: true,
   });
-
-  if (masterReestablishTimeout) {
-    clearTimeout(masterReestablishTimeout);
-  }
-  masterReestablishTimeout = window.setTimeout(() => {
-    if (isWaitingForMaster) {
-      masterToken = token;
-      isWaitingForMaster = false;
-      initialEstablishment.resolve();
-      runCallbacks(true);
-      channel.postMessage({
-        collectedTokens,
-        masterToken: token,
-      });
-    }
-  }, 500);
 }
 
 export const subscribeToTokenDied = addCallbackTokenDied;

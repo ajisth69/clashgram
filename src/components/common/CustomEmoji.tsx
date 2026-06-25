@@ -91,14 +91,12 @@ const CustomEmoji = ({
   const hasCustomColor = customEmoji?.shouldUseTextColor;
   const customColor = useDynamicColorListener(containerRef, undefined, !hasCustomColor);
 
-  const activeLoopLimit = loopLimit !== undefined ? loopLimit : (shouldNotLoop ? 1 : 3);
-
   const handleVideoEnded = useLastCallback((e) => {
-    if (!activeLoopLimit) return;
+    if (!loopLimit) return;
 
     loopCountRef.current += 1;
 
-    if (loopCountRef.current >= activeLoopLimit) {
+    if (loopCountRef.current >= loopLimit) {
       setShouldPlay(false);
       e.currentTarget.currentTime = 0;
     } else {
@@ -108,11 +106,11 @@ const CustomEmoji = ({
   });
 
   const handleStickerLoop = useLastCallback(() => {
-    if (!activeLoopLimit) return;
+    if (!loopLimit) return;
 
     loopCountRef.current += 1;
 
-    if (loopCountRef.current >= activeLoopLimit) {
+    if (loopCountRef.current >= loopLimit) {
       setShouldPlay(false);
     }
   });
@@ -158,7 +156,7 @@ const CustomEmoji = ({
           thumbClassName={styles.thumb}
           fullMediaClassName={styles.media}
           shouldLoop={!shouldNotLoop}
-          loopLimit={activeLoopLimit}
+          loopLimit={loopLimit}
           shouldPreloadPreview={shouldPreloadPreview || noPlay || !canPlay}
           forceOnHeavyAnimation={forceOnHeavyAnimation}
           forceAlways={forceAlways}
