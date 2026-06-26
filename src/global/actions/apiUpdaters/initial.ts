@@ -301,9 +301,7 @@ function onUpdateConnectionState<T extends GlobalState>(
 
   if (connectionState === 'connectionStateBroken') {
     if (update.isTerminal) {
-      if (global.auth.state === 'authorizationStateReady') {
-        actions.signOut({ forceInitApi: true });
-      }
+      actions.signOut({ forceInitApi: true });
     } else if (global.auth.state === 'authorizationStateReady' || hasStoredSession()) {
       // Only schedule reconnect for authenticated sessions — during login there's
       // no session to recover and reconnecting would restart the auth handshake.
