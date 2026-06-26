@@ -1200,6 +1200,25 @@ export default class MTProtoSender {
     }
 
     this._sendQueue.append(undefined);
+
+    // Wait for the old loops to fully exit to prevent race conditions during loop restarts
+    const sendLoopPromise = this._sendLoopHandle;
+    const recvLoopPromise = this._recvLoopHandle;
+    if (sendLoopPromise) {
+      try {
+        await sendLoopPromise;
+      } catch (err) {
+        // ignore
+      }
+    }
+    if (recvLoopPromise) {
+      try {
+        await recvLoopPromise;
+      } catch (err) {
+        // ignore
+      }
+    }
+
     this._state.reset();
 
     // For some reason reusing existing connection caused stuck requests

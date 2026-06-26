@@ -560,6 +560,13 @@ class ClashgramClient {
     this.session.setAuthKey(authKey, dcId);
   }
 
+  onTabForeground() {
+    this._log.info('Tab focused/visible');
+    if (this._sender && !this._sender.isReconnecting && !this._isSwitchingDc && !this._destroyed) {
+      this._sender.forceReconnect();
+    }
+  }
+
   // endregion
   // export region
 

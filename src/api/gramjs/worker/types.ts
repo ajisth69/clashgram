@@ -80,6 +80,11 @@ export type OriginPayload =
   {
     type: 'cancelProgress';
     messageId: string;
+  }
+  |
+  {
+    type: 'tabForeground';
+    messageId?: string;
   };
 
 export type OriginMessageData = {

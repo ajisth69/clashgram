@@ -373,18 +373,23 @@ function restartShortpollFromNow(channelId: string) {
   scheduleChannelDifference(channelId, 'shortpoll', scheduler.shortpollTimeoutMs);
 }
 
-function scheduleGetDifference() {
+function scheduleGetDifference(timeoutMs = UPDATE_WAIT_TIMEOUT) {
   if (seqTimeout) return;
 
   seqTimeout = setTimeout(async () => {
+    let succeeded = false;
     try {
       await getDifference();
+      succeeded = true;
     } catch (err) {
       handleBackgroundError(err);
     } finally {
       seqTimeout = undefined;
+      if (!succeeded) {
+        scheduleGetDifference(CHANNEL_DIFFERENCE_RETRY_TIMEOUT_MS);
+      }
     }
-  }, UPDATE_WAIT_TIMEOUT);
+  }, timeoutMs);
 }
 
 function getUpdateChannelId(update: Update) {

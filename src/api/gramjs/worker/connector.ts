@@ -421,9 +421,13 @@ const startedAt = Date.now();
 // Workaround for background/sleep tab worker suspension and iOS issues
 function setupHealthCheck() {
   const runPing = () => {
+    postMessageOnTickEnd({ type: 'tabForeground' });
     void ensureWorkerPing();
     // Sometimes a single check is not enough
-    setTimeout(() => ensureWorkerPing(), 1000);
+    setTimeout(() => {
+      postMessageOnTickEnd({ type: 'tabForeground' });
+      void ensureWorkerPing();
+    }, 1000);
   };
 
   window.addEventListener('focus', runPing);

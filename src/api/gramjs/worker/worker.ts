@@ -9,6 +9,7 @@ import { DEBUG_LEVELS } from '../../../util/debugConsole';
 import { throttleWithTickEnd } from '../../../util/schedulers';
 import { buildApiError, log } from '../helpers/misc';
 import { callApi, cancelApiProgress, initApi } from '../methods/init';
+import { getClient } from '../methods/client';
 
 declare const self: WorkerGlobalScope;
 
@@ -143,6 +144,16 @@ onmessage = ({ data }: OriginMessageEvent) => {
         } else {
           disableDebugLog();
         }
+
+        break;
+      }
+      case 'tabForeground': {
+        const client = getClient();
+        if (client) {
+          client.onTabForeground();
+        }
+
+        break;
       }
     }
   });

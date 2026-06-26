@@ -202,6 +202,7 @@ export default class PromisedWebSockets {
   close() {
     this.client?.close();
     this.closed = true;
+    this.resolveRead?.(false);
   }
 
   receive() {
