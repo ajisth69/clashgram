@@ -1,1 +1,0 @@
-(self.webpackChunkclashgram_t=self.webpackChunkclashgram_t||[]).push([[6058],{16673(a){a.exports=function(a){return{name:"Node REPL",contains:[{className:"meta.prompt",starts:{end:/ |$/,starts:{end:"$",subLanguage:"javascript"}},variants:[{begin:/^>(?=[ ]|$)/},{begin:/^\.\.\.(?=[ ]|$)/}]}]}}}}]);

@@ -1,4 +1,86 @@
-<!doctype html><html lang="en" translate="no" class="notranslate"><head><meta charset="UTF-8"><title>Clashgram</title><meta name="title" content="Clashgram - Private and Custom Telegram Client"><meta name="description" content="Clashgram is a highly optimized, privacy-focused Telegram client. Secure your messaging with selective read receipts, client-side message retention, offline Whisper AI transcription, and a custom glassmorphism UI."><meta name="keywords" content="clashgram, private telegram client, telegram web client, ghost mode telegram, anti-delete messages, whisper ai voice transcription, offline telegram translation, custom glassmorphism, secure messenger"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,shrink-to-fit=no,viewport-fit=cover"><meta name="mobile-web-app-capable" content="yes"><meta name="mobile-web-app-title" content="Clashgram"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Clashgram"><meta name="application-name" content="Clashgram"><meta name="msapplication-TileColor" content="#2b5797"><meta name="msapplication-config" content="./browserconfig.xml"><meta name="theme-color" content="#ffffff"><meta name="google" content="notranslate"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' wss://*.web.telegram.org wss: blob: https: ; script-src 'self' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://t.me/_websync_ https://telegram.me/_websync_; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://images.unsplash.com https://ss3.4sqi.net/img/categories_v2/; media-src 'self' blob: data:; font-src 'self' https://fonts.gstatic.com; object-src 'none'; frame-src https: bitkeep: bnc: bybitapp: echooo: imtokenv2: mytonwallet-tc: nicegram-tc: safepal-tc: tonkeeper-pro-tc: tonkeeper-tc:; base-uri 'none'; form-action 'none'; frame-ancestors 'none';"><meta property="og:type" content="website"><meta property="og:url" content="https://web.telegram.org/a"><meta property="og:title" content="Clashgram"><meta property="og:description" content="Clashgram is a highly optimized, privacy-focused Telegram client. Secure your messaging with selective read receipts, client-side message retention, offline Whisper AI transcription, and a custom glassmorphism UI."><meta property="og:image" content="./icon-192x192.png"><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://web.telegram.org/a"><meta property="twitter:title" content="Clashgram"><meta property="twitter:description" content="Clashgram is a highly optimized, privacy-focused Telegram client. Secure your messaging with selective read receipts, client-side message retention, offline Whisper AI transcription, and a custom glassmorphism UI."><meta property="twitter:image" content="./icon-192x192.png"><link rel="canonical" href="https://web.telegram.org/"><link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png"><link rel="icon" href="./favicon.svg" type="image/svg+xml"><link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png"><link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png"><link rel="icon" type="image/png" sizes="192x192" href="./icon-192x192.png"><link rel="alternate icon" href="./favicon.ico" type="image/x-icon"><link rel="manifest" id="the-manifest-placeholder" href="./site.webmanifest"><script src="./redirect.js"></script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"><style>@layer reset, variables, ui, components;
+<!DOCTYPE html>
+<html lang="en" translate="no" class="notranslate">
+
+<head>
+  <meta charset="UTF-8">
+
+  <title>
+    Clashgram
+  </title>
+
+  <meta name="title" content="Clashgram - Private and Custom Telegram Client">
+  <meta name="description"
+    content="Clashgram is a highly optimized, privacy-focused Telegram client. Secure your messaging with selective read receipts, client-side message retention, offline Whisper AI transcription, and a custom glassmorphism UI.">
+  <meta name="keywords" content="clashgram, private telegram client, telegram web client, ghost mode telegram, anti-delete messages, whisper ai voice transcription, offline telegram translation, custom glassmorphism, secure messenger">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-title" content="Clashgram">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Clashgram">
+  <meta name="application-name" content="Clashgram">
+  <meta name="msapplication-TileColor" content="#2b5797">
+  <meta name="msapplication-config" content="./browserconfig.xml">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="google" content="notranslate">
+
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' wss://*.web.telegram.org blob: http: https: ; script-src 'self' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://t.me/_websync_ https://telegram.me/_websync_; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://images.unsplash.com https://ss3.4sqi.net/img/categories_v2/; media-src 'self' blob: data:; object-src 'none'; frame-src http: https: bitkeep: bnc: bybitapp: echooo: imtokenv2: mytonwallet-tc: nicegram-tc: safepal-tc: tonkeeper-pro-tc: tonkeeper-tc:; base-uri 'none'; form-action 'none'; frame-ancestors 'none';">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://clashgram.pages.dev">
+  <meta property="og:title" content="Clashgram">
+  <meta property="og:description"
+        content="Clashgram is a highly optimized, privacy-focused Telegram client. Secure your messaging with selective read receipts, client-side message retention, offline Whisper AI transcription, and a custom glassmorphism UI.">
+  <meta property="og:image" content="./icon-192x192.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://clashgram.pages.dev">
+  <meta property="twitter:title" content="Clashgram">
+  <meta property="twitter:description"
+    content="Clashgram is a highly optimized, privacy-focused Telegram client. Secure your messaging with selective read receipts, client-side message retention, offline Whisper AI transcription, and a custom glassmorphism UI.">
+  <meta property="twitter:image" content="./icon-192x192.png">
+
+  <link rel="canonical" href="https://clashgram.pages.dev">
+  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192x192.png">
+  <link rel="alternate icon" href="./favicon.ico" type="image/x-icon">
+  <link rel="manifest" id="the-manifest-placeholder" href="./site.webmanifest">
+
+  <script  src="./redirect.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    @layer reset, variables, ui, components;
     @layer ui {
       @layer tablist, spinner, button, input, layout;
-    }</style><script defer="defer" src="main.1ce1d2943bdf908e2e6b.js"></script><link href="main.a61f6c3722734cd31c54.css" rel="stylesheet"></head><body id="root"><noscript><video src="./nojs.mp4" class="nojs-video" muted loop autoplay playsinline disablepictureinpicture></video><h1>Clashgram Web</h1><p>Please, enable JavaScript to open the app.</p></noscript><div id="portals"></div><script src="./compatTest.js"></script></body></html>
+    }
+  </style>
+  <script type="module" crossorigin src="./assets/index-DyDWsYXk.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/rolldown-runtime-QTnfLwEv.js">
+  <link rel="modulepreload" crossorigin href="./assets/shared-components-lPEXRRvt.js">
+  <link rel="modulepreload" crossorigin href="./assets/ClashgramBadge-BJIMll3k.js">
+  <link rel="modulepreload" crossorigin href="./assets/usePrevious-BLljiJHU.js">
+  <link rel="modulepreload" crossorigin href="./assets/animatedAssets-CUW74yt0.js">
+  <link rel="stylesheet" crossorigin href="./assets/shared-components-BAvCcgHo.css">
+  <link rel="stylesheet" crossorigin href="./assets/ClashgramBadge-CJWL7z33.css">
+  <link rel="stylesheet" crossorigin href="./assets/usePrevious-C_Nrm_uQ.css">
+  <link rel="stylesheet" crossorigin href="./assets/index-Dkmc0flb.css">
+</head>
+
+<body id="root">
+  <noscript>
+    <video src="./nojs.mp4" class="nojs-video" muted loop autoplay playsinline disablePictureInPicture></video>
+    <h1>Clashgram Web</h1>
+    <p>Please, enable JavaScript to open the app.</p>
+  </noscript>
+  <div id="portals"></div>
+  <script  src="./compatTest.js"></script>
+</body>
+
+</html>

@@ -1,1 +1,0 @@
-(self.webpackChunkclashgram_t=self.webpackChunkclashgram_t||[]).push([[69],{67172(a){a.exports=function(a){return{name:"LDIF",contains:[{className:"attribute",match:"^dn(?=:)",relevance:10},{className:"attribute",match:"^\\w+(?=:)"},{className:"literal",match:"^-"},a.HASH_COMMENT_MODE]}}}}]);
