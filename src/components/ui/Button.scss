@@ -62,6 +62,8 @@
       opacity 0.2s,
       box-shadow 0.15s ease;
 
+    white-space-collapse: preserve;
+
     &:focus-visible {
       outline: 2px solid var(--color-primary);
       outline-offset: 2px;
@@ -70,8 +72,6 @@
     &:focus:not(:focus-visible) {
       outline: none;
     }
-
-    white-space-collapse: preserve;
 
     // @optimization
     &:active,
@@ -98,38 +98,6 @@
       &:not(.click-allowed) {
         pointer-events: none;
       }
-    }
-
-    @include active-styles() {
-      color:
-        var(
-          --button-active-text-color,
-          var(--button-text-color)
-        );
-      background-color:
-        var(
-          --button-active-background-color,
-          var(--button-background-color)
-        );
-    }
-
-    @include no-ripple-styles() {
-      color:
-        var(
-          --button-no-ripple-text-color,
-          var(
-            --button-active-text-color,
-            var(--button-text-color)
-          )
-        );
-      background-color:
-        var(
-          --button-no-ripple-background-color,
-          var(
-            --button-active-background-color,
-            var(--button-background-color)
-          )
-        );
     }
 
     &.primary {
@@ -484,6 +452,38 @@
         --button-active-background-color: rgba(var(--color-error-rgb), 0.08);
         --button-no-ripple-background-color: rgba(var(--color-error-rgb), 0.16);
       }
+    }
+
+    @include active-styles() {
+      color:
+        var(
+          --button-active-text-color,
+          var(--button-text-color)
+        );
+      background-color:
+        var(
+          --button-active-background-color,
+          var(--button-background-color)
+        );
+    }
+
+    @include no-ripple-styles() {
+      color:
+        var(
+          --button-no-ripple-text-color,
+          var(
+            --button-active-text-color,
+            var(--button-text-color)
+          )
+        );
+      background-color:
+        var(
+          --button-no-ripple-background-color,
+          var(
+            --button-active-background-color,
+            var(--button-background-color)
+          )
+        );
     }
   }
 }

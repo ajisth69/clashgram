@@ -1,8 +1,6 @@
 import type React from '../../lib/teact/teact';
-import { memo, useState } from '../../lib/teact/teact';
-import { Capacitor } from '@capacitor/core';
+import { memo } from '../../lib/teact/teact';
 import type { ApiDocument } from '../../api/types';
-import FileStorageService from '../../util/capacitor/FileStorageService';
 import Button from '../ui/Button';
 import './DocumentViewer.scss';
 
@@ -15,46 +13,10 @@ const DocumentViewer = ({ media, blobUrl }: Props) => {
   const { fileName, size } = media;
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
 
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
-  const [mobileMessage, setMobileMessage] = useState<string>('');
-
   const sizeMb = (size / (1024 * 1024)).toFixed(2);
 
-  const handleOpenNatively = async () => {
-    // 1. Handle Capacitor Mobile Platform
-    if (Capacitor.isNativePlatform()) {
-      setLoading(true);
-      try {
-        const response = await fetch(blobUrl);
-        const blob = await response.blob();
-
-        // Convert blob to Base64
-        const reader = new FileReader();
-        reader.readAsDataURL(blob);
-        reader.onloadend = async () => {
-          const base64Data = reader.result as string;
-          try {
-            await FileStorageService.saveBase64ToPublicStorage({
-              fileName,
-              base64Data,
-              target: 'documents',
-              folder: 'Clashgram'
-            });
-            setMobileMessage(`Saved to Documents/Clashgram/${fileName}`);
-          } catch (writeErr: any) {
-            setError('Failed to save file to local storage');
-          }
-          setLoading(false);
-        };
-      } catch (err: any) {
-        setError('Error downloading file data');
-        setLoading(false);
-      }
-      return;
-    }
-
-    // 2. Open blob URL directly in a new tab (same origin — blob URLs work)
+  const handleOpenNatively = () => {
+    // Open blob URL directly in a new tab (same origin — blob URLs work)
     const opened = window.open(blobUrl, '_blank', 'noopener,noreferrer');
     if (!opened) {
       // Fallback: programmatic <a> click to trigger download
@@ -136,24 +98,6 @@ const DocumentViewer = ({ media, blobUrl }: Props) => {
         <p className="info-card-desc mt-3 text-secondary">
           This document is decrypted and ready.
         </p>
-
-        {mobileMessage && (
-          <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #10b981; font-size: 0.8125rem; padding: 0.5rem; border-radius: 0.25rem; margin-top: 0.75rem;">
-            {mobileMessage}
-          </div>
-        )}
-
-        {error && (
-          <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444; font-size: 0.8125rem; padding: 0.5rem; border-radius: 0.25rem; margin-top: 0.75rem;">
-            {error}
-          </div>
-        )}
-
-        {loading && (
-          <div style="margin-top: 0.75rem; color: var(--color-text-secondary); font-size: 0.8125rem;">
-            Processing...
-          </div>
-        )}
 
         <div className="mt-4" style="display: flex; flex-direction: column; gap: 0.5rem;">
           <Button color="primary" size="default" onClick={handleOpenNatively}>

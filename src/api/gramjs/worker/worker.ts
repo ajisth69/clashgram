@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
 
+import '../../../util/polyfill';
+
 import type { DebugLevel } from '../../../util/debugConsole';
 import type { ApiOnProgress, ApiUpdate } from '../../types';
 import type { OriginMessageEvent, WorkerPayload } from './types';

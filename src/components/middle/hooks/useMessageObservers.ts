@@ -13,7 +13,7 @@ import useLastCallback from '../../../hooks/useLastCallback';
 import useBackgroundMode, { isBackgroundModeActive } from '../../../hooks/window/useBackgroundMode';
 
 const INTERSECTION_THROTTLE_FOR_READING = 150;
-const INTERSECTION_THROTTLE_FOR_MEDIA = IS_ANDROID ? 1000 : 350;
+const INTERSECTION_THROTTLE_FOR_MEDIA = 150;
 
 export default function useMessageObservers({
   type,
@@ -38,7 +38,7 @@ export default function useMessageObservers({
   } = getActions();
 
   const { isMobile } = useAppLayout();
-  const INTERSECTION_MARGIN_FOR_LOADING = isMobile ? 300 : 500;
+  const INTERSECTION_MARGIN_FOR_LOADING = isMobile ? 2000 : 4000;
 
   const visibleViewportIdsRef = useRef<number[]>([]);
   useEffect(() => {

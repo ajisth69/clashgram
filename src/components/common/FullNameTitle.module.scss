@@ -2,17 +2,18 @@
   --_status-size: 1.25rem;
 
   display: flex !important;
+  flex-wrap: nowrap;
   gap: 0.25rem;
   align-items: center;
-  flex-wrap: nowrap;
 
   :global(.VerifiedIcon),
   :global(.StarIcon) {
     display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
-    align-self: center;
     flex-shrink: 0;
+    align-items: center;
+    align-self: center;
+    justify-content: center;
+
     margin: 0;
 
     img, svg {

@@ -1,14 +1,19 @@
 .clashgram-bg-animation {
+  pointer-events: none;
+  will-change: transform; /* Promoted to separate hardware-accelerated composite layer on GPU */
+
   position: absolute;
+  z-index: -1; /* Sits behind the messages but overrides/covers the default wallpaper container */
   top: 0;
   left: 0;
+
+  overflow: hidden;
+
   width: 100%;
   height: 100%;
-  z-index: -1; /* Sits behind the messages but overrides/covers the default wallpaper container */
-  pointer-events: none;
-  mix-blend-mode: normal; /* We render custom theme backdrops and blend particles directly in canvas context */
+
   opacity: 1;
-  will-change: transform; /* Promoted to separate hardware-accelerated composite layer on GPU */
+  mix-blend-mode: normal; /* We render custom theme backdrops and blend particles directly in canvas context */
+
   transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-  overflow: hidden;
 }

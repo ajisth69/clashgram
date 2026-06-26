@@ -173,7 +173,6 @@ addActionHandler('resetClashgramSettings', (global, actions): ActionReturnType =
     clashgramRetentionDays: 7,
     clashgramBypassRestrictions: false,
     clashgramLocalPremium: false,
-    clashgramGhostModeOnline: false,
     clashgramGhostModeStories: false,
     clashgramWhisperModel: 'base',
     clashgramWhisperTask: 'transcribe',

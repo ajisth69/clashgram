@@ -1,14 +1,7 @@
 import type { CancellableCallback } from '../../util/PostMessageConnector';
 
+import Module, { allocate, intArrayFromString } from './rlottie-wasm';
 import { createWorkerInterface } from '../../util/createPostMessageInterface';
-
-importScripts(new URL('./rlottie-wasm.js', import.meta.url));
-
-declare const Module: any;
-
-declare function allocate(...args: any[]): string;
-
-declare function intArrayFromString(str: string): string;
 
 let rLottieApi: Record<string, AnyFunction>;
 const rLottieApiPromise = new Promise<void>((resolve) => {
@@ -106,6 +99,7 @@ async function extractJson(tgsUrl: string) {
   return result;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-shadow
 function calcParams(json: string, isLowPriority: boolean, framesCount: number) {
   const animationData = JSON.parse(json);
   const maxFps = isLowPriority ? LOW_PRIORITY_MAX_FPS : HIGH_PRIORITY_MAX_FPS;

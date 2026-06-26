@@ -1,33 +1,38 @@
 .modal {
   :global(.modal-dialog) {
-    max-width: 340px;
-    border-radius: 24px;
-    background: rgba(var(--color-background-rgbo), 0.75);
-    backdrop-filter: blur(25px) saturate(180%);
-    -webkit-backdrop-filter: blur(25px) saturate(180%);
-    border: 1px solid rgba(var(--color-text-rgbo), 0.08);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
     overflow: hidden;
+
+    max-width: 340px;
+    border: 1px solid rgba(var(--color-text-rgbo), 0.08);
+    border-radius: 24px;
+
+    background: rgba(var(--color-background-rgbo), 0.75);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+    backdrop-filter: blur(25px) saturate(180%);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
   }
 
   :global(.modal-content) {
-    padding: 24px 20px 20px 20px !important;
     overflow: hidden !important;
+    padding: 24px 20px 20px 20px !important;
   }
 }
 
 .buttonGroup {
   display: flex;
   gap: 12px;
-  width: 100%;
   justify-content: center;
+
+  width: 100%;
   margin-top: 24px;
 
   button {
     flex: 1;
+
     min-width: 100px;
     padding: 10px 16px;
-    font-size: 0.85rem;
+
+    font-size: 0.875rem;
     white-space: nowrap;
   }
 }
@@ -43,15 +48,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+
   width: 100%;
   margin-bottom: 12px;
 }
 
 .iconContainer {
   position: relative;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   width: 72px;
   height: 72px;
   margin-bottom: 16px;
@@ -74,67 +82,83 @@
 }
 
 .iconRing {
+  pointer-events: none;
+
   position: absolute;
+  z-index: 1;
   top: 0;
-  left: 0;
   right: 0;
   bottom: 0;
+  left: 0;
+
+  border: 2px solid rgba(var(--color-primary-rgb), 0.15);
   border-radius: 50%;
-  border: 1.5px solid rgba(var(--color-primary-rgb), 0.15);
+
   background: rgba(var(--color-primary-rgb), 0.02);
+
   animation: pulseRing 3s infinite ease-in-out;
-  pointer-events: none;
-  z-index: 1;
 }
 
 .lockIcon {
+  z-index: 2;
+
   width: 32px;
   height: 32px;
+
   color: var(--color-primary);
+
   filter: drop-shadow(0 0 10px rgba(var(--color-primary-rgb), 0.4));
-  z-index: 2;
+
   transition: color 0.3s ease, filter 0.3s ease;
 }
 
 .title {
+  margin: 0 0 6px 0;
+
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--color-text);
-  margin: 0 0 6px 0;
   text-align: center;
 }
 
 .description {
-  text-align: center;
-  color: var(--color-text-secondary);
-  font-size: 0.85rem;
-  margin: 0;
-  line-height: 1.4;
   max-width: 240px;
+  margin: 0;
+
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+  text-align: center;
 }
 
 .inputWrapper {
+  cursor: text;
+
   position: relative;
-  width: 100%;
+
   display: flex;
   justify-content: center;
+
+  width: 100%;
   padding: 16px 0;
-  cursor: text;
 }
 
 .passcodeInput {
+  cursor: default;
+
   position: absolute;
+  z-index: 5;
   top: 0;
   left: 0;
+
   width: 100%;
   height: 100%;
-  opacity: 0;
-  cursor: default;
-  caret-color: transparent;
   border: none;
+
+  opacity: 0;
   background: transparent;
   outline: none;
-  z-index: 5;
+  caret-color: transparent;
 }
 
 .dotsContainer {
@@ -142,6 +166,7 @@
   gap: 12px;
   align-items: center;
   justify-content: center;
+
   min-height: 24px;
 
   &.error {
@@ -160,16 +185,19 @@
 .dot {
   width: 12px;
   height: 12px;
-  border-radius: 50%;
   border: 2px solid rgba(var(--color-text-rgbo), 0.25);
+  border-radius: 50%;
+
   background: transparent;
+
+  /* stylelint-disable-next-line plugin/no-low-performance-animation-properties */
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
   &.dotFilled {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
-    box-shadow: 0 0 8px var(--color-primary), 0 0 16px rgba(var(--color-primary-rgb), 0.5);
     transform: scale(1.15);
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    box-shadow: 0 0 8px var(--color-primary), 0 0 16px rgba(var(--color-primary-rgb), 0.5);
   }
 
   &.dotActive {
@@ -179,27 +207,33 @@
 }
 
 .errorText {
-  color: var(--color-error);
-  font-size: 0.8rem;
-  font-weight: 500;
   margin-top: -4px;
   margin-bottom: 12px;
+
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-error);
+
   animation: fadeIn 0.3s ease;
 }
 
 .forgotBtn {
-  background: transparent;
-  border: none;
-  color: var(--color-primary);
-  font-size: 0.825rem;
-  font-weight: 500;
   cursor: pointer;
-  padding: 6px 12px;
+
   margin-top: 4px;
   margin-bottom: 8px;
+  padding: 6px 12px;
+  border: none;
   border-radius: 6px;
-  transition: background-color 0.2s, opacity 0.2s;
+
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-primary);
+
+  background: transparent;
   outline: none;
+
+  transition: background-color 0.2s, opacity 0.2s;
 
   &:hover {
     background: rgba(var(--color-primary-rgb), 0.08);
@@ -222,7 +256,6 @@
   }
 }
 
-
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   20%, 60% { transform: translateX(-6px); }
@@ -230,8 +263,8 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { transform: translateY(-4px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 @keyframes pulseRing {
@@ -248,12 +281,12 @@
 
 @keyframes pulseCursor {
   0% {
-    opacity: 0.4;
     transform: scale(0.9);
+    opacity: 0.4;
   }
   100% {
-    opacity: 1;
     transform: scale(1.1);
+    opacity: 1;
     box-shadow: 0 0 6px rgba(var(--color-primary-rgb), 0.3);
   }
 }

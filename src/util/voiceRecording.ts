@@ -1,4 +1,5 @@
 import type { IOpusRecorder } from 'opus-recorder';
+import encoderPath from 'opus-recorder/dist/encoderWorker.min.js?url';
 
 import { requestMeasure } from '../lib/fasterdom/fasterdom';
 
@@ -10,7 +11,6 @@ export type Result = {
   sampleRate?: number;
 };
 
-const encoderPath = new URL('opus-recorder/dist/encoderWorker.min', import.meta.url).href;
 const MIN_RECORDING_TIME = 1000;
 const POLYFILL_OPTIONS = { encoderPath, reuseWorker: true };
 const BLOB_PARAMS = { type: 'audio/ogg' };

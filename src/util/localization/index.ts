@@ -53,14 +53,18 @@ const TRANSLATION_CACHE = new LimitedMap<string, string>(STRING_CACHE_LIMIT);
 const CUSTOM_STRINGS_CACHE = new Map<string, Record<string, string>>();
 const PLURAL_RULE_SELECT_CACHE = new Map<string, Intl.LDMLPluralRule>();
 
+const localizationFiles = import.meta.glob('../../assets/localization/*.strings', { query: '?raw', import: 'default' });
+
 export async function loadCustomStrings(langCode: string): Promise<Record<string, string>> {
   const cleanLangCode = langCode.replace('-raw', '');
   const cached = CUSTOM_STRINGS_CACHE.get(cleanLangCode);
   if (cached) return cached;
 
   try {
-    const file = await import(`../../assets/localization/${cleanLangCode}.strings`);
-    const parsed = readStrings(file.default);
+    const loader = localizationFiles[`../../assets/localization/${cleanLangCode}.strings`];
+    if (!loader) return {};
+    const content = await loader() as string;
+    const parsed = readStrings(content);
     CUSTOM_STRINGS_CACHE.set(cleanLangCode, parsed);
     return parsed;
   } catch (e) {

@@ -39,7 +39,6 @@ export interface SharedSettings {
   clashgramRetentionDays?: number;
   clashgramBypassRestrictions?: boolean;
   clashgramLocalPremium?: boolean;
-  clashgramGhostModeOnline?: boolean;
   clashgramGhostModeStories?: boolean;
   clashgramWhisperModel?: 'tiny' | 'base' | 'small';
   clashgramWhisperTask?: 'transcribe' | 'translate';

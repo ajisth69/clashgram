@@ -1,6 +1,7 @@
 import { LANG_CACHE_NAME, MEDIA_CACHE_NAME, MEDIA_CACHE_NAME_AVATARS, MEDIA_PROGRESSIVE_CACHE_NAME, CUSTOM_BG_CACHE_NAME } from '../config';
 import { yieldToMain } from './browser/scheduler';
-import { ACCOUNT_SLOT } from './multiaccount';
+
+const getAccountSlot = () => (globalThis as any).ACCOUNT_SLOT;
 
 const cacheApi = self.caches;
 
@@ -11,7 +12,9 @@ const CLEANUP_INTERVAL = 1 * 60 * 60 * 1000; // 1 hour
 
 const CLEARABLE_CACHE_NAMES = [MEDIA_CACHE_NAME, MEDIA_CACHE_NAME_AVATARS, MEDIA_PROGRESSIVE_CACHE_NAME];
 
-cleanup(CLEARABLE_CACHE_NAMES);
+setTimeout(() => {
+  cleanup(CLEARABLE_CACHE_NAMES);
+}, 1000);
 setInterval(() => {
   cleanup(CLEARABLE_CACHE_NAMES);
 }, CLEANUP_INTERVAL);
@@ -35,7 +38,8 @@ export enum Type {
 function getCacheName(cacheName: string) {
   if (cacheName === LANG_CACHE_NAME) return cacheName;
 
-  const suffix = ACCOUNT_SLOT ? `_${ACCOUNT_SLOT}` : '';
+  const slot = getAccountSlot();
+  const suffix = slot ? `_${slot}` : '';
   return `${cacheName}${suffix}`;
 }
 

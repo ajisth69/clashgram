@@ -1,6 +1,6 @@
 .root {
-  max-width: 480px;
   width: 90vw;
+  max-width: 480px;
   border-radius: 12px;
 }
 
@@ -15,21 +15,26 @@
 }
 
 .uploadArea {
-  border: 2px dashed rgba(var(--color-text-rgb), 0.25);
-  border-radius: 8px;
-  padding: 40px 20px;
-  text-align: center;
   cursor: pointer;
+
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 12px;
+  align-items: center;
+
+  padding: 40px 20px;
+  border: 2px dashed rgba(var(--color-text-rgb), 0.25);
+  border-radius: 8px;
+
+  text-align: center;
+
   background: rgba(var(--color-background-rgb), 0.05);
+
   transition: background 0.2s, border-color 0.2s;
 
   &:hover {
-    background: rgba(var(--color-background-rgb), 0.08);
     border-color: var(--color-primary);
+    background: rgba(var(--color-background-rgb), 0.08);
   }
 }
 
@@ -40,12 +45,15 @@
 
 .previewContainer {
   position: relative;
-  border-radius: 8px;
+
   overflow: hidden;
-  max-height: 300px;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+
+  max-height: 300px;
+  border-radius: 8px;
+
   background: #000;
 }
 
@@ -59,17 +67,21 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  background: rgba(0, 0, 0, 0.6) !important;
-  color: #fff !important;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
+
   display: flex;
-  justify-content: center;
   align-items: center;
-  backdrop-filter: blur(4px);
-  padding: 0;
+  justify-content: center;
+
+  width: 32px;
   min-width: 0;
+  height: 32px;
+  padding: 0;
+  border-radius: 50%;
+
+  color: #fff !important;
+
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(4px);
 
   &:hover {
     background: rgba(255, 59, 48, 0.8) !important;
@@ -78,13 +90,16 @@
 
 .changeMediaBtn {
   position: absolute;
-  bottom: 12px;
   right: 12px;
-  background: rgba(0, 0, 0, 0.6) !important;
-  color: #fff !important;
-  border-radius: 20px;
+  bottom: 12px;
+
   padding: 6px 12px;
+  border-radius: 20px;
+
   font-size: 13px;
+  color: #fff !important;
+
+  background: rgba(0, 0, 0, 0.6) !important;
   backdrop-filter: blur(4px);
 
   &:hover {
@@ -102,14 +117,16 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: rgba(var(--color-text-rgb), 0.03);
+
   padding: 12px;
   border-radius: 8px;
+
+  background: rgba(var(--color-text-rgb), 0.03);
 }
 
 .footer {
   display: flex;
-  justify-content: flex-end;
   gap: 12px;
+  justify-content: flex-end;
   margin-top: 8px;
 }

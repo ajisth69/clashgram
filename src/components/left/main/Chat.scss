@@ -341,6 +341,64 @@
     }
   }
 
+  .clashgram-badge {
+    display: inline-block;
+    flex-shrink: 0;
+
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 8px;
+
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 1.2;
+    text-transform: uppercase;
+    vertical-align: middle;
+
+    &.owner {
+      color: #000;
+      background: linear-gradient(135deg, #f1c40f, #f39c12);
+    }
+
+    &.admin {
+      color: #fff;
+      background: linear-gradient(135deg, #3498db, #2980b9);
+    }
+  }
+
+  &.clashgram-hidden-spoiler {
+    .avatar-wrapper, .info {
+      position: relative;
+
+      &::after {
+        pointer-events: none;
+        content: "";
+
+        position: absolute;
+        z-index: 99;
+        top: -2px;
+        right: -2px;
+        bottom: -2px;
+        left: -2px;
+
+        border-radius: 4px;
+
+        background: rgba(0, 0, 0, 0.6) url("../../../assets/spoilers/turbulence_1x.png");
+        background-size: 256px 256px;
+
+        animation: clashgram-spoiler-anim 20s linear infinite;
+
+        @media (-webkit-min-device-pixel-ratio: 2) {
+          background-image: url("../../../assets/spoilers/turbulence_2x.png");
+        }
+      }
+    }
+
+    .avatar-wrapper::after {
+      border-radius: 50%;
+    }
+  }
+
   // Super specific selector to override the same in `ListItem`
   @media (min-width: 600px) {
     &:not(.has-ripple):not(.is-static),
@@ -427,59 +485,6 @@
       border-radius: 0 !important;
     }
   }
-
-  .clashgram-badge {
-    font-size: 10px;
-    font-weight: bold;
-    padding: 1px 6px;
-    border-radius: 8px;
-    margin-left: 6px;
-    line-height: 1.2;
-    display: inline-block;
-    vertical-align: middle;
-    text-transform: uppercase;
-    flex-shrink: 0;
-
-    &.owner {
-      background: linear-gradient(135deg, #f1c40f, #f39c12);
-      color: #000;
-    }
-
-    &.admin {
-      background: linear-gradient(135deg, #3498db, #2980b9);
-      color: #fff;
-    }
-  }
-
-  &.clashgram-hidden-spoiler {
-    .avatar-wrapper, .info {
-      position: relative;
-      
-      &::after {
-        content: "";
-        position: absolute;
-        top: -2px;
-        left: -2px;
-        right: -2px;
-        bottom: -2px;
-        z-index: 99;
-        pointer-events: none;
-        border-radius: 4px;
-        
-        background: rgba(0, 0, 0, 0.6) url("../../../assets/spoilers/turbulence_1x.png");
-        background-size: 256px 256px;
-        animation: clashgram-spoiler-anim 20s linear infinite;
-        
-        @media (-webkit-min-device-pixel-ratio: 2) {
-          background-image: url("../../../assets/spoilers/turbulence_2x.png");
-        }
-      }
-    }
-    
-    .avatar-wrapper::after {
-      border-radius: 50%;
-    }
-  }
 }
 
 @keyframes clashgram-spoiler-anim {
@@ -490,4 +495,3 @@
     background-position: 256px 256px;
   }
 }
-

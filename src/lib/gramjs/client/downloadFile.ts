@@ -163,7 +163,16 @@ async function downloadFile2(
   const rangeSize = end ? end - start + 1 : undefined;
 
   if (!partSizeKb) {
-    partSizeKb = fileSize ? getDownloadPartSize(rangeSize || fileSize) : DEFAULT_CHUNK_SIZE;
+    const size = rangeSize || fileSize;
+    if (size) {
+      if (size <= 65536) {
+        partSizeKb = 64;
+      } else {
+        partSizeKb = isPremium ? 1024 : 512;
+      }
+    } else {
+      partSizeKb = DEFAULT_CHUNK_SIZE;
+    }
   }
 
   const partSize = partSizeKb * 1024;

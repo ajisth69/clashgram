@@ -16,7 +16,7 @@ import { updateTabState } from './reducers/tabs';
 import { replaceTabThreadParam, replaceThreadLocalStateParam } from './reducers/threads';
 import { selectThreadLocalStateParam } from './selectors/threads';
 import { initSharedState } from './shared/sharedStateConnector';
-import { initCache } from './cache';
+import { initCache, loadSavedClashgramMessages } from './cache';
 import {
   addActionHandler, getGlobal, setGlobal,
 } from './index';
@@ -138,6 +138,11 @@ addActionHandler('init', (global, actions, payload): ActionReturnType => {
   if (global.peerColors) {
     updatePeerColors(global.peerColors.general);
   }
+
+  // Load saved Clashgram messages asynchronously in the background so it doesn't block rendering
+  setTimeout(() => {
+    loadSavedClashgramMessages();
+  }, 100);
 
   return updateTabState(global, {
     messageLists: parsedMessageList ? [parsedMessageList] : initialTabState.messageLists,

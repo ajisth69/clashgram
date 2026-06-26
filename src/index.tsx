@@ -1,3 +1,5 @@
+import './util/polyfill';
+
 import './util/handleError';
 import './util/setupServiceWorker';
 import './global/init';

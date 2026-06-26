@@ -47,7 +47,7 @@ function subscribeToWorker() {
   notifyClientReady();
 }
 
-if (IS_SERVICE_WORKER_SUPPORTED) {
+if (IS_SERVICE_WORKER_SUPPORTED && !DEBUG) {
   window.addEventListener('load', async () => {
     try {
       const controller = navigator.serviceWorker.controller;
@@ -63,7 +63,7 @@ if (IS_SERVICE_WORKER_SUPPORTED) {
         }
       }
 
-      await navigator.serviceWorker.register(new URL('../serviceWorker', import.meta.url));
+      await navigator.serviceWorker.register(new URL('../serviceWorker', import.meta.url), { type: 'module' });
 
       if (DEBUG) {
         // eslint-disable-next-line no-console

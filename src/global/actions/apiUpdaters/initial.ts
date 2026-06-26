@@ -97,7 +97,7 @@ addActionHandler('apiUpdate', (global, actions, update): ActionReturnType => {
       lastReconnectAt = now;
 
       global = { ...global, isSynced: false };
-      setGlobal(global);
+      setGlobal(global, { forceOutdated: true });
 
       onUpdateConnectionState(global, actions, {
         '@type': 'updateConnectionState',
@@ -115,7 +115,7 @@ addActionHandler('apiUpdate', (global, actions, update): ActionReturnType => {
 
     case 'updateFetchingDifference':
       global = { ...global, isFetchingDifference: update.isFetching };
-      setGlobal(global);
+      setGlobal(global, { forceOutdated: true });
       break;
 
     case 'error': {
@@ -160,7 +160,7 @@ function onUpdateAuthorizationState<T extends GlobalState>(global: T, update: Ap
     state: authState,
     isLoading: false,
   });
-  setGlobal(global);
+  setGlobal(global, { forceOutdated: true });
   global = getGlobal();
 
   switch (authState) {
@@ -170,13 +170,13 @@ function onUpdateAuthorizationState<T extends GlobalState>(global: T, update: Ap
       global = updateAuth(global, {
         isLoggingOut: true,
       });
-      setGlobal(global);
+      setGlobal(global, { forceOutdated: true });
       break;
     case 'authorizationStateWaitCode':
       global = updateAuth(global, {
         isCodeViaApp: update.isCodeViaApp,
       });
-      setGlobal(global);
+      setGlobal(global, { forceOutdated: true });
       break;
     case 'authorizationStateWaitPassword':
       global = updateAuth(global, {
@@ -189,14 +189,14 @@ function onUpdateAuthorizationState<T extends GlobalState>(global: T, update: Ap
         });
       }
 
-      setGlobal(global);
+      setGlobal(global, { forceOutdated: true });
       break;
     case 'authorizationStateWaitQrCode':
       global = updateAuth(global, {
         isLoadingQrCode: false,
         qrCode: update.qrCode,
       });
-      setGlobal(global);
+      setGlobal(global, { forceOutdated: true });
       break;
     case 'authorizationStateReady': {
       if (wasAuthReady) {
@@ -213,7 +213,7 @@ function onUpdateAuthorizationState<T extends GlobalState>(global: T, update: Ap
           inactiveReason: undefined,
         }, tabId);
       });
-      setGlobal(global);
+      setGlobal(global, { forceOutdated: true });
 
       break;
     }
@@ -232,7 +232,7 @@ function onUpdateAuthorizationError<T extends GlobalState>(global: T, update: Ap
   global = updateAuth(global, {
     errorKey: update.errorKey,
   });
-  setGlobal(global);
+  setGlobal(global, { forceOutdated: true });
 }
 
 function onUpdateUserAlreadyAuthorized<T extends GlobalState>(global: T, update: ApiUpdateUserAlreadyAuthorized) {
@@ -252,14 +252,14 @@ function onUpdateWebAuthTokenFailed<T extends GlobalState>(global: T) {
   global = updateAuth(global, {
     hasWebAuthTokenFailed: true,
   });
-  setGlobal(global);
+  setGlobal(global, { forceOutdated: true });
 }
 
 function onUpdatePasskeyOption<T extends GlobalState>(global: T, update: ApiUpdatePasskeyOption) {
   global = updateAuth(global, {
     passkeyOption: update.option,
   });
-  setGlobal(global);
+  setGlobal(global, { forceOutdated: true });
 }
 
 function onUpdateConnectionState<T extends GlobalState>(
@@ -287,7 +287,7 @@ function onUpdateConnectionState<T extends GlobalState>(
     ...global,
     connectionState,
   };
-  setGlobal(global);
+  setGlobal(global, { forceOutdated: true });
 
   if (global.isSynced) {
     const channelStackIds = getOpenedShortpollChannelIds(global);
@@ -330,24 +330,13 @@ function scheduleStorageSafeReconnect(actions: RequiredGlobalActions) {
 }
 
 async function reconnectWithoutClearingSession(actions: RequiredGlobalActions) {
-  const didRecover = await syncAndVerifySessionKeys().catch(() => false);
-  if (!didRecover && !hasStoredSession()) {
-    const global = getGlobal();
-    if (global.auth.state === 'authorizationStateReady') {
-      actions.signOut({ forceInitApi: true });
-    }
-    // If mid-login (auth state is not ready and no session), don't restart initApi —
-    // it would destroy the current auth handshake.
-    return;
-  }
-
   let global = getGlobal();
   global = {
     ...global,
     isSynced: false,
     connectionState: 'connectionStateConnecting',
   };
-  setGlobal(global);
+  setGlobal(global, { forceOutdated: true });
 
   actions.initApi();
 }
@@ -375,7 +364,7 @@ function onUpdateSession<T extends GlobalState>(global: T, actions: RequiredGlob
         isTestServer: isTest,
       },
     };
-    setGlobal(global);
+    setGlobal(global, { forceOutdated: true });
   }
 
   if (!rememberMe || state !== 'authorizationStateReady' || isEmpty) {
@@ -397,7 +386,7 @@ function onUpdateCurrentUser<T extends GlobalState>(global: T, update: ApiUpdate
     currentUserId: currentUser.id,
   };
   global = updateUserFullInfo(global, currentUser.id, currentUserFullInfo);
-  setGlobal(global);
+  setGlobal(global, { forceOutdated: true });
 
   updateSessionUserId(currentUser.id);
 }

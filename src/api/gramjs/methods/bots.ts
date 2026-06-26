@@ -45,6 +45,7 @@ import {
 import { deserializeBytes } from '../helpers/misc';
 import { sendApiUpdate } from '../updates/apiUpdateEmitter';
 import { invokeRequest } from './client';
+import { forceOfflineAfterOutgoingContent } from './presence';
 
 export async function answerCallbackButton({
   chatId, accessHash, messageId, data, isGame,
@@ -151,7 +152,7 @@ export async function fetchInlineBotResults({
 }
 
 export async function sendInlineBotResult({
-  chat, replyInfo, resultId, queryId, sendAs, isSilent, scheduleDate, allowPaidStars,
+  chat, replyInfo, resultId, queryId, sendAs, isSilent, scheduleDate, allowPaidStars, shouldGoOfflineAfterSend,
 }: {
   chat: ApiChat;
   replyInfo?: ApiInputMessageReplyInfo;
@@ -161,6 +162,7 @@ export async function sendInlineBotResult({
   isSilent?: boolean;
   scheduleDate?: number;
   allowPaidStars?: number;
+  shouldGoOfflineAfterSend?: boolean;
 }) {
   const randomId = generateRandomBigInt();
 
@@ -176,6 +178,7 @@ export async function sendInlineBotResult({
     ...(sendAs && { sendAs: buildInputPeer(sendAs.id, sendAs.accessHash) }),
     ...(allowPaidStars && { allowPaidStars: BigInt(allowPaidStars) }),
   }));
+  await forceOfflineAfterOutgoingContent(shouldGoOfflineAfterSend);
 }
 
 export async function startBot({

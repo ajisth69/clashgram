@@ -49,18 +49,19 @@
   #RightColumn > .Transition {
     background: transparent !important;
     background-color: transparent !important;
-    box-shadow: none !important;
-    backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
   }
 
   .Island,
   .sharedMediaIsland {
-    background: rgba(var(--color-text-rgb), 0.03) padding-box !important;
     border: 1px solid rgba(var(--color-text-rgb), 0.06) !important;
-    box-shadow: none !important;
-    backdrop-filter: none !important;
+
+    background: rgba(var(--color-text-rgb), 0.03) padding-box !important;
     -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
   }
 
   .profileInfo,
@@ -113,18 +114,21 @@
 
   .settings-item,
   .settings-item-simple {
-    background: rgba(var(--color-text-rgb), 0.02) !important;
     border-bottom: 1px solid rgba(var(--color-text-rgb), 0.06) !important;
-    backdrop-filter: none !important;
+
+    background: rgba(var(--color-text-rgb), 0.02) !important;
     -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
     box-shadow: none !important;
   }
 
   .settings-credits-banner {
-    background: linear-gradient(180deg, rgba(var(--color-text-rgb), 0.04) 0%, rgba(var(--color-text-rgb), 0) 100%) !important;
     border-bottom: 1px solid rgba(var(--color-text-rgb), 0.08) !important;
-    backdrop-filter: none !important;
+
+    /* stylelint-disable-next-line @stylistic/max-line-length */
+    background: linear-gradient(180deg, rgba(var(--color-text-rgb), 0.04) 0%, rgba(var(--color-text-rgb), 0) 100%) !important;
     -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
     box-shadow: none !important;
   }
 

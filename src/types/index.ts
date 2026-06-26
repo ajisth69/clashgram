@@ -813,6 +813,7 @@ export type SendMessageParams = {
   forwardParams?: ForwardMessagesParams;
   isStoryReply?: boolean;
   suggestedMedia?: MediaContent;
+  shouldGoOfflineAfterSend?: boolean;
 };
 
 export type ForwardedLocalMessagesSlice = {
@@ -839,4 +840,5 @@ export type ForwardMessagesParams = {
   forwardedLocalMessagesSlice?: ForwardedLocalMessagesSlice;
   messagePriceInStars?: number;
   effectId?: string;
+  shouldGoOfflineAfterSend?: boolean;
 };

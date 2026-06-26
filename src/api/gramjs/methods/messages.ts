@@ -125,6 +125,7 @@ import { processMessageAndUpdateThreadInfo } from '../updates/entityProcessor';
 import { processAffectedHistory, updateChannelState } from '../updates/updateManager';
 import { requestChatUpdate } from './chats';
 import { handleGramJsUpdate, invokeRequest, uploadFile, downloadMedia, getClient } from './client';
+import { forceOfflineAfterOutgoingContent } from './presence';
 import { buildSpoofedStickerMedia } from '../../../clshgram/services/messageSender';
 
 const FAST_SEND_TIMEOUT = 1000;
@@ -386,7 +387,7 @@ export function sendApiMessage(
     attachment, sticker, story, gif, poll, todo, contact, dice,
 
     isSilent, scheduledAt, scheduleRepeatPeriod, groupedId, noWebPage, sendAs, shouldUpdateStickerSetOrder,
-    isInvertedMedia, effectId, webPageMediaSize, webPageUrl, messagePriceInStars,
+    isInvertedMedia, effectId, webPageMediaSize, webPageUrl, messagePriceInStars, shouldGoOfflineAfterSend,
   } = params;
 
   if (!chat) return undefined;
@@ -425,6 +426,7 @@ export function sendApiMessage(
       scheduledAt,
       scheduleRepeatPeriod,
       messagePriceInStars,
+      shouldGoOfflineAfterSend,
     }, randomId, localMessage, onProgress, cancelSendingStatusTimeout);
   }
 
@@ -632,6 +634,7 @@ export function sendApiMessage(
         });
       }
 
+      await forceOfflineAfterOutgoingContent(shouldGoOfflineAfterSend);
       cancelSendingStatusTimeout();
       if (update) handleLocalMessageUpdate(localMessage, update);
     } catch (error: any) {
@@ -682,6 +685,7 @@ function sendGroupedMedia(
     scheduleRepeatPeriod,
     sendAs,
     messagePriceInStars,
+    shouldGoOfflineAfterSend,
   }: {
     chat: ApiChat;
     text?: string;
@@ -695,6 +699,7 @@ function sendGroupedMedia(
     scheduleRepeatPeriod?: number;
     sendAs?: ApiPeer;
     messagePriceInStars?: number;
+    shouldGoOfflineAfterSend?: boolean;
   },
   randomId: GramJs.long,
   localMessage: ApiMessage,
@@ -787,6 +792,7 @@ function sendGroupedMedia(
       shouldIgnoreUpdates: true,
     });
 
+    await forceOfflineAfterOutgoingContent(shouldGoOfflineAfterSend);
     if (!update) return;
 
     Object.values(cancelSendingStatusTimeouts).forEach((cancel) => cancel());
@@ -842,6 +848,7 @@ export async function editMessage({
   entities,
   attachment,
   noWebPage,
+  shouldGoOfflineAfterSend,
 }: {
   chat: ApiChat;
   message: ApiMessage;
@@ -849,6 +856,7 @@ export async function editMessage({
   entities?: ApiMessageEntity[];
   attachment?: ApiAttachment;
   noWebPage?: boolean;
+  shouldGoOfflineAfterSend?: boolean;
 }, onProgress?: ApiOnProgress) {
   const isScheduled = message.date * 1000 > getServerTime() * 1000;
 
@@ -899,6 +907,7 @@ export async function editMessage({
       ...(noWebPage && { noWebpage: noWebPage }),
       ...(isInvertedMedia && { invertMedia: isInvertedMedia }),
     }), { shouldThrow: true });
+    await forceOfflineAfterOutgoingContent(shouldGoOfflineAfterSend);
   } catch (err) {
     if (DEBUG) {
       // eslint-disable-next-line no-console
@@ -2128,7 +2137,7 @@ export async function forwardApiMessages(params: ForwardMessagesParams) {
   const {
     fromChat, toChat, toThreadId, isSilent,
     scheduledAt, scheduleRepeatPeriod, sendAs, withMyScore, noAuthors, noCaptions,
-    forwardedLocalMessagesSlice, messagePriceInStars, effectId,
+    forwardedLocalMessagesSlice, messagePriceInStars, effectId, shouldGoOfflineAfterSend,
   } = params;
 
   if (!forwardedLocalMessagesSlice) return;
@@ -2213,6 +2222,7 @@ export async function forwardApiMessages(params: ForwardMessagesParams) {
         scheduleRepeatPeriod,
         sendAs,
         effectId,
+        shouldGoOfflineAfterSend,
       };
 
       void sendApiMessage(sendParams, localMessage);
@@ -2243,6 +2253,7 @@ export async function forwardApiMessages(params: ForwardMessagesParams) {
       shouldThrow: true,
       shouldIgnoreUpdates: true,
     });
+    await forceOfflineAfterOutgoingContent(shouldGoOfflineAfterSend);
     const messagesForUpdate: Record<string, ApiMessage> = {};
     localMessages.forEach((message, index) => {
       messagesForUpdate[randomIds[index].toString()] = message;

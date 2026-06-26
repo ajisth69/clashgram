@@ -14,10 +14,11 @@
 
 html,
 body {
-  --font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Apple Color Emoji", "Segoe UI", "Segoe UI Symbol", Oxygen, Ubuntu,
-  Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-  --font-family-monospace: "Cascadia Mono", "Roboto Mono", "Droid Sans Mono", 'SF Mono', "Menlo", "Ubuntu Mono",
-  "Consolas", monospace;
+  --font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Apple Color Emoji",
+    "Segoe UI", "Segoe UI Symbol", Oxygen, Ubuntu, Cantarell, "Fira Sans",
+    "Droid Sans", "Helvetica Neue", sans-serif;
+  --font-family-monospace: "Cascadia Mono", "Roboto Mono", "Droid Sans Mono",
+    'SF Mono', "Menlo", "Ubuntu Mono", "Consolas", monospace;
   --font-family-numbers-rounded: ui-rounded, "Numbers Rounded", "Roboto", "Helvetica Neue", sans-serif;
   --font-family-rounded: "Nunito", "Roboto", "Helvetica Neue", sans-serif;
   --font-family-condensed: "Roboto Condensed", "Roboto", "Helvetica Neue", sans-serif;
@@ -541,15 +542,14 @@ body:not(.is-ios) {
 
 body.is-android,
 body.is-ios {
+  box-sizing: border-box !important;
   padding-top: env(safe-area-inset-top) !important;
+  padding-right: env(safe-area-inset-right) !important;
   padding-bottom: env(safe-area-inset-bottom) !important;
   padding-left: env(safe-area-inset-left) !important;
-  padding-right: env(safe-area-inset-right) !important;
-  box-sizing: border-box !important;
 }
 
 body.is-android *,
 body.is-ios * {
   box-sizing: border-box !important;
 }
-

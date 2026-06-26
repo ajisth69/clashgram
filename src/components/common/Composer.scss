@@ -948,12 +948,14 @@
   border-radius: var(--border-radius-messages);
 
   opacity: 0;
-  
+
   // Force high opacity background to prevent chat list text overlapping
   background-color: rgba(255, 255, 255, 0.97) !important;
   -webkit-backdrop-filter: blur(25px) !important;
   backdrop-filter: blur(25px) !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+
+  transition: opacity var(--layer-transition), transform var(--layer-transition);
 
   html.theme-dark & {
     background-color: rgba(33, 33, 33, 0.97) !important;
@@ -965,15 +967,11 @@
     background-color: rgba(255, 255, 255, 0.97) !important;
     -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
     backdrop-filter: blur(30px) saturate(180%) !important;
-    
+
     html.theme-dark & {
       background-color: rgba(33, 33, 33, 0.97) !important;
     }
   }
-
-  transition: opacity var(--layer-transition), transform var(--layer-transition);
-
-  @include mixins.adapt-padding-to-scrollbar(0.5rem);
 
   &:not(.shown) {
     display: none;
@@ -987,6 +985,8 @@
   .Loading {
     margin: 1rem 0;
   }
+
+  @include mixins.adapt-padding-to-scrollbar(0.5rem);
 }
 
 @keyframes recording-blink-like-macos {

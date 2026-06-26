@@ -1,0 +1,7 @@
+dist/
+node_modules/
+.cache/
+.wrangler/
+public/
+src/styles/icons.scss
+src/styles/icons.css

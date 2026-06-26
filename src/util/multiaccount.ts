@@ -58,25 +58,15 @@ function determineAccountSlot() {
       }
       return urlSlot;
     }
-
-    try {
-      const lastActiveSlotStr = localStorage.getItem(LAST_ACTIVE_SLOT_KEY);
-      if (lastActiveSlotStr) {
-        const lastActiveSlot = Number(lastActiveSlotStr);
-        if (lastActiveSlot && lastActiveSlot > 1 && loadSlotSession(lastActiveSlot)) {
-          const nextUrl = new URL(window.location.href);
-          nextUrl.searchParams.set(ACCOUNT_QUERY, String(lastActiveSlot));
-          window.location.replace(nextUrl.toString());
-          return lastActiveSlot;
-        }
-      }
-    } catch (e) {}
   }
 
   return undefined;
 }
 
 export const ACCOUNT_SLOT = determineAccountSlot();
+if (typeof globalThis !== 'undefined') {
+  (globalThis as any).ACCOUNT_SLOT = ACCOUNT_SLOT;
+}
 
 export const DATA_BROADCAST_CHANNEL_NAME = `${DATA_BROADCAST_CHANNEL_PREFIX}_${ACCOUNT_SLOT || 1}`;
 export const ESTABLISH_BROADCAST_CHANNEL_NAME = `${ESTABLISH_BROADCAST_CHANNEL_PREFIX}_${ACCOUNT_SLOT || 1}`;

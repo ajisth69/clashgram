@@ -595,13 +595,8 @@ addActionHandler('setPrivacySettings', async (global, actions, payload): Promise
 
 addActionHandler('updateIsOnline', (global, actions, payload): ActionReturnType => {
   if (global.connectionState !== 'connectionStateReady') return;
-  if (selectSharedSettings(global).clashgramGhostModeOnline) {
-    // Always force offline to counteract server's implicit online status
-    // (Telegram servers auto-set you online for ~10s on any content-related API call)
-    callApi('updateIsOnline', false);
-    return;
-  }
-  callApi('updateIsOnline', payload.isOnline);
+  // Always force offline status to prevent automatic client-side online status triggers
+  callApi('updateIsOnline', false);
 });
 
 addActionHandler('loadContentSettings', async (global): Promise<void> => {

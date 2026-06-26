@@ -2205,6 +2205,7 @@ export interface ActionPayloads {
     isSilent?: boolean;
     scheduledAt?: number;
     allowPaidStars?: number;
+    shouldGoOfflineAfterSend?: boolean;
   };
   resetInlineBot: {
     username: string;

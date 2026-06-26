@@ -78,30 +78,34 @@
 
   .transcription {
     display: flex;
+    gap: 0.5rem;
     align-items: center;
     justify-content: space-between;
-    gap: 0.5rem;
 
     .transcription-text {
-      flex: 1;
       unicode-bidi: plaintext;
+      flex: 1;
       overflow-wrap: anywhere;
       white-space: pre-wrap;
     }
 
     .transcription-copy-btn {
-      opacity: 0;
-      transition: opacity 0.15s ease-in-out;
-      flex-shrink: 0;
-      width: 24px;
-      height: 24px;
-      padding: 0;
-      min-width: 0;
       display: inline-flex;
+      flex-shrink: 0;
       align-items: center;
       justify-content: center;
-      background: transparent !important;
+
+      width: 24px;
+      min-width: 0;
+      height: 24px;
+      padding: 0;
+
       color: var(--color-text-meta);
+
+      opacity: 0;
+      background: transparent !important;
+
+      transition: opacity 0.15s ease-in-out;
 
       .Message.own & {
         color: var(--color-message-meta-own);
@@ -1059,8 +1063,8 @@
     padding-bottom: 1.5rem !important;
 
     .MessageMeta {
-      bottom: 0 !important;
       right: 0 !important;
+      bottom: 0 !important;
       left: auto !important;
 
       &[dir="rtl"] {

@@ -77,6 +77,10 @@ const TOP_PEERS_REQUEST_COOLDOWN = 60; // 1 min
 const runDebouncedForSearch = debounce((cb) => cb(), 500, false);
 let botFatherId: string | null;
 
+function shouldGoOfflineAfterOutgoingContent() {
+  return false;
+}
+
 addActionHandler('clickSuggestedMessageButton', (global, actions, payload): ActionReturnType => {
   const {
     chatId, messageId, button, tabId = getCurrentTabId(),
@@ -439,6 +443,7 @@ addActionHandler('sendInlineBotApiResult', async (global, actions, payload): Pro
     isSilent,
     scheduleDate: scheduledAt,
     allowPaidStars,
+    shouldGoOfflineAfterSend: payload.shouldGoOfflineAfterSend,
   });
 
   if (allowPaidStars) actions.loadStarStatus();
@@ -471,6 +476,7 @@ addActionHandler('sendInlineBotResult', async (global, actions, payload): Promis
     isSilent,
     scheduledAt,
     allowPaidStars: starsForOneMessage,
+    shouldGoOfflineAfterSend: shouldGoOfflineAfterOutgoingContent(),
   };
   if (!starsForOneMessage) {
     actions.sendInlineBotApiResult(params);
@@ -585,6 +591,7 @@ addActionHandler('sharePhoneWithBot', async (global, actions, payload): Promise<
       userId: currentUser.id,
     },
     lastMessageId,
+    shouldGoOfflineAfterSend: shouldGoOfflineAfterOutgoingContent(),
   });
 });
 
@@ -1455,6 +1462,7 @@ async function sendBotCommand(
     text: command,
     sendAs,
     lastMessageId,
+    shouldGoOfflineAfterSend: shouldGoOfflineAfterOutgoingContent(),
   });
 }
 

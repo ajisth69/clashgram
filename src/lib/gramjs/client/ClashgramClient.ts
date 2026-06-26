@@ -104,7 +104,7 @@ const PING_FAIL_INTERVAL = 100; // ms
 // An unusually long interval is a sign of returning from background mode...
 const PING_INTERVAL_TO_WAKE_UP = 5000; // 5 sec
 // ... so we send a quick "wake-up" ping to confirm than connection was dropped ASAP
-const PING_WAKE_UP_TIMEOUT = 1500; // 1.5 sec
+const PING_WAKE_UP_TIMEOUT = 3000; // 3 sec
 // We also send a warning to the user even a bit more quickly
 const PING_WAKE_UP_WARNING_TIMEOUT = 1000; // 1 sec
 
@@ -400,27 +400,10 @@ class ClashgramClient {
 
   async _updateLoop() {
     let lastPongAt: number | undefined;
-    let wakeUpTriggered = false;
 
     const sender = this._sender;
     if (!sender) {
       throw new Error('Sender is not initialized');
-    }
-
-    // Page Visibility API: instantly trigger reconnect when tab becomes visible
-    // instead of waiting for the next ping cycle (which could be throttled to 60s+)
-    const handleVisibilityChange = () => {
-      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
-        wakeUpTriggered = true;
-        if (!sender.isReconnecting && !this._isSwitchingDc && !this._destroyed) {
-          // Force the dead socket to be torn down immediately
-          sender.forceReconnect();
-        }
-      }
-    };
-
-    if (typeof document !== 'undefined') {
-      document.addEventListener('visibilitychange', handleVisibilityChange);
     }
 
     while (!this._destroyed) {
@@ -447,16 +430,22 @@ class ClashgramClient {
         if (!lastInterval || lastInterval < PING_INTERVAL_TO_WAKE_UP) {
           await attempts(() => timeout(ping, PING_TIMEOUT), PING_FAIL_ATTEMPTS, PING_FAIL_INTERVAL);
         } else {
-          // Returning from background: send wake-up ping to check if socket is still alive.
-          // Do NOT dispatch 'connected' here — let the reconnect flow handle state transitions
-          // only after the connection is genuinely confirmed.
+          let wakeUpWarningTimeout: TimeoutId | undefined = setTimeout(() => {
+            this._handleUpdate(new UpdateConnectionState(UpdateConnectionState.disconnected));
+            wakeUpWarningTimeout = undefined;
+          }, PING_WAKE_UP_WARNING_TIMEOUT);
+
           await timeout(ping, PING_WAKE_UP_TIMEOUT);
-          // Ping succeeded — socket was still alive, safe to confirm connected state now
+
+          if (wakeUpWarningTimeout) {
+            clearTimeout(wakeUpWarningTimeout);
+            wakeUpWarningTimeout = undefined;
+          }
+
           this._handleUpdate(new UpdateConnectionState(UpdateConnectionState.connected));
         }
 
         lastPongAt = Date.now();
-        wakeUpTriggered = false;
       } catch (err) {
         // eslint-disable-next-line no-console
         console.warn(err);
@@ -469,8 +458,7 @@ class ClashgramClient {
         if (this._destroyed) {
           break;
         }
-        // Use forceReconnect to tear down dead socket immediately
-        sender.forceReconnect();
+        sender.reconnect();
       }
 
       // We need to send some content-related request at least hourly
@@ -486,10 +474,6 @@ class ClashgramClient {
 
         lastPongAt = undefined;
       }
-    }
-
-    if (typeof document !== 'undefined') {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
     }
     this.disconnect();
   }
@@ -563,7 +547,7 @@ class ClashgramClient {
   onTabForeground() {
     this._log.info('Tab focused/visible');
     if (this._sender && !this._sender.isReconnecting && !this._isSwitchingDc && !this._destroyed) {
-      this._sender.forceReconnect();
+      this._sender.reconnect();
     }
   }
 

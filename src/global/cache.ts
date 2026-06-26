@@ -34,7 +34,7 @@ import { encryptSession } from '../util/passcode';
 import { onBeforeUnload, throttle } from '../util/schedulers';
 import { hasStoredSession } from '../util/sessions';
 import { selectThreadInfo } from './selectors/threads';
-import { addActionHandler, getGlobal } from './index';
+import { addActionHandler, getGlobal, setGlobal } from './index';
 import { INITIAL_GLOBAL_STATE, INITIAL_PERFORMANCE_STATE_MED } from './initialState';
 import { clearGlobalForLockScreen, clearSharedStateForLockScreen } from './reducers';
 import {
@@ -198,7 +198,10 @@ async function readCache(initialState: GlobalState): Promise<GlobalState> {
     },
   };
 
-  // Load saved anti-delete/anti-edit messages from IndexedDB
+  return newState;
+}
+
+export async function loadSavedClashgramMessages() {
   try {
     const allKeys = await MAIN_IDB_STORE.keys();
     const clashgramKeys = allKeys.filter(
@@ -206,7 +209,8 @@ async function readCache(initialState: GlobalState): Promise<GlobalState> {
     );
 
     if (clashgramKeys.length) {
-      const retentionDays = newState.sharedState.settings.clashgramRetentionDays ?? 7;
+      const global = getGlobal();
+      const retentionDays = global.sharedState.settings.clashgramRetentionDays ?? 7;
       const now = Date.now();
       const maxAgeMs = +retentionDays * 24 * 60 * 60 * 1000;
       const expiredKeys: string[] = [];
@@ -217,6 +221,10 @@ async function readCache(initialState: GlobalState): Promise<GlobalState> {
         })
       );
 
+      const nextGlobal = { ...global };
+      let messagesUpdated = false;
+      const byChatId = { ...nextGlobal.messages.byChatId };
+
       for (const { key, data } of results) {
         if (data && data.savedAt && data.message) {
           if (+retentionDays === 0 || (now - data.savedAt > maxAgeMs)) {
@@ -226,23 +234,33 @@ async function readCache(initialState: GlobalState): Promise<GlobalState> {
             const chatId = parts[2];
             const messageId = Number(parts[3]);
             if (chatId && !isNaN(messageId)) {
-              if (!newState.messages.byChatId[chatId]) {
-                newState.messages.byChatId[chatId] = {
+              if (!byChatId[chatId]) {
+                byChatId[chatId] = {
                   byId: {},
                   threadsById: {},
                   summaryById: {},
                 };
+              } else {
+                byChatId[chatId] = {
+                  ...byChatId[chatId],
+                  byId: { ...byChatId[chatId].byId },
+                };
               }
-              const chatMsgStore = newState.messages.byChatId[chatId];
-              if (!chatMsgStore.byId) {
-                chatMsgStore.byId = {};
-              }
-              chatMsgStore.byId[messageId] = data.message;
+              byChatId[chatId].byId[messageId] = data.message;
+              messagesUpdated = true;
             }
           }
         } else {
           expiredKeys.push(key as string);
         }
+      }
+
+      if (messagesUpdated) {
+        nextGlobal.messages = {
+          ...nextGlobal.messages,
+          byChatId,
+        };
+        setGlobal(nextGlobal);
       }
 
       if (expiredKeys.length) {
@@ -253,8 +271,6 @@ async function readCache(initialState: GlobalState): Promise<GlobalState> {
     // eslint-disable-next-line no-console
     console.error('Failed to load saved Clashgram messages', err);
   }
-
-  return newState;
 }
 
 export function migrateCache(cached: GlobalState, initialState: GlobalState) {

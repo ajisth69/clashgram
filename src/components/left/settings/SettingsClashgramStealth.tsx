@@ -17,7 +17,6 @@ type OwnProps = {
 type StateProps = {
   clashgramGhostModeRead?: boolean;
   clashgramGhostModeTyping?: boolean;
-  clashgramGhostModeOnline?: boolean;
   clashgramGhostModeStories?: boolean;
   clashgramSendSilently?: boolean;
   clashgramLocalPremium?: boolean;
@@ -26,7 +25,6 @@ type StateProps = {
 const SettingsClashgramStealth = ({
   clashgramGhostModeRead,
   clashgramGhostModeTyping,
-  clashgramGhostModeOnline,
   clashgramGhostModeStories,
   clashgramSendSilently,
   clashgramLocalPremium,
@@ -61,12 +59,6 @@ const SettingsClashgramStealth = ({
             onCheck={() => setSharedSettingOption({ clashgramGhostModeTyping: !clashgramGhostModeTyping })}
           />
 
-          <Checkbox
-            label={lang('ClashgramHideOnlineStatus')}
-            subLabel={lang('ClashgramHideOnlineStatusSub')}
-            checked={Boolean(clashgramGhostModeOnline)}
-            onCheck={() => setSharedSettingOption({ clashgramGhostModeOnline: !clashgramGhostModeOnline })}
-          />
 
           <Checkbox
             label={lang('ClashgramAlwaysSendSilently')}
@@ -118,7 +110,6 @@ export default memo(withGlobal(
     const {
       clashgramGhostModeRead,
       clashgramGhostModeTyping,
-      clashgramGhostModeOnline,
       clashgramGhostModeStories,
       clashgramSendSilently,
       clashgramLocalPremium,
@@ -127,7 +118,6 @@ export default memo(withGlobal(
     return {
       clashgramGhostModeRead,
       clashgramGhostModeTyping,
-      clashgramGhostModeOnline,
       clashgramGhostModeStories,
       clashgramSendSilently,
       clashgramLocalPremium,

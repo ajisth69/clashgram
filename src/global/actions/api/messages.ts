@@ -190,6 +190,16 @@ const uploadProgressCallbacks = new Map<MessageKey, ApiOnProgress>();
 
 const runDebouncedForMarkRead = debounce((cb) => cb(), 500, false);
 
+function shouldGoOfflineAfterOutgoingContent() {
+  return false;
+}
+
+function forceOfflineIfGhostModeEnabled() {
+  if (shouldGoOfflineAfterOutgoingContent()) {
+    getActions().updateIsOnline({ isOnline: false });
+  }
+}
+
 addActionHandler('loadViewportMessages', (global, actions, payload): ActionReturnType => {
   const {
     direction = LoadMoreDirection.Around,
@@ -745,6 +755,7 @@ addActionHandler('editMessage', (global, actions, payload): ActionReturnType => 
       text,
       entities,
       noWebPage: selectNoWebPage(global, chatId, threadId),
+      shouldGoOfflineAfterSend: shouldGoOfflineAfterOutgoingContent(),
     }, progressCallback);
 
     if (progressCallback && currentMessageKey) {
@@ -755,11 +766,7 @@ addActionHandler('editMessage', (global, actions, payload): ActionReturnType => 
       uploadProgressCallbacks.delete(currentMessageKey);
     }
 
-    // Counteract Telegram's server-side auto-online when ghost mode is active
-    global = getGlobal();
-    if (selectSharedSettings(global).clashgramGhostModeOnline) {
-      getActions().updateIsOnline({ isOnline: false });
-    }
+    forceOfflineIfGhostModeEnabled();
   })();
 });
 
@@ -2067,6 +2074,7 @@ async function executeForwardMessages(
         lastMessageId,
         messagePriceInStars,
         effectId: forwardEffectId,
+        shouldGoOfflineAfterSend: shouldGoOfflineAfterOutgoingContent(),
       };
 
       if (!messagePriceInStars) {
@@ -2348,7 +2356,10 @@ async function sendMessage<T extends GlobalState>(global: T, params: SendMessage
     global = updateUploadByMessageKey(global, messageKey, progress);
     setGlobal(global);
   } : undefined;
-  await callApi('sendMessage', params, progressCallback);
+  await callApi('sendMessage', {
+    ...params,
+    shouldGoOfflineAfterSend: shouldGoOfflineAfterOutgoingContent(),
+  }, progressCallback);
   if (progressCallback && currentMessageKey) {
     global = getGlobal();
     global = updateUploadByMessageKey(global, currentMessageKey, undefined);
@@ -2357,11 +2368,7 @@ async function sendMessage<T extends GlobalState>(global: T, params: SendMessage
     uploadProgressCallbacks.delete(currentMessageKey);
   }
 
-  // Counteract Telegram's server-side auto-online when ghost mode is active
-  global = getGlobal();
-  if (selectSharedSettings(global).clashgramGhostModeOnline) {
-    getActions().updateIsOnline({ isOnline: false });
-  }
+  forceOfflineIfGhostModeEnabled();
 }
 
 async function sendMessagesWithNotification<T extends GlobalState>(
@@ -2434,18 +2441,17 @@ addActionHandler('sendMessages', async (global, actions, payload): Promise<void>
   await Promise.all(sendParams.map(async (params) => {
     if (params.forwardedLocalMessagesSlice && params.forwardParams) {
       await rafPromise();
-      await callApi('forwardApiMessages', params.forwardParams);
+      await callApi('forwardApiMessages', {
+        ...params.forwardParams,
+        shouldGoOfflineAfterSend: shouldGoOfflineAfterOutgoingContent(),
+      });
     } else {
       await sendMessage(global, params);
     }
   }));
   if (sendParams.length > 0 && sendParams[0].messagePriceInStars) actions.loadStarStatus();
 
-  // Counteract Telegram's server-side auto-online when ghost mode is active
-  global = getGlobal();
-  if (selectSharedSettings(global).clashgramGhostModeOnline) {
-    actions.updateIsOnline({ isOnline: false });
-  }
+  forceOfflineIfGhostModeEnabled();
 });
 
 addActionHandler('loadPinnedMessages', async (global, actions, payload): Promise<void> => {
@@ -3135,6 +3141,7 @@ function forwardMessagesToChat({
         wasDrafted: false,
         lastMessageId,
         messagePriceInStars,
+        shouldGoOfflineAfterSend: shouldGoOfflineAfterOutgoingContent(),
       };
 
       callApi('forwardMessages', forwardParams);
