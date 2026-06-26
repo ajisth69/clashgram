@@ -263,7 +263,7 @@ const App = ({
 
     const handleReconnectCheck = () => {
       const now = Date.now();
-      if (now - lastCheckAt < 10000) return; // Throttle checks to once per 10 seconds
+      if (now - lastCheckAt < 15000) return; // Throttle checks to once per 15 seconds
       lastCheckAt = now;
 
       const global = getGlobal();
@@ -275,9 +275,15 @@ const App = ({
         return;
       }
 
-      // If we are already connecting or broken, trigger a reconnect
-      if (global.connectionState !== 'connectionStateReady') {
+      // If already connecting, the transport layer is handling reconnection — don't stack another one.
+      // Only trigger a full reconnect for broken connections or genuinely stale states.
+      if (global.connectionState === 'connectionStateBroken') {
         actions.apiUpdate({ '@type': 'requestReconnectApi' });
+        return;
+      }
+
+      // If connecting, let the transport layer finish — don't interfere
+      if (global.connectionState === 'connectionStateConnecting') {
         return;
       }
 

@@ -40,6 +40,7 @@ const BROKEN_RECONNECT_MAX_DELAY = 10000;
 
 let brokenReconnectTimer: ReturnType<typeof setTimeout> | undefined;
 let brokenReconnectAttempt = 0;
+let lastReconnectAt = 0;
 
 addActionHandler('apiUpdate', (global, actions, update): ActionReturnType => {
   switch (update['@type']) {
@@ -83,11 +84,17 @@ addActionHandler('apiUpdate', (global, actions, update): ActionReturnType => {
       onUpdateCurrentUser(global, update);
       break;
 
-    case 'requestReconnectApi':
+    case 'requestReconnectApi': {
       // Don't reconnect during active login — no session to recover
       if (global.auth.state && global.auth.state !== 'authorizationStateReady' && !hasStoredSession()) {
         break;
       }
+
+      const now = Date.now();
+      if (now - lastReconnectAt < 5000) {
+        break;
+      }
+      lastReconnectAt = now;
 
       global = { ...global, isSynced: false };
       setGlobal(global);
@@ -98,6 +105,7 @@ addActionHandler('apiUpdate', (global, actions, update): ActionReturnType => {
       });
       actions.initApi();
       break;
+    }
 
     case 'requestSync':
       resetOpenedChannelShortpollState();

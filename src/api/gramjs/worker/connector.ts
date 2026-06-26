@@ -25,7 +25,7 @@ type RequestState = {
 
 type EnsurePromise<T> = Promise<Awaited<T>>;
 
-const HEALTH_CHECK_TIMEOUT = 500;
+const HEALTH_CHECK_TIMEOUT = 5000;
 const HEALTH_CHECK_MIN_DELAY = 5 * 1000; // 5 sec
 const NO_QUEUE_BEFORE_INIT = new Set(['destroy']);
 

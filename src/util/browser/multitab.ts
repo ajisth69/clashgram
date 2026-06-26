@@ -289,8 +289,6 @@ export function handleMessage({ data }: { data: BroadcastChannelMessage }) {
 
     case 'localDbUpdate': {
       if (!isFirstGlobalResolved) return;
-      const global = getGlobal();
-      if (selectTabState(global).isMasterTab) return;
 
       const {
         batchedUpdates,
@@ -308,8 +306,6 @@ export function handleMessage({ data }: { data: BroadcastChannelMessage }) {
 
     case 'localDbUpdateFull': {
       if (!isFirstGlobalResolved) return;
-      const global = getGlobal();
-      if (selectTabState(global).isMasterTab) return;
 
       const { localDb } = data;
 

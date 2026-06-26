@@ -1156,17 +1156,35 @@ export default class MTProtoSender {
   reconnect() {
     if (this._userConnected && !this.isReconnecting) {
       this.isReconnecting = true;
-      // TODO Should we set this?
-      // this._user_connected = false
-      // we want to wait a second between each reconnect try to not flood the server with reconnects
-      // in case of internal server issues.
-      sleep(1000)
+      // Reduced delay for faster reconnection after background wake-up
+      sleep(200)
         .then(() => {
           this.logWithIndex.log('Reconnecting...');
           this._log.info('Started reconnecting');
           this._reconnect();
         });
     }
+  }
+
+  /**
+   * Force an immediate reconnect, bypassing the isReconnecting guard.
+   * Used when the Page Visibility API detects a tab wake-up and needs
+   * to tear down a potentially dead socket without waiting.
+   */
+  forceReconnect() {
+    if (!this._userConnected || this.userDisconnected) return;
+
+    this.logWithIndex.warn('Force reconnecting (visibility wake-up)...');
+    this._log.info('Force reconnect triggered');
+
+    // Reset state so _reconnect can proceed even if a prior reconnect was stuck
+    this.isReconnecting = true;
+
+    // Minimal delay — just enough to avoid synchronous re-entry
+    sleep(50)
+      .then(() => {
+        this._reconnect();
+      });
   }
 
   async _reconnect() {
