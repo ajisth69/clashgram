@@ -210,9 +210,14 @@ async function readCache(initialState: GlobalState): Promise<GlobalState> {
       const now = Date.now();
       const maxAgeMs = +retentionDays * 24 * 60 * 60 * 1000;
       const expiredKeys: string[] = [];
+      const results = await Promise.all(
+        clashgramKeys.map(async (key) => {
+          const data = await MAIN_IDB_STORE.get<{ savedAt: number; message: ApiMessage }>(key as string);
+          return { key, data };
+        })
+      );
 
-      for (const key of clashgramKeys) {
-        const data = await MAIN_IDB_STORE.get<{ savedAt: number; message: ApiMessage }>(key as string);
+      for (const { key, data } of results) {
         if (data && data.savedAt && data.message) {
           if (+retentionDays === 0 || (now - data.savedAt > maxAgeMs)) {
             expiredKeys.push(key as string);
