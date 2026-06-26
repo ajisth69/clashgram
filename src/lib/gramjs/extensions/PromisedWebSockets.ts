@@ -127,7 +127,7 @@ export default class PromisedWebSockets {
     });
     this.closed = false;
     this.timeout = CONNECTION_TIMEOUT;
-    this.website = this.getWebSocketLink(ip, port, isTestServer, isPremium);
+    this.website = this.getWebSocketLink(getTelegramDomain(ip), port, isTestServer, isPremium);
     this.client = new WebSocket(this.website, 'binary');
     this.client.binaryType = 'arraybuffer';
 
