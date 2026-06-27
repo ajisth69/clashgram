@@ -113,7 +113,7 @@
     "stylelint-plugin-use-baseline": "^1.4.1",
     "svgtofont": "^6.5.1",
     "telegraph-node": "^1.0.4",
-    "tsx": "^4.21.0",
+    "tsx": "^4.22.4",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.58.0",
     "user-agent-data-types": "^0.4.3",
