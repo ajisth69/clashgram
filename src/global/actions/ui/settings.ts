@@ -176,6 +176,7 @@ addActionHandler('resetClashgramSettings', (global, actions): ActionReturnType =
     clashgramGhostModeStories: false,
     clashgramWhisperModel: 'base',
     clashgramWhisperTask: 'transcribe',
+    clashgramWhisperForceLocal: false,
     clashgramNativeGlass: false,
     clashgramNativeGlassColorValue: 50,
     clashgramNativeGlassOpacityValue: 40,

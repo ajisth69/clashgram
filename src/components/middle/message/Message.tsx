@@ -27,6 +27,7 @@ import type {
   ApiTypeStory,
   ApiUser,
   ApiWebPage,
+  ApiTranscription,
 } from '../../../api/types';
 import type { ObserveFn } from '../../../hooks/useIntersectionObserver';
 import type {
@@ -312,6 +313,7 @@ type StateProps = {
   hasUnreadPollVote?: boolean;
   isTranscribing?: boolean;
   transcribedText?: string;
+  transcription?: ApiTranscription;
   isPremium: boolean;
   senderChatMember?: ApiChatMember;
   messageTopic?: ApiTopic;
@@ -382,6 +384,7 @@ const Message = ({
   isLastInDocumentGroup,
   isTranscribing,
   transcribedText,
+  transcription,
   isLastInList,
   theme,
   forceSenderName,
@@ -1473,37 +1476,60 @@ const Message = ({
         )}
 
         {withVoiceTranscription && (
-          <p
-            className={buildClassName(
-              'transcription',
-              !isTranscriptionHidden && isTranscriptionError && 'transcription-error',
+          <div className="transcription-container" style="display: flex; flex-direction: column; gap: 0.125rem; width: 100%;">
+            <p
+              className={buildClassName(
+                'transcription',
+                !isTranscriptionHidden && isTranscriptionError && 'transcription-error',
+              )}
+              dir="auto"
+            >
+              <span className="transcription-text">
+                {(isTranscriptionError ? oldLang('NoWordsRecognized') : (
+                  isTranscribing ? <DotAnimation content={transcribedText || ''} /> : transcribedText
+                ))}
+              </span>
+              {transcribedText && !isTranscribing && !isTranscriptionError && (
+                <Button
+                  round
+                  size="tiny"
+                  color="translucent"
+                  className="transcription-copy-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    copyTextToClipboard(transcribedText);
+                    getActions().showNotification({
+                      message: 'Transcription copied to clipboard',
+                    });
+                  }}
+                  ariaLabel="Copy transcription"
+                >
+                  <Icon name="copy" />
+                </Button>
+              )}
+            </p>
+            {transcription && !isTranscribing && !isTranscriptionError && (
+              <div className="transcription-limit-info" style="display: flex; flex-direction: column; gap: 0.25rem; margin-top: 0.375rem; width: 100%; max-width: 160px; align-self: flex-start; opacity: 0.7;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.625rem; font-weight: 500; color: var(--color-text-secondary, #707579);">
+                  <span>{transcription.provider === 'cloud' ? 'Cloud API Limit' : 'Local WASM Model'}</span>
+                  <span>{transcription.provider === 'cloud' ? `${transcription.remainingRequests}/50 remaining` : 'Daily Limit Reached'}</span>
+                </div>
+                <div style="width: 100%; height: 4px; background: rgba(0, 0, 0, 0.08); border-radius: 2px; overflow: hidden;">
+                  <div 
+                    style={`width: ${transcription.provider === 'cloud' ? ((50 - (transcription.remainingRequests || 0)) / 50) * 100 : 100}%; 
+                           height: 100%; 
+                           background: ${transcription.provider === 'cloud' 
+                             ? ((50 - (transcription.remainingRequests || 0)) >= 50 
+                               ? 'var(--color-danger, #e53935)' 
+                               : (((50 - (transcription.remainingRequests || 0)) / 50) >= 0.8 ? '#f57c00' : 'var(--color-primary, #3390ec)'))
+                             : 'var(--color-danger, #e53935)'}; 
+                           border-radius: 2px; 
+                           transition: width 0.3s ease;`} 
+                  />
+                </div>
+              </div>
             )}
-            dir="auto"
-          >
-            <span className="transcription-text">
-              {(isTranscriptionError ? oldLang('NoWordsRecognized') : (
-                isTranscribing ? <DotAnimation content={transcribedText || ''} /> : transcribedText
-              ))}
-            </span>
-            {transcribedText && !isTranscribing && !isTranscriptionError && (
-              <Button
-                round
-                size="tiny"
-                color="translucent"
-                className="transcription-copy-btn"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  copyTextToClipboard(transcribedText);
-                  getActions().showNotification({
-                    message: 'Transcription copied to clipboard',
-                  });
-                }}
-                ariaLabel="Copy transcription"
-              >
-                <Icon name="copy" />
-              </Button>
-            )}
-          </p>
+          </div>
         )}
 
         {isInvertedMedia && renderInvertedMediaContent(hasCustomAppendix)}
@@ -2327,6 +2353,7 @@ export default memo(withGlobal<OwnProps>(
       hasUnreadPollVote,
       isTranscribing: transcriptionId !== undefined && global.transcriptions[transcriptionId]?.isPending,
       transcribedText: transcriptionId !== undefined ? global.transcriptions[transcriptionId]?.text : undefined,
+      transcription: transcriptionId !== undefined ? global.transcriptions[transcriptionId] : undefined,
       isPremium,
       senderChatMember,
       messageTopic,

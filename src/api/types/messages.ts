@@ -1069,6 +1069,8 @@ export type ApiTranscription = {
   text: string;
   isPending?: boolean;
   transcriptionId: string;
+  provider?: 'cloud' | 'local';
+  remainingRequests?: number;
 };
 
 export type ApiMessageSearchType = 'text' | 'media' | 'documents' | 'links' | 'audio' | 'voice' | 'gif'

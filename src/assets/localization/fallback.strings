@@ -2945,6 +2945,8 @@
 "ClashgramTranscriptionModeHeader" = "Transcription Mode";
 "ClashgramWhisperTranscribe" = "Transcribe (Original Language)";
 "ClashgramWhisperTranslate" = "Translate (To English)";
+"ClashgramWhisperForceLocal" = "Force Local Transcription";
+"ClashgramWhisperForceLocalSub" = "Bypass the Cloud API and run the Whisper WASM model locally on this device.";
 "ClashgramEnableVoiceChanger" = "Enable Voice Changer";
 "ClashgramEnableVoiceChangerSub" = "Apply chipmunk, robot, or voice pitch shifts when sending voice messages.";
 "ClashgramProxyHeader" = "Proxy Settings";

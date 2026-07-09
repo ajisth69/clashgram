@@ -107,6 +107,7 @@ export const INITIAL_SHARED_STATE: SharedState = {
     clashgramGhostModeStories: false,
     clashgramWhisperModel: 'base',
     clashgramWhisperTask: 'transcribe',
+    clashgramWhisperForceLocal: false,
     clashgramNativeGlass: false,
     clashgramNativeGlassColorValue: 50,
     clashgramNativeGlassOpacityValue: 40,

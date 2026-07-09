@@ -1696,6 +1696,63 @@ addActionHandler('rescheduleMessage', (global, actions, payload): ActionReturnTy
     scheduleRepeatPeriod,
   });
 });
+const HMAC_SALT = 'clashgram_whisper_secure_salt_2026';
+
+function calculateLocalHash(date: string, count: number): string {
+  const str = `${date}_${count}_${HMAC_SALT}`;
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return hash.toString(16);
+}
+
+function getLocalRequestCount(serverDateStr: string): number {
+  const storedDate = localStorage.getItem('clashgram_transcribe_date');
+  const storedCountStr = localStorage.getItem('clashgram_transcribe_count') || '0';
+  const storedHash = localStorage.getItem('clashgram_transcribe_hash') || '';
+  const count = parseInt(storedCountStr, 10);
+
+  if (storedDate !== serverDateStr) {
+    return 0;
+  }
+
+  const expectedHash = calculateLocalHash(serverDateStr, count);
+  if (storedHash !== expectedHash) {
+    return 50; // Lock out on tampering
+  }
+
+  return count;
+}
+
+function incrementLocalRequestCount(serverDateStr: string, currentCount: number) {
+  const newCount = currentCount + 1;
+  const newHash = calculateLocalHash(serverDateStr, newCount);
+  localStorage.setItem('clashgram_transcribe_date', serverDateStr);
+  localStorage.setItem('clashgram_transcribe_count', String(newCount));
+  localStorage.setItem('clashgram_transcribe_hash', newHash);
+}
+
+async function transcribeCloud(audioBlob: Blob, signal?: AbortSignal): Promise<{ text: string; dateHeader?: string }> {
+  const formData = new FormData();
+  formData.append('file', audioBlob, 'audio.m4a');
+
+  const response = await fetch('https://api.clashgram.workers.dev/', {
+    method: 'POST',
+    body: formData,
+    signal,
+  });
+
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.error?.message || `Cloud API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const dateHeader = response.headers.get('Date') || undefined;
+  return { text: data.text || '', dateHeader };
+}
 
 const activeTranscriptions = new Map<string, { abort: () => void }>();
 
@@ -1765,28 +1822,10 @@ addActionHandler('transcribeAudio', async (global, actions, payload): Promise<vo
   let resultText = '';
   let error = false;
   let timer: any = null;
+  let provider: 'cloud' | 'local' = 'local';
+  let remainingRequests = 0;
 
   try {
-    const { transcribeLocal } = await import('../../../util/localTranscriber');
-    const { clashgramWhisperModel = 'base', clashgramWhisperTask = 'transcribe' } = selectSharedSettings(global);
-    
-    const isDownloaded = localStorage.getItem(`clashgram_whisper_${clashgramWhisperModel}_downloaded`) === 'true';
-    
-    const onDownloadStart = () => {
-      if (isDownloaded) return;
-      actions.openLocalTranscribeModal({ tabId });
-    };
-
-    if (!isDownloaded) {
-      timer = setTimeout(() => {
-        onDownloadStart();
-      }, 100);
-    }
-
-    const onProgress = (percent: number) => {
-      actions.updateLocalTranscribeProgress({ progress: percent, tabId });
-    };
-
     const mediaHash = getMediaHash(media, 'download');
     if (!mediaHash) throw new Error('No media hash');
 
@@ -1811,29 +1850,99 @@ addActionHandler('transcribeAudio', async (global, actions, payload): Promise<vo
       ? downloadResult.dataBlob
       : new Blob([downloadResult.dataBlob]);
 
-    resultText = await transcribeLocal(
-      audioBlob,
-      onProgress,
-      onDownloadStart,
-      clashgramWhisperModel,
-      clashgramWhisperTask,
-      controller.signal
-    );
-    
-    if (timer) {
-      clearTimeout(timer);
-      timer = null;
+    // Check Cloud API daily limits using server time to prevent clock tampering
+    const { clashgramWhisperForceLocal } = selectSharedSettings(global);
+    let serverDateStr = '';
+
+    if (!clashgramWhisperForceLocal) {
+      try {
+        const timeRes = await fetch('https://api.clashgram.workers.dev/', {
+          method: 'OPTIONS',
+          signal: controller.signal,
+        });
+        const dateHeader = timeRes.headers.get('Date');
+        if (dateHeader) {
+          const serverDate = new Date(dateHeader);
+          serverDateStr = serverDate.toISOString().split('T')[0];
+        }
+      } catch (e) {
+        console.warn('Failed to reach Cloud API for server time verification, falling back to local WASM.', e);
+      }
     }
-    
-    localStorage.setItem(`clashgram_whisper_${clashgramWhisperModel}_downloaded`, 'true');
+
+    const currentCount = serverDateStr ? getLocalRequestCount(serverDateStr) : 50;
+
+    if (!clashgramWhisperForceLocal && serverDateStr && currentCount < 50) {
+      try {
+        const cloudResult = await transcribeCloud(audioBlob, controller.signal);
+        resultText = cloudResult.text;
+        
+        const finalDateStr = cloudResult.dateHeader 
+          ? new Date(cloudResult.dateHeader).toISOString().split('T')[0]
+          : serverDateStr;
+
+        incrementLocalRequestCount(finalDateStr, currentCount);
+        provider = 'cloud';
+        remainingRequests = 50 - (currentCount + 1);
+      } catch (err: any) {
+        console.warn('Cloud transcription failed, falling back to local model:', err);
+        provider = 'local';
+        const errMsg = err?.message || '';
+        if (errMsg.includes('limit') || errMsg.includes('429') || errMsg.includes('rate_limit')) {
+          const dateKey = serverDateStr || new Date().toISOString().split('T')[0];
+          localStorage.setItem('clashgram_transcribe_date', dateKey);
+          localStorage.setItem('clashgram_transcribe_count', '50');
+          localStorage.setItem('clashgram_transcribe_hash', calculateLocalHash(dateKey, 50));
+        }
+      }
+    } else {
+      provider = 'local';
+    }
+
+    if (provider === 'local') {
+      const { transcribeLocal } = await import('../../../util/localTranscriber');
+      const { clashgramWhisperModel = 'base', clashgramWhisperTask = 'transcribe' } = selectSharedSettings(global);
+      const isDownloaded = localStorage.getItem(`clashgram_whisper_${clashgramWhisperModel}_downloaded`) === 'true';
+      
+      const onDownloadStart = () => {
+        if (isDownloaded) return;
+        actions.openLocalTranscribeModal({ tabId });
+      };
+
+      if (!isDownloaded) {
+        timer = setTimeout(() => {
+          onDownloadStart();
+        }, 100);
+      }
+
+      const onProgress = (percent: number) => {
+        actions.updateLocalTranscribeProgress({ progress: percent, tabId });
+      };
+
+      resultText = await transcribeLocal(
+        audioBlob,
+        onProgress,
+        onDownloadStart,
+        clashgramWhisperModel,
+        clashgramWhisperTask,
+        controller.signal
+      );
+      
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+      
+      localStorage.setItem(`clashgram_whisper_${clashgramWhisperModel}_downloaded`, 'true');
+    }
   } catch (err: any) {
     if (err?.name === 'AbortError' || err?.message === 'Aborted') {
-      console.log('Local transcription aborted by user');
+      console.log('Transcription aborted by user');
       error = true;
     } else {
-      console.error('Local transcription failed:', err);
+      console.error('Transcription failed:', err);
       error = true;
-      alert(`Local transcription failed: ${err?.message || err}`);
+      alert(`Transcription failed: ${err?.message || err}`);
     }
   } finally {
     if (timer) {
@@ -1868,6 +1977,8 @@ addActionHandler('transcribeAudio', async (global, actions, payload): Promise<vo
           text: resultText,
           isPending: false,
           transcriptionId,
+          provider,
+          remainingRequests,
         },
       },
     };
@@ -1884,6 +1995,7 @@ addActionHandler('transcribeAudio', async (global, actions, payload): Promise<vo
           text: 'Transcription failed.',
           isPending: false,
           transcriptionId,
+          provider: 'local',
         },
       },
     };

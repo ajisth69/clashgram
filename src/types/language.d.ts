@@ -2148,10 +2148,6 @@ export interface LangPair {
   'ClashgramConfigurePasscodeSettings': undefined;
   'ClashgramConfigurePasscodeSettingsSub': undefined;
   'ClashgramLocalPremium': undefined;
-  'ClashgramProxyHeader': undefined;
-  'ClashgramProxyEnable': undefined;
-  'ClashgramProxyEnableSub': undefined;
-  'ClashgramProxyUrlHeader': undefined;
   'ClashgramLocalPremiumSub': undefined;
   'ClashgramSpeechMediaModels': undefined;
   'ClashgramWhisperModelHeader': undefined;
@@ -2162,8 +2158,14 @@ export interface LangPair {
   'ClashgramTranscriptionModeHeader': undefined;
   'ClashgramWhisperTranscribe': undefined;
   'ClashgramWhisperTranslate': undefined;
+  'ClashgramWhisperForceLocal': undefined;
+  'ClashgramWhisperForceLocalSub': undefined;
   'ClashgramEnableVoiceChanger': undefined;
   'ClashgramEnableVoiceChangerSub': undefined;
+  'ClashgramProxyHeader': undefined;
+  'ClashgramProxyEnable': undefined;
+  'ClashgramProxyEnableSub': undefined;
+  'ClashgramProxyUrlHeader': undefined;
   'ClashgramAestheticsLayout': undefined;
   'ClashgramNativeGlass': undefined;
   'ClashgramNativeGlassSub': undefined;

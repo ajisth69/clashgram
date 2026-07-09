@@ -42,6 +42,7 @@ export interface SharedSettings {
   clashgramGhostModeStories?: boolean;
   clashgramWhisperModel?: 'tiny' | 'base' | 'small';
   clashgramWhisperTask?: 'transcribe' | 'translate';
+  clashgramWhisperForceLocal?: boolean;
   clashgramNativeGlass?: boolean;
   clashgramNativeGlassColorValue?: number;
   clashgramNativeGlassOpacityValue?: number;
